@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -19,9 +21,9 @@ export default function RegisterPage() {
     });
 
     const data = await res.json();
-
     if (res.ok) {
       setMessage("登録が完了した");
+      router.push("/meeting_slots");
     } else {
       setMessage(data.errors.join(","));
     }
