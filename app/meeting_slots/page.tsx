@@ -47,7 +47,10 @@ export default function MeetingSlotPage() {
       },
     })
       .then((res) => res.json())
-      .then((data) => setslots(data));
+      .then((data) => {
+        console.log(data);
+        setslots(data);
+      });
   }, []);
 
   const grouped = groupByDate(slots);
