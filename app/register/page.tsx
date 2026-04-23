@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [role, setRole] = useState("");
 
   const handleSubmit = async () => {
     const res = await fetch("http://localhost:3000/api/v1/users", {
@@ -16,11 +17,12 @@ export default function RegisterPage() {
         "content-Type": "application/json",
       },
       body: JSON.stringify({
-        user: { email_address: emailAddress, password: password },
+        user: { email_address: emailAddress, password: password, role: role },
       }),
     });
 
     const data = await res.json();
+    console.log(data);
     if (res.ok) {
       setMessage("登録が完了した");
       router.push("/meeting_slots");
@@ -43,6 +45,11 @@ export default function RegisterPage() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value="">役割の選択</option>
+        <option value="teacher">先生</option>
+        <option value="parent">保護者</option>
+      </select>
       <button onClick={handleSubmit}>登録</button>
       {message && <p>{message}</p>}
     </div>
