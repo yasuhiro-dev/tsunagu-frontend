@@ -49,15 +49,19 @@ export default function FamilyUnavailability() {
 
   const handleClick = async (slotId: number) => {
     const token = localStorage.getItem("token");
-    await fetch("http://localhost:3000/api/v1/family_unavailabilities", {
-      method: "Post",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ meeting_slot_id: slotId }),
-    });
-    setUnavailableSlots((prev) => [...prev, slotId]);
+    if (unavailableSlots.includes(slotId)) {
+      setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
+    } else {
+      await fetch("http://localhost:3000/api/v1/family_unavailabilities", {
+        method: "Post",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ meeting_slot_id: slotId }),
+      });
+      setUnavailableSlots((prev) => [...prev, slotId]);
+    }
   };
 
   return (
@@ -76,7 +80,7 @@ export default function FamilyUnavailability() {
                 color={unavailableSlots.includes(slot.id) ? "error" : "primary"}
                 onClick={() => handleClick(slot.id)}
               >
-                不可
+                {unavailableSlots.includes(slot.id) ? "面談不可" : "面談可"}
               </Button>
             </div>
           ))}
