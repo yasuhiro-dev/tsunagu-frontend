@@ -50,6 +50,13 @@ export default function FamilyUnavailability() {
   const handleClick = async (slotId: number) => {
     const token = localStorage.getItem("token");
     if (unavailableSlots.includes(slotId)) {
+      await fetch(
+        `http://localhost:3000/api/v1/family_unavailabilities/${slotId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
       await fetch("http://localhost:3000/api/v1/family_unavailabilities", {
