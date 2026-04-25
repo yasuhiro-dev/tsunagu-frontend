@@ -21,7 +21,7 @@ export default function LoginPage() {
       if (data.role === "teacher") {
         router.push("/meeting_slots");
       } else {
-        router.push("/reservations");
+        router.push("/family_unavailabilities");
       }
     } else {
       alert("メールアドレスまたはパスワードが違います");
