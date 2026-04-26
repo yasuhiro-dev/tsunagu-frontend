@@ -45,6 +45,15 @@ export default function FamilyUnavailability() {
         console.log(data);
         setSlots(data);
       });
+    fetch("http://localhost:3000/api/v1/family_unavailabilities", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUnavailableSlots(data);
+      });
   }, []);
 
   const handleClick = async (slotId: number) => {
