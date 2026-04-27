@@ -2,6 +2,7 @@
 
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const formatDate = (utcString: string) => {
   return new Date(utcString).toLocaleString("ja-JP", {
@@ -31,10 +32,15 @@ const groupByDate = (slots: MeetingSlot[]) => {
 };
 
 export default function FamilyUnavailability() {
+  const router = useRouter();
   const [slots, setSlots] = useState([]);
   const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     fetch("http://localhost:3000/api/v1/meeting_slots", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -54,7 +60,7 @@ export default function FamilyUnavailability() {
       .then((data) => {
         setUnavailableSlots(data);
       });
-  }, []);
+  }, [router]);
 
   const handleClick = async (slotId: number) => {
     const token = localStorage.getItem("token");
@@ -68,8 +74,9 @@ export default function FamilyUnavailability() {
       );
       setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
+      console.log("POST送信", slotId);
       await fetch("http://localhost:3000/api/v1/family_unavailabilities", {
-        method: "Post",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -81,27 +88,39 @@ export default function FamilyUnavailability() {
   };
 
   return (
-    <div>
+    <div style={{ padding: "24px" }}>
       <h1>面談が難しい日時を入力してください</h1>
-      {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
-        <div key={date}>
-          <h2>{date}</h2>
-          {dateSlots.map((slot) => (
-            <div key={slot.id}>
-              <p>
-                {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
-              </p>
-              <Button
-                variant="contained"
-                color={unavailableSlots.includes(slot.id) ? "error" : "primary"}
-                onClick={() => handleClick(slot.id)}
-              >
-                {unavailableSlots.includes(slot.id) ? "面談不可" : "面談可"}
-              </Button>
-            </div>
-          ))}
-        </div>
-      ))}
+      <div style={{ display: "flex", gap: "16px" }}>
+        {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
+          <div key={date} style={{ flex: 1, textAlign: "center" }}>
+            <h2 style={{ fontSize: "16px", marginBottom: "8px" }}>{date}</h2>
+            {dateSlots.map((slot) => (
+              <div key={slot.id} style={{ marginBottom: "8px" }}>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    marginBottom: "4px",
+                    textAlign: "center",
+                  }}
+                >
+                  {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
+                </p>
+                <Button
+                  variant="contained"
+                  size="small"
+                  fullWidth
+                  color={
+                    unavailableSlots.includes(slot.id) ? "error" : "primary"
+                  }
+                  onClick={() => handleClick(slot.id)}
+                >
+                  {unavailableSlots.includes(slot.id) ? "面談不可" : "面談可"}
+                </Button>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

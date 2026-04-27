@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type MeetingSlot = {
   id: number;
@@ -38,9 +39,13 @@ const groupByDate = (slots: MeetingSlot[]) => {
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
-
+  const router = useRouter();
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     fetch("http://localhost:3000/api/v1/meeting_slots", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,7 +56,7 @@ export default function MeetingSlotPage() {
         console.log(data);
         setslots(data);
       });
-  }, []);
+  }, [router]);
 
   const grouped = groupByDate(slots);
 
