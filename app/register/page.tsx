@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -31,27 +38,43 @@ export default function RegisterPage() {
     }
   };
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        gap: 2,
+        maxWidth: 400,
+        margin: "0 auto",
+      }}
+    >
       <h1>ユーザー登録</h1>
-      <input
+      <TextField
         type="email"
-        placeholder="メールアドレス"
+        label="メールアドレス"
         value={emailAddress}
         onChange={(e) => setEmailAddress(e.target.value)}
       />
-      <input
+      <TextField
         type="password"
-        placeholder="パスワード"
+        label="パスワード"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="">役割の選択</option>
-        <option value="teacher">先生</option>
-        <option value="parent">保護者</option>
-      </select>
-      <button onClick={handleSubmit}>登録</button>
-      {message && <p>{message}</p>}
-    </div>
+      <FormControl fullWidth>
+        <InputLabel>役割選択</InputLabel>
+        <Select value={role} onChange={(e) => setRole(e.target.value)}>
+          <MenuItem value="">未選択</MenuItem>
+          <MenuItem value="teacher">先生</MenuItem>
+          <MenuItem value="parent">保護者</MenuItem>
+        </Select>
+        <Button variant="contained" onClick={handleSubmit}>
+          登録
+        </Button>
+        {message && <p>{message}</p>}
+      </FormControl>
+    </Box>
   );
 }
