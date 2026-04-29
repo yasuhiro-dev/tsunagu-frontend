@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Chip from "@mui/material/Chip";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 
 type MeetingSlot = {
   id: number;
@@ -38,9 +42,13 @@ const groupByDate = (slots: MeetingSlot[]) => {
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
-
+  const router = useRouter();
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     fetch("http://localhost:3000/api/v1/meeting_slots", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,26 +59,40 @@ export default function MeetingSlotPage() {
         console.log(data);
         setslots(data);
       });
-  }, []);
+  }, [router]);
 
   const grouped = groupByDate(slots);
 
   return (
-    <div>
+    <div style={{ padding: "24px" }}>
       <h1>面談スケジュール</h1>
-      {Object.entries(grouped).map(([date, dateSlots]) => (
-        <div key={date}>
-          <h2>{date}</h2>
-          {dateSlots.map((slot) => (
-            <div key={slot.id}>
-              <p>
-                {formatTime(slot.start_at)}~{formatTime(slot.end_at)}{" "}
-                {slot.status}
-              </p>
-            </div>
-          ))}
-        </div>
-      ))}
+      <div style={{ display: "flex", gap: "14px" }}>
+        {Object.entries(grouped).map(([date, dateSlots]) => (
+          <div key={date} style={{ flex: 1, textAlign: "center" }}>
+            <Card>
+              <CardContent>
+                <h2>{date}</h2>
+                {dateSlots.map((slot) => (
+                  <div key={slot.id}>
+                    <p>
+                      {formatTime(slot.start_at)}~{formatTime(slot.end_at)}{" "}
+                      <Chip
+                        label={
+                          slot.status === "available" ? "空き" : "予約済み"
+                        }
+                        color={
+                          slot.status === "available" ? "success" : "error"
+                        }
+                        size="small"
+                      />
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
