@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 
 export default function LoginPage() {
   const [emailAddress, setEmailAddress] = useState("");
@@ -29,21 +32,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        gap: 2,
+        maxWidth: 400,
+        margin: "0 auto",
+      }}
+    >
       <h1>ログイン</h1>
-      <input
+      <TextField
         type="email"
-        placeholder="メールアドレス"
+        label="メールアドレス"
         value={emailAddress}
         onChange={(e) => setEmailAddress(e.target.value)}
       />
-      <input
+      <TextField
         type="password"
-        placeholder="パスワード"
+        label="パスワード"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={handleSubmit}>ログイン</button>
-    </div>
+      <Button variant="contained" onClick={handleSubmit} fullWidth>
+        ログイン
+      </Button>
+    </Box>
   );
 }
