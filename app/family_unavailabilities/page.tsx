@@ -2,6 +2,8 @@
 
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import { useRouter } from "next/navigation";
 
 const formatDate = (utcString: string) => {
@@ -93,31 +95,39 @@ export default function FamilyUnavailability() {
       <div style={{ display: "flex", gap: "16px" }}>
         {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
           <div key={date} style={{ flex: 1, textAlign: "center" }}>
-            <h2 style={{ fontSize: "16px", marginBottom: "8px" }}>{date}</h2>
-            {dateSlots.map((slot) => (
-              <div key={slot.id} style={{ marginBottom: "8px" }}>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    marginBottom: "4px",
-                    textAlign: "center",
-                  }}
-                >
-                  {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
-                </p>
-                <Button
-                  variant="contained"
-                  size="small"
-                  fullWidth
-                  color={
-                    unavailableSlots.includes(slot.id) ? "error" : "primary"
-                  }
-                  onClick={() => handleClick(slot.id)}
-                >
-                  {unavailableSlots.includes(slot.id) ? "面談不可" : "面談可"}
-                </Button>
-              </div>
-            ))}
+            <Card>
+              <CardContent>
+                <h2 style={{ fontSize: "16px", marginBottom: "8px" }}>
+                  {date}
+                </h2>
+                {dateSlots.map((slot) => (
+                  <div key={slot.id} style={{ marginBottom: "8px" }}>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        marginBottom: "4px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
+                    </p>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      fullWidth
+                      color={
+                        unavailableSlots.includes(slot.id) ? "error" : "primary"
+                      }
+                      onClick={() => handleClick(slot.id)}
+                    >
+                      {unavailableSlots.includes(slot.id)
+                        ? "面談不可"
+                        : "面談可"}
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
         ))}
       </div>
