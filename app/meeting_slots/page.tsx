@@ -43,6 +43,15 @@ const groupByDate = (slots: MeetingSlot[]) => {
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
+  const [message, setMessage] = useState("");
+  const handleClick = async () => {
+    await fetch("http://localhost:3000/api/v1/schedules", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: 2 }),
+    });
+    setMessage("割り当て完了");
+  };
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -66,6 +75,8 @@ export default function MeetingSlotPage() {
   return (
     <div style={{ padding: "24px" }}>
       <h1>面談スケジュール</h1>
+      <button onClick={handleClick}>割り当てを実行する</button>
+      <p>{message}</p>
       <div style={{ display: "flex", gap: "14px" }}>
         {Object.entries(grouped).map(([date, dateSlots]) => (
           <div key={date} style={{ flex: 1, textAlign: "center" }}>
