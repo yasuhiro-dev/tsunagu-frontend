@@ -43,7 +43,7 @@ export default function FamilyUnavailability() {
       router.push("/login");
       return;
     }
-    fetch("http://localhost:3000/api/v1/meeting_slots", {
+    fetch("http://localhost:3000/api/v1/all_meeting_slots", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
