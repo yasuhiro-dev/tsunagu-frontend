@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Box from "@mui/material/Box";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 type Assignment = {
   child_name: string;
@@ -44,19 +51,29 @@ export default function MySchedulePage() {
   }, [router]);
 
   return (
-    <div style={{ padding: "24px" }}>
-      <h1>面談日程決定のお知らせ</h1>
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        面談日程決定のお知らせ
+      </Typography>
       {assignment.map((a, i) => (
-        <div key={i}>
-          <p>
-            {a.child_name}（{a.class_name}）
-          </p>
-          <p>
-            {formatDate(a.start_at)} {formatTime(a.start_at)}〜
-            {formatTime(a.end_at)}
-          </p>
-        </div>
+        <Card key={i} sx={{ mb: 2, borderRadius: 3, boxShadow: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              {a.child_name}（{a.class_name}）
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CalendarMonthIcon color="primary" />
+              <Typography>{formatDate(a.start_at)}</Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+              <AccessTimeIcon color="primary" />
+              <Typography>
+                {formatTime(a.start_at)}〜{formatTime(a.end_at)}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
       ))}
-    </div>
+    </Container>
   );
 }
