@@ -11,6 +11,7 @@ type MeetingSlot = {
   start_at: string;
   end_at: string;
   status: string;
+  child_name: string | null;
 };
 
 const formatDate = (utcString: string) => {
@@ -65,7 +66,8 @@ export default function MeetingSlotPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        console.log("isArray:", Array.isArray(data));
+        console.log("data:", JSON.stringify(data));
         setslots(data);
       });
   }, [router]);
@@ -85,8 +87,9 @@ export default function MeetingSlotPage() {
                 <h2>{date}</h2>
                 {dateSlots.map((slot) => (
                   <div key={slot.id}>
-                    <p>
-                      {formatTime(slot.start_at)}~{formatTime(slot.end_at)}{" "}
+                    <div>
+                      {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
+                      {slot.child_name}{" "}
                       <Chip
                         label={
                           slot.status === "available" ? "空き" : "予約済み"
@@ -96,7 +99,7 @@ export default function MeetingSlotPage() {
                         }
                         size="small"
                       />
-                    </p>
+                    </div>
                   </div>
                 ))}
               </CardContent>
