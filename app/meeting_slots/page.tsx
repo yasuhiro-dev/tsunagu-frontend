@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Chip from "@mui/material/Chip";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 type MeetingSlot = {
   id: number;
@@ -76,8 +78,17 @@ export default function MeetingSlotPage() {
 
   return (
     <div style={{ padding: "24px" }}>
-      <h1>面談スケジュール</h1>
-      <button onClick={handleClick}>割り当てを実行する</button>
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        面談スケジュール
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleClick}
+        sx={{ mb: 2 }}
+      >
+        割り当てを実行する
+      </Button>
       <p>{message}</p>
       <div style={{ display: "flex", gap: "14px" }}>
         {Object.entries(grouped).map(([date, dateSlots]) => (
