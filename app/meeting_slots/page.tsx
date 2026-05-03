@@ -50,10 +50,19 @@ export default function MeetingSlotPage() {
   const handleClick = async () => {
     await fetch("http://localhost:3000/api/v1/schedules", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: 2 }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ id: 1 }),
     });
     setMessage("割り当て完了");
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:3000/api/v1/meeting_slots", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setslots(data));
   };
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -61,6 +70,7 @@ export default function MeetingSlotPage() {
       router.push("/login");
       return;
     }
+
     fetch("http://localhost:3000/api/v1/meeting_slots", {
       headers: {
         Authorization: `Bearer ${token}`,

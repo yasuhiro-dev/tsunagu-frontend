@@ -1,25 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 
+const getRole = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    return decoded.role;
+  } catch {
+    return null;
+  }
+};
+
 export default function Navbar() {
   const router = useRouter();
-  const [role, setRole] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = JSON.parse(atob(token.split(".")[1]));
-        setRole(decoded.role);
-      } catch {}
-    }
-  }, []);
+  const role = getRole(); // ← ここで呼ぶ
 
   const handleLogout = () => {
     localStorage.removeItem("token");

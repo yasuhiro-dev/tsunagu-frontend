@@ -21,11 +21,12 @@ export default function LoginPage() {
     if (res.ok) {
       const data = await res.json();
       localStorage.setItem("token", data.token);
-      if (data.role === "teacher") {
-        router.push("/meeting_slots");
-      } else {
-        router.push("/family_unavailabilities");
-      }
+      const redirectMap = {
+        teacher: "/meeting_slots",
+        parent: "/family_unavailabilities",
+        admin: "/admin",
+      };
+      router.push(redirectMap[data.role] ?? "/");
     } else {
       alert("メールアドレスまたはパスワードが違います");
     }
