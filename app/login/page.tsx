@@ -6,6 +6,17 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
+type RedirectMap = {
+  teacher: string;
+  parent: string;
+  admin: string;
+};
+
+type LoginResponse = {
+  token: string;
+  role: keyof RedirectMap;
+};
+
 export default function LoginPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -19,9 +30,9 @@ export default function LoginPage() {
     });
 
     if (res.ok) {
-      const data = await res.json();
+      const data: LoginResponse = await res.json();
       localStorage.setItem("token", data.token);
-      const redirectMap = {
+      const redirectMap: RedirectMap = {
         teacher: "/meeting_slots",
         parent: "/family_unavailabilities",
         admin: "/admin",
