@@ -21,6 +21,12 @@ const formatTime = (utcString: string) => {
   });
 };
 
+type MeetingSlot = {
+  id: number;
+  start_at: string;
+  end_at: string;
+};
+
 const groupByDate = (slots: MeetingSlot[]) => {
   return slots.reduce(
     (acc, slot) => {
@@ -37,6 +43,9 @@ export default function FamilyUnavailability() {
   const router = useRouter();
   const [slots, setSlots] = useState([]);
   const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -48,19 +57,35 @@ export default function FamilyUnavailability() {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("エラーが発生しました");
+        return res.json();
+      })
       .then((data) => {
-        console.log(data);
         setSlots(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
       });
+
     fetch("http://localhost:3000/api/v1/family_unavailabilities", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("エラーが発生しました");
+        return res.json();
+      })
       .then((data) => {
         setUnavailableSlots(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
       });
   }, [router]);
 
@@ -88,6 +113,9 @@ export default function FamilyUnavailability() {
       setUnavailableSlots((prev) => [...prev, slotId]);
     }
   };
+
+  if (loading) return <p>読み込み中...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div style={{ padding: "24px" }}>

@@ -99,7 +99,7 @@ export default function MeetingSlotPage() {
 
   return (
     <div style={{ padding: "24px" }}>
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
+      <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
         面談スケジュール
       </Typography>
       <Button

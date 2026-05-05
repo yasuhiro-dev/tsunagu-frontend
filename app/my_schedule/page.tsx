@@ -52,13 +52,13 @@ export default function MySchedulePage() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
+      <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
         面談日程決定のお知らせ
       </Typography>
       {assignment.map((a, i) => (
         <Card key={i} sx={{ mb: 2, borderRadius: 3, boxShadow: 3 }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
+            <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
               {a.child_name}（{a.class_name}）
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

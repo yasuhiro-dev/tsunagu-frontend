@@ -14,11 +14,25 @@ import Container from "@mui/material/Container";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 
+type Teacher = {
+  name: string;
+  email_address: string;
+  class_room: string;
+};
+
+type Parent = {
+  name: string;
+  email_address: string;
+  children_name: string;
+};
+
 export default function Admin() {
-  const [teachers, setTeachers] = useState([]);
-  const [parents, setParents] = useState([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [parents, setParents] = useState<Parent[]>([]);
   const router = useRouter();
   const [tab, setTab] = useState(0);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,12 +45,24 @@ export default function Admin() {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("エラーが発生しました");
+        return res.json();
+      })
+
       .then((data) => {
         setTeachers(data.teachers);
         setParents(data.parents);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
       });
   }, [router]);
+
+  if (loading) return <p>読み込み中...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <Container sx={{ mt: 4 }}>
