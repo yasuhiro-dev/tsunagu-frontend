@@ -47,6 +47,8 @@ export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const handleClick = async () => {
     await fetch("http://localhost:3000/api/v1/schedules", {
       method: "POST",
@@ -76,15 +78,24 @@ export default function MeetingSlotPage() {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("データ取得に失敗しました");
+        return res.json();
+      })
       .then((data) => {
-        console.log("isArray:", Array.isArray(data));
-        console.log("data:", JSON.stringify(data));
         setslots(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
       });
   }, [router]);
 
   const grouped = groupByDate(slots);
+
+  if (loading) return <p>読み込み中...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div style={{ padding: "24px" }}>
