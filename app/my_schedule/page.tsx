@@ -36,6 +36,8 @@ const formatTime = (utcString: string) => {
 export default function MySchedulePage() {
   const [assignment, setAssignment] = useState<Assignment[]>([]);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -46,9 +48,22 @@ export default function MySchedulePage() {
     fetch("http://localhost:3000/api/v1/meeting_slots", {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((res) => res.json())
-      .then((data) => setAssignment(data));
+      .then((res) => {
+        if (!res.ok) throw new Error("エラーが発生しました");
+        return res.json();
+      })
+      .then((data) => {
+        setAssignment(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setLoading(false);
+      });
   }, [router]);
+
+  if (error) return <p>エラー</p>;
+  if (loading) return <p>読み込み中...</p>;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
