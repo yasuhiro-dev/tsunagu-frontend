@@ -20,11 +20,14 @@ export default function RegisterPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [role, setRole] = useState("");
-  const [childName, setChildName] = useState("");
   const [familyName, setFamilyName] = useState("");
   const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
-  const [classRoomId, setClassRoomId] = useState("");
+  const [children, setChildren] = useState([
+    { childName: "", classRoomId: "" },
+  ]);
+  const addChild = () => {
+    setChildren([...children, { childName: "", classRoomId: "" }]);
+  };
 
   useEffect(() => {
     fetch("http://localhost:3000/api/v1/class_rooms")
@@ -33,16 +36,21 @@ export default function RegisterPage() {
   }, []);
 
   const handleSubmit = async () => {
-    const res = await fetch("http://localhost:3000/api/v1/users", {
+    const res = await fetch("http://localhost:3000/api/v1/users/parent", {
       method: "post",
       headers: {
         "content-Type": "application/json",
       },
       body: JSON.stringify({
-        user: { email_address: emailAddress, password: password, role: role },
-        family_name: familyName,
-        child_name: childName,
-        class_room_id: classRoomId,
+        user: {
+          email_address: emailAddress, // email → email_address
+          password: password,
+        },
+        family_name: familyName, // user の外に出す
+        children: children.map((child) => ({
+          name: child.childName,
+          class_room_id: child.classRoomId,
+        })),
       }),
     });
 
@@ -75,26 +83,39 @@ export default function RegisterPage() {
         value={familyName}
         onChange={(e) => setFamilyName(e.target.value)}
       />
-      <FormControl fullWidth>
-        <InputLabel>クラス選択</InputLabel>
-        <Select
-          value={classRoomId}
-          onChange={(e) => setClassRoomId(e.target.value)}
-        >
-          {classRooms.map((classRoom) => (
-            <MenuItem key={classRoom.id} value={classRoom.id}>
-              {classRoom.classname}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {children.map((child, index) => (
+        <Box key={index}>
+          <TextField
+            type="text"
+            label="児童名"
+            value={child.childName}
+            onChange={(e) => {
+              const newChildren = [...children];
+              newChildren[index].childName = e.target.value;
+              setChildren(newChildren);
+            }}
+          />
+          <FormControl fullWidth>
+            <InputLabel>クラス選択</InputLabel>
+            <Select
+              value={child.classRoomId}
+              onChange={(e) => {
+                const newChildren = [...children];
+                newChildren[index].classRoomId = e.target.value;
+                setChildren(newChildren);
+              }}
+            >
+              {classRooms.map((classRoom) => (
+                <MenuItem key={classRoom.id} value={classRoom.id}>
+                  {classRoom.classname}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      ))}
+      <Button onClick={addChild}>+ 児童を追加する</Button>
 
-      <TextField
-        type="text"
-        label="児童名"
-        value={childName}
-        onChange={(e) => setChildName(e.target.value)}
-      />
       <TextField
         type="email"
         label="メールアドレス"
@@ -108,12 +129,6 @@ export default function RegisterPage() {
         onChange={(e) => setPassword(e.target.value)}
       />
       <FormControl fullWidth>
-        <InputLabel>役割選択</InputLabel>
-        <Select value={role} onChange={(e) => setRole(e.target.value)}>
-          <MenuItem value="">未選択</MenuItem>
-          <MenuItem value="teacher">先生</MenuItem>
-          <MenuItem value="parent">保護者</MenuItem>
-        </Select>
         <Button variant="contained" onClick={handleSubmit}>
           登録
         </Button>
