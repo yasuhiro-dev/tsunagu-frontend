@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
@@ -20,12 +20,11 @@ const getRole = () => {
 
 export default function Navbar() {
   const router = useRouter();
+  const [role, setRole] = useState<string | null>(null);
 
-  const [role] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return getRole();
-  });
-
+  useEffect(() => {
+    setRole(getRole());
+  }, []);
   const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/login");

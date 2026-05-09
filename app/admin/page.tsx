@@ -13,6 +13,10 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 
 type Teacher = {
   name: string;
@@ -25,6 +29,10 @@ type Parent = {
   email_address: string;
   children_name: string;
 };
+type ClassRoom = {
+  id: number;
+  classname: string;
+};
 
 export default function Admin() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -33,6 +41,11 @@ export default function Admin() {
   const [tab, setTab] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [classRoomId, setClassRoomId] = useState("");
+  const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -59,10 +72,39 @@ export default function Admin() {
         setError(e.message);
         setLoading(false);
       });
+
+    fetch("http://localhost:3000/api/v1/class_rooms")
+      .then((res) => res.json())
+      .then((data) => setClassRooms(data));
   }, [router]);
 
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
+
+  const handleSubmit = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:3000/api/v1/admin/teachers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        user: {
+          email_address: emailAddress,
+          password: password,
+        },
+        name: name,
+        class_room_id: classRoomId,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert("登録が完了しました");
+    } else {
+      alert(data.error.join(","));
+    }
+  };
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -76,28 +118,52 @@ export default function Admin() {
       </Tabs>
 
       {tab === 0 && (
-        <Paper sx={{ mt: 2 }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>名前</TableCell>
-                  <TableCell>メールアドレス</TableCell>
-                  <TableCell>クラス</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {teachers.map((teacher, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{teacher.name}</TableCell>
-                    <TableCell>{teacher.email_address}</TableCell>
-                    <TableCell>{teacher.class_room}</TableCell>
+        <>
+          <Paper>
+            <TextField value={name} onChange={(e) => setName(e.target.value)} />
+            <Select
+              value={classRoomId}
+              onChange={(e) => setClassRoomId(e.target.value)}
+            >
+              {classRooms.map((classRoom) => (
+                <MenuItem key={classRoom.id} value={classRoom.id}>
+                  {classRoom.classname}
+                </MenuItem>
+              ))}
+            </Select>
+            <TextField
+              value={emailAddress}
+              onChange={(e) => setEmailAddress(e.target.value)}
+            />
+            <TextField
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button onClick={handleSubmit}>登録</Button>
+          </Paper>
+          <Paper sx={{ mt: 2 }}>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>名前</TableCell>
+                    <TableCell>メールアドレス</TableCell>
+                    <TableCell>クラス</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+                </TableHead>
+                <TableBody>
+                  {teachers.map((teacher, i) => (
+                    <TableRow key={i}>
+                      <TableCell>{teacher.name}</TableCell>
+                      <TableCell>{teacher.email_address}</TableCell>
+                      <TableCell>{teacher.class_room}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        </>
       )}
 
       {tab === 1 && (
