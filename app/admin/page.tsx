@@ -22,12 +22,14 @@ type Teacher = {
   name: string;
   email_address: string;
   class_room: string;
+  id: number;
 };
 
 type Parent = {
   name: string;
   email_address: string;
   children_name: string;
+  id: number;
 };
 type ClassRoom = {
   id: number;
@@ -105,6 +107,37 @@ export default function Admin() {
       alert(data.error.join(","));
     }
   };
+  const handleDeleteTeacher = async (id: number) => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `http://localhost:3000/api/v1/admin/teachers/${id}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    if (res.ok) {
+      alert("削除しました");
+      setTeachers(teachers.filter((t) => t.id !== id));
+    } else {
+      alert("削除されませんでした");
+    }
+  };
+
+  const handleDeleteParent = async (id: number) => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `http://localhost:3000/api/v1/admin/parents/${id}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    if (res.ok) {
+      alert("削除しました");
+      setParents(parents.filter((p) => p.id !== id));
+    }
+  };
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -149,6 +182,7 @@ export default function Admin() {
                     <TableCell>名前</TableCell>
                     <TableCell>メールアドレス</TableCell>
                     <TableCell>クラス</TableCell>
+                    <TableCell>操作</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -157,6 +191,11 @@ export default function Admin() {
                       <TableCell>{teacher.name}</TableCell>
                       <TableCell>{teacher.email_address}</TableCell>
                       <TableCell>{teacher.class_room}</TableCell>
+                      <TableCell>
+                        <Button onClick={() => handleDeleteTeacher(teacher.id)}>
+                          削除
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -175,6 +214,7 @@ export default function Admin() {
                   <TableCell>名前</TableCell>
                   <TableCell>メールアドレス</TableCell>
                   <TableCell>児童名</TableCell>
+                  <TableCell>操作</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -183,6 +223,11 @@ export default function Admin() {
                     <TableCell>{parent.name}</TableCell>
                     <TableCell>{parent.email_address}</TableCell>
                     <TableCell>{parent.children_name}</TableCell>
+                    <TableCell>
+                      <Button onClick={() => handleDeleteParent(parent.id)}>
+                        削除
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
