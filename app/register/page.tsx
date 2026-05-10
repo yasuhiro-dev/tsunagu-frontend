@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -16,7 +15,6 @@ type ClassRoom = {
 };
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -43,21 +41,21 @@ export default function RegisterPage() {
       },
       body: JSON.stringify({
         user: {
-          email_address: emailAddress, // email → email_address
+          email_address: emailAddress,
           password: password,
         },
-        family_name: familyName, // user の外に出す
+        family_name: familyName,
         children: children.map((child) => ({
           name: child.childName,
           class_room_id: child.classRoomId,
         })),
       }),
     });
-
     const data = await res.json();
     if (res.ok) {
+      localStorage.setItem("token", data.token);
       setMessage("登録が完了した");
-      router.push("/meeting_slots");
+      window.location.href = "/family_unavailabilities";
     } else {
       setMessage(data.errors.join(","));
     }
