@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -20,7 +19,6 @@ type LoginResponse = {
 export default function LoginPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
 
   const handleSubmit = async () => {
     const res = await fetch("http://localhost:3000/api/v1/login", {
@@ -37,7 +35,7 @@ export default function LoginPage() {
         parent: "/family_unavailabilities",
         admin: "/admin",
       };
-      router.push(redirectMap[data.role] ?? "/");
+      window.location.href = redirectMap[data.role] ?? "/";
     } else {
       alert("メールアドレスまたはパスワードが違います");
     }
