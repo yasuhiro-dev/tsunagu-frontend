@@ -17,6 +17,10 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 
 type Teacher = {
   name: string;
@@ -29,6 +33,7 @@ type Parent = {
   name: string;
   email_address: string;
   children_name: string;
+  children_class: string;
   id: number;
 };
 type ClassRoom = {
@@ -48,6 +53,11 @@ export default function Admin() {
   const [password, setPassword] = useState("");
   const [classRoomId, setClassRoomId] = useState("");
   const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
+  const [editTarget, setEditTarget] = useState<Teacher | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editMailAddress, setEditMailAddress] = useState("");
+  const [editClassRoomId, setEditClassRoomId] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -77,7 +87,9 @@ export default function Admin() {
 
     fetch("http://localhost:3000/api/v1/class_rooms")
       .then((res) => res.json())
-      .then((data) => setClassRooms(data));
+      .then((data) => {
+        setClassRooms(data);
+      });
   }, [router]);
 
   if (loading) return <p>読み込み中...</p>;
@@ -139,6 +151,46 @@ export default function Admin() {
     }
   };
 
+  const handleUpdate = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `http://localhost:3000/api/v1/admin/teachers/${editTarget?.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: editName,
+          email_address: editMailAddress,
+          class_room_id: editClassRoomId,
+        }),
+      },
+    );
+    if (res.ok) {
+      alert("更新しました");
+      setModalOpen(false);
+      const selectedClass = classRooms.find(
+        (c) => c.id === Number(editClassRoomId),
+      );
+      setTeachers(
+        teachers.map((t) =>
+          t.id === editTarget?.id
+            ? {
+                id: t.id,
+                name: editName,
+                email_address: editMailAddress,
+                class_room: selectedClass?.classname ?? t.class_room,
+              }
+            : t,
+        ) as Teacher[],
+      );
+    } else {
+      alert("更新に失敗しました");
+    }
+  };
+
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
@@ -192,6 +244,17 @@ export default function Admin() {
                       <TableCell>{teacher.email_address}</TableCell>
                       <TableCell>{teacher.class_room}</TableCell>
                       <TableCell>
+                        <Button
+                          onClick={() => {
+                            setEditTarget(teacher);
+                            setEditName(teacher.name);
+                            setEditMailAddress(teacher.email_address);
+                            setEditClassRoomId("");
+                            setModalOpen(true);
+                          }}
+                        >
+                          編集
+                        </Button>
                         <Button onClick={() => handleDeleteTeacher(teacher.id)}>
                           削除
                         </Button>
@@ -213,6 +276,7 @@ export default function Admin() {
                 <TableRow>
                   <TableCell>名前</TableCell>
                   <TableCell>メールアドレス</TableCell>
+                  <TableCell>クラス</TableCell>
                   <TableCell>児童名</TableCell>
                   <TableCell>操作</TableCell>
                 </TableRow>
@@ -222,6 +286,7 @@ export default function Admin() {
                   <TableRow key={i}>
                     <TableCell>{parent.name}</TableCell>
                     <TableCell>{parent.email_address}</TableCell>
+                    <TableCell>{parent.children_class}</TableCell>
                     <TableCell>{parent.children_name}</TableCell>
                     <TableCell>
                       <Button onClick={() => handleDeleteParent(parent.id)}>
@@ -235,6 +300,42 @@ export default function Admin() {
           </TableContainer>
         </Paper>
       )}
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
+        <DialogTitle>先生の編集</DialogTitle>
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+        >
+          <TextField
+            label="名前"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+          />
+          <TextField
+            label="メールアドレス"
+            value={editMailAddress}
+            onChange={(e) => setEditMailAddress(e.target.value)}
+          />
+          <Select
+            value={editClassRoomId}
+            onChange={(e) => setEditClassRoomId(e.target.value)}
+            displayEmpty
+          >
+            <MenuItem value="">クラス選択</MenuItem>
+            {classRooms.map((classRoom) => (
+              <MenuItem key={classRoom.id} value={classRoom.id}>
+                {classRoom.classname}
+              </MenuItem>
+            ))}
+          </Select>
+
+          <DialogActions>
+            <Button onClick={() => setModalOpen(false)}>キャンセル</Button>
+            <Button onClick={handleUpdate} variant="contained">
+              更新
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 }

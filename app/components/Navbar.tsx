@@ -27,6 +27,8 @@ export default function Navbar() {
   }, []);
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setRole(null);
+    alert("ログアウトしました");
     router.push("/login");
   };
 
