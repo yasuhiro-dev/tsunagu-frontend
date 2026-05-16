@@ -41,6 +41,12 @@ type ClassRoom = {
   classname: string;
 };
 
+type EditChild = {
+  id: number;
+  name: string;
+  class_room_id: number;
+};
+
 export default function Admin() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
@@ -54,10 +60,14 @@ export default function Admin() {
   const [classRoomId, setClassRoomId] = useState("");
   const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
   const [editTarget, setEditTarget] = useState<Teacher | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [parentModalOpen, setParentModalOpen] = useState(false);
+  const [teacherModalOpen, setTeacherModalOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editMailAddress, setEditMailAddress] = useState("");
   const [editClassRoomId, setEditClassRoomId] = useState("");
+  const [editTargetParent, setEditTargetParent] = useState<Parent | null>(null);
+  const [editParentName, setEditParentName] = useState("");
+  const [editChildren, setEditChildren] = useState<EditChild[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -88,6 +98,7 @@ export default function Admin() {
     fetch("http://localhost:3000/api/v1/class_rooms")
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setClassRooms(data);
       });
   }, [router]);
@@ -115,8 +126,24 @@ export default function Admin() {
     const data = await res.json();
     if (res.ok) {
       alert("登録が完了しました");
+      const selectedClass = classRooms.find(
+        (c) => c.id === Number(classRoomId),
+      );
+      setTeachers([
+        ...teachers,
+        {
+          id: data.teacher.id,
+          name: data.teacher.name,
+          email_address: emailAddress,
+          class_room: selectedClass?.classname ?? "",
+        },
+      ]);
+      setName("");
+      setEmailAddress("");
+      setPassword("");
+      setClassRoomId("");
     } else {
-      alert(data.error.join(","));
+      alert(data.errors?.join(",") ?? "エラーが発生しました");
     }
   };
   const handleDeleteTeacher = async (id: number) => {
@@ -170,7 +197,7 @@ export default function Admin() {
     );
     if (res.ok) {
       alert("更新しました");
-      setModalOpen(false);
+      setTeacherModalOpen(false);
       const selectedClass = classRooms.find(
         (c) => c.id === Number(editClassRoomId),
       );
@@ -185,6 +212,48 @@ export default function Admin() {
               }
             : t,
         ) as Teacher[],
+      );
+    } else {
+      alert("更新に失敗しました");
+    }
+  };
+
+  const handleUpdateParent = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `http://localhost:3000/api/v1/admin/parents/${editTargetParent?.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: editParentName,
+          children: editChildren,
+        }),
+      },
+    );
+    if (res.ok) {
+      alert("更新しました");
+      setParentModalOpen(false);
+      setParents(
+        parents.map((p) =>
+          p.id === editTargetParent?.id
+            ? {
+                ...p,
+                name: editParentName,
+                children_name: editChildren.map((c) => c.name).join("、"),
+                children_class: editChildren
+                  .map(
+                    (c) =>
+                      classRooms.find((r) => r.id === c.class_room_id)
+                        ?.classname ?? "",
+                  )
+                  .join("、"),
+              }
+            : p,
+        ),
       );
     } else {
       alert("更新に失敗しました");
@@ -250,7 +319,7 @@ export default function Admin() {
                             setEditName(teacher.name);
                             setEditMailAddress(teacher.email_address);
                             setEditClassRoomId("");
-                            setModalOpen(true);
+                            setTeacherModalOpen(true);
                           }}
                         >
                           編集
@@ -289,6 +358,23 @@ export default function Admin() {
                     <TableCell>{parent.children_class}</TableCell>
                     <TableCell>{parent.children_name}</TableCell>
                     <TableCell>
+                      <Button
+                        onClick={async () => {
+                          const token = localStorage.getItem("token");
+                          const res = await fetch(
+                            `http://localhost:3000/api/v1/admin/parents/${parent.id}`,
+                            { headers: { Authorization: `Bearer ${token}` } },
+                          );
+                          const data = await res.json();
+                          setEditTargetParent(parent);
+                          setEditParentName(parent.name);
+                          setEditChildren(data.children);
+                          setParentModalOpen(true);
+                        }}
+                      >
+                        編集
+                      </Button>
+
                       <Button onClick={() => handleDeleteParent(parent.id)}>
                         削除
                       </Button>
@@ -300,7 +386,10 @@ export default function Admin() {
           </TableContainer>
         </Paper>
       )}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
+      <Dialog
+        open={teacherModalOpen}
+        onClose={() => setTeacherModalOpen(false)}
+      >
         <DialogTitle>先生の編集</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
@@ -329,8 +418,64 @@ export default function Admin() {
           </Select>
 
           <DialogActions>
-            <Button onClick={() => setModalOpen(false)}>キャンセル</Button>
+            <Button onClick={() => setTeacherModalOpen(false)}>
+              キャンセル
+            </Button>
             <Button onClick={handleUpdate} variant="contained">
+              更新
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={parentModalOpen} onClose={() => setParentModalOpen(false)}>
+        <DialogTitle>保護者の編集</DialogTitle>
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+        >
+          <TextField
+            label="保護者名"
+            value={editParentName}
+            onChange={(e) => setEditParentName(e.target.value)}
+          />
+          {editChildren.map((child, i) => (
+            <div key={i}>
+              <TextField
+                label="児童名"
+                value={child.name}
+                onChange={(e) => {
+                  const updated = [...editChildren];
+                  updated[i] = { ...updated[i], name: e.target.value };
+                  setEditChildren(updated);
+                }}
+              />
+              <Select
+                value={child.class_room_id}
+                onChange={(e) => {
+                  const updated = [...editChildren];
+                  updated[i] = {
+                    ...updated[i],
+                    class_room_id: Number(e.target.value),
+                  };
+                  setEditChildren(updated);
+                }}
+                displayEmpty
+              >
+                <MenuItem value="">クラス選択</MenuItem>
+                {classRooms.map((classRoom) => (
+                  <MenuItem key={classRoom.id} value={classRoom.id}>
+                    {classRoom.classname}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+          ))}
+
+          <DialogActions>
+            <Button onClick={() => setParentModalOpen(false)}>
+              キャンセル
+            </Button>
+            <Button onClick={handleUpdateParent} variant="contained">
               更新
             </Button>
           </DialogActions>
