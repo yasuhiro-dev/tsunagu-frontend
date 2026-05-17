@@ -44,7 +44,7 @@ type ClassRoom = {
 type EditChild = {
   id: number;
   name: string;
-  class_room_id: number;
+  class_room_ids: number[];
 };
 
 export default function Admin() {
@@ -245,10 +245,11 @@ export default function Admin() {
                 name: editParentName,
                 children_name: editChildren.map((c) => c.name).join("、"),
                 children_class: editChildren
-                  .map(
-                    (c) =>
-                      classRooms.find((r) => r.id === c.class_room_id)
-                        ?.classname ?? "",
+                  .map((c) =>
+                    classRooms
+                      .filter((r) => c.class_room_ids.includes(r.id))
+                      .map((r) => r.classname)
+                      .join("、"),
                   )
                   .join("、"),
               }
@@ -259,7 +260,6 @@ export default function Admin() {
       alert("更新に失敗しました");
     }
   };
-
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
@@ -355,7 +355,11 @@ export default function Admin() {
                   <TableRow key={i}>
                     <TableCell>{parent.name}</TableCell>
                     <TableCell>{parent.email_address}</TableCell>
-                    <TableCell>{parent.children_class}</TableCell>
+                    <TableCell>
+                      {Array.isArray(parent.children_class)
+                        ? parent.children_class.join("/")
+                        : parent.children_class}
+                    </TableCell>
                     <TableCell>{parent.children_name}</TableCell>
                     <TableCell>
                       <Button
@@ -450,12 +454,37 @@ export default function Admin() {
                 }}
               />
               <Select
-                value={child.class_room_id}
+                value={child.class_room_ids[0] ?? ""}
                 onChange={(e) => {
                   const updated = [...editChildren];
                   updated[i] = {
                     ...updated[i],
-                    class_room_id: Number(e.target.value),
+                    class_room_ids: [
+                      Number(e.target.value),
+                      child.class_room_ids[1],
+                    ],
+                  };
+                  setEditChildren(updated);
+                }}
+                displayEmpty
+              >
+                <MenuItem value="">クラス選択</MenuItem>
+                {classRooms.map((classRoom) => (
+                  <MenuItem key={classRoom.id} value={classRoom.id}>
+                    {classRoom.classname}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Select
+                value={child.class_room_ids[1] ?? ""}
+                onChange={(e) => {
+                  const updated = [...editChildren];
+                  updated[i] = {
+                    ...updated[i],
+                    class_room_ids: [
+                      child.class_room_ids[0],
+                      Number(e.target.value),
+                    ],
                   };
                   setEditChildren(updated);
                 }}
