@@ -45,7 +45,7 @@ export default function MySchedulePage() {
       router.push("/login");
       return;
     }
-    fetch("http://localhost:3000/api/v1/meeting_slots", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {

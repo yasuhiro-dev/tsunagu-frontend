@@ -52,7 +52,7 @@ export default function FamilyUnavailability() {
       router.push("/login");
       return;
     }
-    fetch("http://localhost:3000/api/v1/all_meeting_slots", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/all_meeting_slots`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -70,7 +70,7 @@ export default function FamilyUnavailability() {
         setLoading(false);
       });
 
-    fetch("http://localhost:3000/api/v1/family_unavailabilities", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -93,7 +93,7 @@ export default function FamilyUnavailability() {
     const token = localStorage.getItem("token");
     if (unavailableSlots.includes(slotId)) {
       await fetch(
-        `http://localhost:3000/api/v1/family_unavailabilities/${slotId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -102,14 +102,17 @@ export default function FamilyUnavailability() {
       setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
       console.log("POST送信", slotId);
-      await fetch("http://localhost:3000/api/v1/family_unavailabilities", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ meeting_slot_id: slotId }),
         },
-        body: JSON.stringify({ meeting_slot_id: slotId }),
-      });
+      );
       setUnavailableSlots((prev) => [...prev, slotId]);
     }
   };

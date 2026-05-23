@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { fetcher } from "@/utils";
 
 export default function Home() {
-  const url = "http://localhost:3000/api/v1/health_check";
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/health_check`;
   const { data, error } = useSWR(url, fetcher);
 
   if (error) return <div>An error has occurred.</div>;
