@@ -77,7 +77,7 @@ export default function Admin() {
       router.push("/login");
       return;
     }
-    fetch("http://localhost:3000/api/v1/admin/users", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -97,7 +97,7 @@ export default function Admin() {
         setLoading(false);
       });
 
-    fetch("http://localhost:3000/api/v1/class_rooms")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/class_rooms`)
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -110,21 +110,24 @@ export default function Admin() {
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:3000/api/v1/admin/teachers", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        user: {
-          email_address: emailAddress,
-          password: password,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        name: name,
-        class_room_id: classRoomId,
-      }),
-    });
+        body: JSON.stringify({
+          user: {
+            email_address: emailAddress,
+            password: password,
+          },
+          name: name,
+          class_room_id: classRoomId,
+        }),
+      },
+    );
     const data = await res.json();
     if (res.ok) {
       alert("登録が完了しました");
@@ -151,7 +154,7 @@ export default function Admin() {
   const handleDeleteTeacher = async (id: number) => {
     const token = localStorage.getItem("token");
     const res = await fetch(
-      `http://localhost:3000/api/v1/admin/teachers/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/${id}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -168,7 +171,7 @@ export default function Admin() {
   const handleDeleteParent = async (id: number) => {
     const token = localStorage.getItem("token");
     const res = await fetch(
-      `http://localhost:3000/api/v1/admin/parents/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${id}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -183,7 +186,7 @@ export default function Admin() {
   const handleUpdate = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch(
-      `http://localhost:3000/api/v1/admin/teachers/${editTarget?.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/${editTarget?.id}`,
       {
         method: "PATCH",
         headers: {
@@ -222,7 +225,7 @@ export default function Admin() {
   const handleUpdateParent = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch(
-      `http://localhost:3000/api/v1/admin/parents/${editTargetParent?.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${editTargetParent?.id}`,
       {
         method: "PATCH",
         headers: {
@@ -378,7 +381,7 @@ export default function Admin() {
                         onClick={async () => {
                           const token = localStorage.getItem("token");
                           const res = await fetch(
-                            `http://localhost:3000/api/v1/admin/parents/${parent.id}`,
+                            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
                             { headers: { Authorization: `Bearer ${token}` } },
                           );
                           const data = await res.json();

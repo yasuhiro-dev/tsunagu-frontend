@@ -50,7 +50,7 @@ export default function MeetingSlotPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const handleClick = async () => {
-    await fetch("http://localhost:3000/api/v1/schedules", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export default function MeetingSlotPage() {
     });
     setMessage("割り当て完了");
     const token = localStorage.getItem("token");
-    fetch("http://localhost:3000/api/v1/meeting_slots", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -73,7 +73,7 @@ export default function MeetingSlotPage() {
       return;
     }
 
-    fetch("http://localhost:3000/api/v1/meeting_slots", {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

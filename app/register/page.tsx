@@ -28,29 +28,32 @@ export default function RegisterPage() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/v1/class_rooms")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/class_rooms`)
       .then((res) => res.json())
       .then((data) => setClassRooms(data));
   }, []);
 
   const handleSubmit = async () => {
-    const res = await fetch("http://localhost:3000/api/v1/users/parent", {
-      method: "post",
-      headers: {
-        "content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user: {
-          email_address: emailAddress,
-          password: password,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/parent`,
+      {
+        method: "post",
+        headers: {
+          "content-Type": "application/json",
         },
-        family_name: familyName,
-        children: children.map((child) => ({
-          name: child.childName,
-          class_room_id: child.classRoomId,
-        })),
-      }),
-    });
+        body: JSON.stringify({
+          user: {
+            email_address: emailAddress,
+            password: password,
+          },
+          family_name: familyName,
+          children: children.map((child) => ({
+            name: child.childName,
+            class_room_id: child.classRoomId,
+          })),
+        }),
+      },
+    );
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("token", data.token);
