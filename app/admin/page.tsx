@@ -21,11 +21,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 
 type Teacher = {
   name: string;
   email_address: string;
-  class_room: string;
+  classname: string;
   id: number;
 };
 
@@ -135,7 +137,7 @@ export default function Admin() {
           id: data.teacher.id,
           name: data.teacher.name,
           email_address: emailAddress,
-          class_room: selectedClass?.classname ?? "",
+          classname: selectedClass?.classname ?? "",
         },
       ]);
       setName("");
@@ -208,16 +210,15 @@ export default function Admin() {
                 id: t.id,
                 name: editName,
                 email_address: editMailAddress,
-                class_room: selectedClass?.classname ?? t.class_room,
+                classname: selectedClass?.classname ?? t.classname,
               }
             : t,
-        ) as Teacher[],
+        ),
       );
     } else {
       alert("更新に失敗しました");
     }
   };
-
   const handleUpdateParent = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch(
@@ -274,22 +275,33 @@ export default function Admin() {
       {tab === 0 && (
         <>
           <Paper>
-            <TextField value={name} onChange={(e) => setName(e.target.value)} />
-            <Select
-              value={classRoomId}
-              onChange={(e) => setClassRoomId(e.target.value)}
-            >
-              {classRooms.map((classRoom) => (
-                <MenuItem key={classRoom.id} value={classRoom.id}>
-                  {classRoom.classname}
-                </MenuItem>
-              ))}
-            </Select>
             <TextField
+              label="名前"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <FormControl>
+              <InputLabel>クラス</InputLabel>
+              <Select
+                value={classRoomId}
+                onChange={(e) => setClassRoomId(e.target.value)}
+                label="クラス"
+              >
+                {classRooms.map((classRoom) => (
+                  <MenuItem key={classRoom.id} value={classRoom.id}>
+                    {classRoom.classname}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="メールアドレス"
               value={emailAddress}
               onChange={(e) => setEmailAddress(e.target.value)}
             />
             <TextField
+              label="パスワード"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -311,7 +323,7 @@ export default function Admin() {
                     <TableRow key={i}>
                       <TableCell>{teacher.name}</TableCell>
                       <TableCell>{teacher.email_address}</TableCell>
-                      <TableCell>{teacher.class_room}</TableCell>
+                      <TableCell>{teacher.classname}</TableCell>
                       <TableCell>
                         <Button
                           onClick={() => {
