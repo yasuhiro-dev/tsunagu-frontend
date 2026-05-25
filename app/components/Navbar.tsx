@@ -6,6 +6,7 @@ import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 const getRole = () => {
   const token = localStorage.getItem("token");
@@ -33,11 +34,18 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" color="default">
+    <AppBar position="static" sx={{ backgroundColor: "#1a3a6b" }}>
       <Toolbar>
-        <div style={{ display: "flex", gap: "24px", flexGrow: 1 }}>
-          <Link href="/login">ログイン</Link>
-          <Link href="/register">ユーザー登録</Link>
+        <Typography sx={{ mr: 3, flexGrow: 1 }} variant="h6">
+          保護者面談管理アプリ
+        </Typography>
+        <div style={{ display: "flex", gap: "24px" }}>
+          {role === null && (
+            <>
+              <Link href="/login">ログイン</Link>
+              <Link href="/register">ユーザー登録</Link>
+            </>
+          )}
           {role === "teacher" && <Link href="/meeting_slots">面談表</Link>}
           {role === "parent" && (
             <>
@@ -46,9 +54,11 @@ export default function Navbar() {
             </>
           )}
         </div>
-        <Button color="inherit" onClick={handleLogout}>
-          ログアウト
-        </Button>
+        {role !== null && (
+          <Button color="inherit" onClick={handleLogout}>
+            ログアウト
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );
