@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -35,6 +35,7 @@ type Teacher = {
 
 type Parent = {
   name: string;
+  name_kana: string;
   email_address: string;
   children_name: string;
   children_class: string;
@@ -75,11 +76,13 @@ export default function Admin() {
   const [open, setOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const [familyName, setFamilyName] = useState("");
+  const [nameKana, setNameKana] = useState("");
   const [children, setChildren] = useState([
     { childName: "", classRoomId: "" },
   ]);
   const [serchText, setSerchText] = useState("");
   const [filterClass, setFilterClass] = useState("");
+  const [sortKey, setSortKey] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -115,6 +118,25 @@ export default function Admin() {
       });
   }, [router]);
 
+  const filteredParents = useMemo(() => {
+    return [...parents]
+      .filter((p) => p.name.includes(serchText))
+      .filter(
+        (p) => filterClass === "" || p.children_class.includes(filterClass),
+      )
+      .sort((a, b) => {
+        if (sortKey === "name") {
+          return (a.name_kana ?? "").localeCompare(b.name_kana ?? "", "ja");
+        }
+        if (sortKey === "class") {
+          const aClass = a.children_class.split(/[、・]/)[0];
+          const bClass = b.children_class.split(/[、・]/)[0];
+          return aClass.localeCompare(bClass, "ja");
+        }
+        return 0;
+      });
+  }, [parents, serchText, filterClass, sortKey]);
+
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
 
@@ -133,7 +155,7 @@ export default function Admin() {
             email_address: emailAddress,
             password: password,
           },
-
+          name_kana: nameKana,
           family_name: familyName,
           children: children.map((child) => ({
             name: child.childName,
@@ -151,6 +173,7 @@ export default function Admin() {
         {
           id: data.user.id,
           name: familyName,
+          name_kana: nameKana,
           children_name: children.map((child) => child.childName).join("、"),
           email_address: emailAddress,
           children_class: children
@@ -329,11 +352,7 @@ export default function Admin() {
       alert("更新に失敗しました");
     }
   };
-  const filteredParents = parents
-    .filter((p) => p.name.includes(serchText))
-    .filter(
-      (p) => filterClass === "" || p.children_class.includes(filterClass),
-    );
+
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
@@ -422,7 +441,10 @@ export default function Admin() {
                         </TableCell>
                         <TableCell>
                           <IconButton
-                            sx={{ color: "green" }}
+                            sx={{
+                              color: "gray",
+                              "&:hover": { color: "green" },
+                            }}
                             onClick={() => {
                               setEditTarget(teacher);
                               setEditName(teacher.name);
@@ -434,7 +456,7 @@ export default function Admin() {
                             <EditIcon />
                           </IconButton>
                           <IconButton
-                            sx={{ color: "red" }}
+                            sx={{ color: "gray", "&:hover": { color: "red" } }}
                             onClick={() => {
                               setOpen(true);
                               setDeleteTargetId(teacher.id);
@@ -468,6 +490,34 @@ export default function Admin() {
           )}
           {tab === 1 && (
             <Paper sx={{ mt: 2 }}>
+              <Box>
+                <TextField
+                  label="名前で検索"
+                  value={serchText}
+                  onChange={(e) => setSerchText(e.target.value)}
+                />
+                <Select
+                  value={filterClass}
+                  onChange={(e) => setFilterClass(e.target.value)}
+                  displayEmpty
+                >
+                  <MenuItem value="">全クラス</MenuItem>
+                  {classRooms.map((classRoom) => (
+                    <MenuItem key={classRoom.id} value={classRoom.classname}>
+                      {classRoom.classname}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Select
+                  value={sortKey}
+                  onChange={(e) => setSortKey(e.target.value)}
+                  displayEmpty
+                >
+                  <MenuItem value="">並び替えなし</MenuItem>
+                  <MenuItem value="name">名前の順</MenuItem>
+                  <MenuItem value="class">クラス順</MenuItem>
+                </Select>
+              </Box>
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -480,28 +530,6 @@ export default function Admin() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    <Box>
-                      <TextField
-                        label="名前で検索"
-                        value={serchText}
-                        onChange={(e) => setSerchText(e.target.value)}
-                      />
-                      <Select
-                        value={filterClass}
-                        onChange={(e) => setFilterClass(e.target.value)}
-                        displayEmpty
-                      >
-                        <MenuItem value="">全クラス</MenuItem>
-                        {classRooms.map((classRoom) => (
-                          <MenuItem
-                            key={classRoom.id}
-                            value={classRoom.classname}
-                          >
-                            {classRoom.classname}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </Box>
                     {filteredParents.map((parent, i) => (
                       <TableRow key={i}>
                         <TableCell>{parent.name}</TableCell>
@@ -533,35 +561,45 @@ export default function Admin() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <IconButton
-                            sx={{ color: "green" }}
-                            onClick={async () => {
-                              const token = localStorage.getItem("token");
-                              const res = await fetch(
-                                `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
-                                {
-                                  headers: { Authorization: `Bearer ${token}` },
-                                },
-                              );
-                              const data = await res.json();
-                              setEditTargetParent(parent);
-                              setEditParentName(parent.name);
-                              setEditChildren(data.children);
-                              setParentModalOpen(true);
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
+                          <div style={{ display: "flex" }}>
+                            <IconButton
+                              sx={{
+                                color: "gray",
+                                "&:hover": { color: "green" },
+                              }}
+                              onClick={async () => {
+                                const token = localStorage.getItem("token");
+                                const res = await fetch(
+                                  `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                  },
+                                );
+                                const data = await res.json();
+                                setEditTargetParent(parent);
+                                setEditParentName(parent.name);
+                                setEditChildren(data.children);
+                                setParentModalOpen(true);
+                              }}
+                            >
+                              <EditIcon />
+                            </IconButton>
 
-                          <IconButton
-                            sx={{ color: "red" }}
-                            onClick={() => {
-                              setOpen(true);
-                              setDeleteTargetId(parent.id);
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                            <IconButton
+                              sx={{
+                                color: "gray",
+                                "&:hover": { color: "red" },
+                              }}
+                              onClick={() => {
+                                setOpen(true);
+                                setDeleteTargetId(parent.id);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -648,6 +686,11 @@ export default function Admin() {
                 label="保護者名"
                 value={familyName}
                 onChange={(e) => setFamilyName(e.target.value)}
+              />
+              <TextField
+                label="ふりがな"
+                value={nameKana}
+                onChange={(e) => setNameKana(e.target.value)}
               />
               <TextField
                 label="メールアドレス"
