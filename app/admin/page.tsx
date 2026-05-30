@@ -25,6 +25,8 @@ import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
+import Pagination from "@mui/material/Pagination";
+import Checkbox from "@mui/material/Checkbox";
 
 type Teacher = {
   name: string;
@@ -83,6 +85,65 @@ export default function Admin() {
   const [serchText, setSerchText] = useState("");
   const [filterClass, setFilterClass] = useState("");
   const [sortKey, setSortKey] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [currentTeacherPage, setCurrentTeacherPage] = useState(1);
+  const itemsPerTeacherPage = 10;
+  const [selectedParentIds, setSelectedParentIds] = useState<number[]>([]);
+  const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
+
+  const handleCheck = (id: number) => {
+    if (selectedParentIds.includes(id)) {
+      setSelectedParentIds(selectedParentIds.filter((p) => p !== id));
+    } else {
+      setSelectedParentIds([...selectedParentIds, id]);
+    }
+  };
+  const teacherHandleCheck = (id: number) => {
+    if (selectedTeacherIds.includes(id)) {
+      setSelectedTeacherIds(selectedTeacherIds.filter((p) => p !== id));
+    } else {
+      setSelectedTeacherIds([...selectedTeacherIds, id]);
+    }
+  };
+
+  const handleBulkDeleteParents = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/bulk_destroy`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ids: selectedParentIds }),
+      },
+    );
+    if (res.ok) {
+      setParents(parents.filter((p) => !selectedParentIds.includes(p.id)));
+      setSelectedParentIds([]);
+    }
+  };
+
+  const handleBulkDeleteTeachers = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/bulk_destroy`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ids: selectedTeacherIds }),
+      },
+    );
+    if (res.ok) {
+      setTeachers(teachers.filter((t) => !selectedTeacherIds.includes(t.id)));
+      setSelectedTeacherIds([]);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -136,6 +197,26 @@ export default function Admin() {
         return 0;
       });
   }, [parents, serchText, filterClass, sortKey]);
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredParents.length / itemsPerPage);
+  }, [filteredParents, itemsPerPage]);
+
+  const pageParents = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = currentPage * itemsPerPage;
+    return filteredParents.slice(start, end);
+  }, [filteredParents, currentPage, itemsPerPage]);
+
+  const totalTeacherPages = useMemo(() => {
+    return Math.ceil(teachers.length / itemsPerTeacherPage);
+  }, [teachers, itemsPerTeacherPage]);
+
+  const pageTeachers = useMemo(() => {
+    const start = (currentTeacherPage - 1) * itemsPerTeacherPage;
+    const end = currentTeacherPage * itemsPerTeacherPage;
+    return teachers.slice(start, end);
+  }, [teachers, currentTeacherPage, itemsPerTeacherPage]);
 
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
@@ -239,6 +320,7 @@ export default function Admin() {
       alert(data.errors?.join(",") ?? "エラーが発生しました");
     }
   };
+
   const handleDeleteTeacher = async (id: number) => {
     const token = localStorage.getItem("token");
     const res = await fetch(
@@ -412,10 +494,19 @@ export default function Admin() {
         <Box sx={{ flexGrow: 1, p: 3 }}>
           {tab === 0 && (
             <Paper sx={{ mt: 2 }}>
+              <Button
+                variant="contained"
+                color="error"
+                disabled={selectedTeacherIds.length === 0}
+                onClick={handleBulkDeleteTeachers}
+              >
+                一括削除
+              </Button>
               <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell>選択</TableCell>
                       <TableCell>名前</TableCell>
                       <TableCell>メールアドレス</TableCell>
                       <TableCell>クラス</TableCell>
@@ -423,8 +514,14 @@ export default function Admin() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {teachers.map((teacher, i) => (
+                    {pageTeachers.map((teacher, i) => (
                       <TableRow key={i}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedTeacherIds.includes(teacher.id)}
+                            onChange={() => teacherHandleCheck(teacher.id)}
+                          />
+                        </TableCell>
                         <TableCell>{teacher.name}</TableCell>
                         <TableCell>{teacher.email_address}</TableCell>
                         <TableCell>
@@ -486,11 +583,24 @@ export default function Admin() {
                   </Button>
                 </DialogActions>
               </Dialog>
+              <Pagination
+                count={totalTeacherPages}
+                page={currentTeacherPage}
+                onChange={(e, page) => setCurrentTeacherPage(page)}
+              />
             </Paper>
           )}
           {tab === 1 && (
             <Paper sx={{ mt: 2 }}>
               <Box>
+                <Button
+                  variant="contained"
+                  color="error"
+                  disabled={selectedParentIds.length === 0}
+                  onClick={handleBulkDeleteParents}
+                >
+                  一括削除
+                </Button>
                 <TextField
                   label="名前で検索"
                   value={serchText}
@@ -522,6 +632,7 @@ export default function Admin() {
                 <Table>
                   <TableHead>
                     <TableRow>
+                      <TableCell>選択</TableCell>
                       <TableCell>名前</TableCell>
                       <TableCell>メールアドレス</TableCell>
                       <TableCell>クラス</TableCell>
@@ -530,8 +641,14 @@ export default function Admin() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredParents.map((parent, i) => (
+                    {pageParents.map((parent, i) => (
                       <TableRow key={i}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedParentIds.includes(parent.id)}
+                            onChange={() => handleCheck(parent.id)}
+                          />
+                        </TableCell>
                         <TableCell>{parent.name}</TableCell>
                         <TableCell>{parent.email_address}</TableCell>
                         <TableCell>
@@ -621,6 +738,11 @@ export default function Admin() {
                   </Button>
                 </DialogActions>
               </Dialog>
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={(e, page) => setCurrentPage(page)}
+              />
             </Paper>
           )}
           {tab === 2 && (
