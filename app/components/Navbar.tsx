@@ -46,7 +46,12 @@ export default function Navbar() {
               <Link href="/register">ユーザー登録</Link>
             </>
           )}
-          {role === "teacher" && <Link href="/meeting_slots">面談表</Link>}
+          {role === "teacher" && (
+            <>
+              <Link href="/child_list">児童一覧</Link>
+              <Link href="/meeting_slots">面談表</Link>
+            </>
+          )}
           {role === "parent" && (
             <>
               <Link href="/my_schedule">面談の決定日</Link>

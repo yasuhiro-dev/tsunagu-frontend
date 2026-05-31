@@ -45,6 +45,28 @@ export default function FamilyUnavailability() {
   const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
+
+  const hundleSubmit = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    const familyId = JSON.parse(atob(token.split(".")[1])).family_id;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${familyId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    if (res.ok) {
+      setSubmitted(true);
+      alert("提出しました");
+    } else {
+      alert("エラーが発生しました");
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -87,6 +109,15 @@ export default function FamilyUnavailability() {
         setError(e.message);
         setLoading(false);
       });
+
+    const familyId = JSON.parse(atob(token.split(".")[1])).family_id;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/families/${familyId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSubmitted(data.submitted);
+      });
   }, [router]);
 
   const handleClick = async (slotId: number) => {
@@ -123,6 +154,9 @@ export default function FamilyUnavailability() {
   return (
     <div style={{ padding: "24px" }}>
       <h1>面談が難しい日時を入力してください</h1>
+      <Button variant="contained" disabled={submitted} onClick={hundleSubmit}>
+        {submitted ? "提出済み" : "提出する"}
+      </Button>
       <div style={{ display: "flex", gap: "16px" }}>
         {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
           <div key={date} style={{ flex: 1, textAlign: "center" }}>
@@ -145,11 +179,19 @@ export default function FamilyUnavailability() {
                     <Button
                       variant="contained"
                       size="small"
-                      fullWidth
                       color={
                         unavailableSlots.includes(slot.id) ? "error" : "primary"
                       }
                       onClick={() => handleClick(slot.id)}
+                      disabled={submitted}
+                      sx={{
+                        "&.Mui-disabled": {
+                          backgroundColor: unavailableSlots.includes(slot.id)
+                            ? "#f44336" // 赤（面談不可）
+                            : "#1976d2", // 青（面談可）
+                          color: "white",
+                        },
+                      }}
                     >
                       {unavailableSlots.includes(slot.id)
                         ? "面談不可"
