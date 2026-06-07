@@ -9,6 +9,10 @@ import CardContent from "@mui/material/CardContent";
 import Box from "@mui/material/Box";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import EmailIcon from "@mui/icons-material/Email";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 type Assignment = {
   child_name: string;
@@ -71,8 +75,28 @@ export default function MySchedulePage() {
         面談日程決定のお知らせ
       </Typography>
       {assignment.map((a, i) => (
-        <Card key={i} sx={{ mb: 2, borderRadius: 3, boxShadow: 3 }}>
+        <Card
+          key={i}
+          sx={{
+            mb: 2,
+            borderRadius: 3,
+            boxShadow: 3,
+            backgroundColor: "#FFFBF5",
+          }}
+        >
           <CardContent>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
+            >
+              <Chip
+                icon={<FiberManualRecordIcon sx={{ fontSize: 10 }} />}
+                label="CONFIRMED"
+                size="small"
+                color="success"
+                variant="outlined"
+              />
+              <Chip label={a.class_name} size="small" color="default" />
+            </Box>
             <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
               {a.child_name}（{a.class_name}）
             </Typography>
@@ -85,6 +109,22 @@ export default function MySchedulePage() {
               <Typography>
                 {formatTime(a.start_at)}〜{formatTime(a.end_at)}
               </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<EmailIcon />}
+              >
+                リマインドメッセージを送信
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CalendarMonthIcon />}
+              >
+                カレンダーに追加
+              </Button>
             </Box>
           </CardContent>
         </Card>

@@ -7,13 +7,35 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import SecurityIcon from "@mui/icons-material/Security";
+import Box from "@mui/material/Box";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
+import Avatar from "@mui/material/Avatar";
+import LogoutIcon from "@mui/icons-material/Logout";
 
+const decodeToken = (token: string) => {
+  const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(decodeURIComponent(escape(atob(base64))));
+};
 const getRole = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
   try {
-    const decoded = JSON.parse(atob(token.split(".")[1]));
+    const decoded = decodeToken(token);
     return decoded.role;
+  } catch {
+    return null;
+  }
+};
+
+const getName = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const decoded = decodeToken(token);
+    return decoded.name;
   } catch {
     return null;
   }
@@ -22,9 +44,12 @@ const getRole = () => {
 export default function Navbar() {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
+  const isMobile = useMediaQuery("(max-width:600px)");
+  const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
     setRole(getRole());
+    setName(getName());
   }, []);
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -36,34 +61,170 @@ export default function Navbar() {
   return (
     <AppBar position="static" sx={{ backgroundColor: "#1a3a6b" }}>
       <Toolbar>
-        <Typography sx={{ mr: 3, flexGrow: 1 }} variant="h6">
-          保護者面談管理アプリ
-        </Typography>
-        <div style={{ display: "flex", gap: "24px" }}>
-          {role === null && (
-            <>
-              <Link href="/login">ログイン</Link>
-              <Link href="/register">ユーザー登録</Link>
-            </>
-          )}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
+          <SecurityIcon />
+          <Typography
+            sx={{ mr: 3, flexGrow: 1 }}
+            variant={isMobile ? "body2" : "h6"}
+          >
+            保護者面談管理アプリ
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{ flex: 1, display: "flex", justifyContent: "center", gap: 4 }}
+        >
           {role === "teacher" && (
             <>
-              <Link href="/child_list">児童一覧</Link>
-              <Link href="/meeting_slots">面談表</Link>
+              <Button
+                component={Link}
+                href="/child_list"
+                variant="outlined"
+                color="inherit"
+                sx={{
+                  borderRadius: "50px",
+                  "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
+                  fontSize: isMobile ? "12px" : "16px",
+                }}
+              >
+                児童一覧
+              </Button>
+              <Button
+                component={Link}
+                color="inherit"
+                variant="outlined"
+                href="/meeting_slots"
+                sx={{
+                  borderRadius: "50px",
+                  "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
+                  fontSize: isMobile ? "12px" : "16px",
+                }}
+              >
+                面談表
+              </Button>
             </>
           )}
           {role === "parent" && (
             <>
-              <Link href="/my_schedule">面談の決定日</Link>
-              <Link href="/family_unavailabilities">時間不可の</Link>
+              <Button
+                sx={{
+                  borderRadius: "50px",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+                variant="outlined"
+                component={Link}
+                startIcon={<CalendarMonthIcon />}
+                href="/my_schedule"
+                style={{ fontSize: isMobile ? "12px" : "16px" }}
+                color="inherit"
+              >
+                面談の決定日
+              </Button>
+              <Button
+                sx={{
+                  borderRadius: "50px",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+                variant="outlined"
+                component={Link}
+                href="/family_unavailabilities"
+                style={{ fontSize: isMobile ? "12px" : "16px" }}
+                startIcon={<EventBusyIcon />}
+                color="inherit"
+              >
+                不可日時
+              </Button>
             </>
           )}
-        </div>
-        {role !== null && (
-          <Button color="inherit" onClick={handleLogout}>
-            ログアウト
-          </Button>
-        )}
+        </Box>
+
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          {role === null && (
+            <>
+              <Button
+                component={Link}
+                href="/login"
+                color="inherit"
+                sx={{
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  fontSize: isMobile ? "12px" : "16px",
+                }}
+              >
+                ログイン
+              </Button>
+
+              <Box
+                sx={{
+                  width: "1px",
+                  height: "24px",
+                  backgroundColor: "rgba(255,255,255,0.4)",
+                }}
+              />
+
+              <Button
+                component={Link}
+                color="inherit"
+                href="/register"
+                sx={{
+                  "&:hover": { backgroundColor: "rgba(255, 255, 255, 0.1)" },
+                  fontSize: isMobile ? "12px" : "16px",
+                }}
+              >
+                ユーザー登録
+              </Button>
+            </>
+          )}
+          {role !== null && (
+            <>
+              <Button
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                }}
+                color="inherit"
+                onClick={handleLogout}
+                startIcon={<LogoutIcon />}
+              >
+                ログアウト
+              </Button>
+              <Box
+                sx={{
+                  width: "1px",
+                  height: "24px",
+                  backgroundColor: "rgba(255,255,255,0.4)",
+                }}
+              />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mr: 2,
+                }}
+              >
+                <Avatar sx={{ width: 32, height: 32, bgcolor: "#ffffff33" }}>
+                  {name?.charAt(0)}
+                </Avatar>
+                <Typography variant="body2" color="inherit">
+                  {role === "teacher" ? `${name} 先生` : `${name} 様`}
+                </Typography>
+              </Box>
+            </>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );
