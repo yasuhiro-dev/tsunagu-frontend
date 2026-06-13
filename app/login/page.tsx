@@ -1,9 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 type RedirectMap = {
   teacher: string;
@@ -19,8 +28,31 @@ type LoginResponse = {
 export default function LoginPage() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
+  const [apiError, setApiError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async () => {
+    setApiError("");
+    if (!emailAddress) {
+      setEmailError("メールアドレスを入力してください");
+      return;
+    } else if (!emailAddress.includes("@")) {
+      setEmailError("正しいメールアドレスの形式で入力してください");
+      return;
+    } else {
+      setEmailError("");
+    }
+    if (!password) {
+      setPasswordError("パスワードを入力してください");
+      return;
+    } else {
+      setPasswordError("");
+    }
+    setIsLoading(true);
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,7 +69,8 @@ export default function LoginPage() {
       };
       window.location.href = redirectMap[data.role] ?? "/";
     } else {
-      alert("メールアドレスまたはパスワードが違います");
+      setApiError("メールアドレスまたはパスワードが違います");
+      setIsLoading(false);
     }
   };
 
@@ -45,31 +78,101 @@ export default function LoginPage() {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        gap: 2,
-        maxWidth: 400,
-        margin: "0 auto",
+        backgroundImage: "url('/tsunagu.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      <h1>ログイン</h1>
-      <TextField
-        type="email"
-        label="メールアドレス"
-        value={emailAddress}
-        onChange={(e) => setEmailAddress(e.target.value)}
-      />
-      <TextField
-        type="password"
-        label="パスワード"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <Button variant="contained" onClick={handleSubmit} fullWidth>
-        ログイン
-      </Button>
+      <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
+        <CardContent>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mb: 2,
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "bold", color: "#1a3a5c" }}
+            >
+              Tsunagu
+            </Typography>
+          </Box>
+          <Typography
+            variant="h6"
+            sx={{ textAlign: "center", mb: 2, color: "#1a3a5c" }}
+          >
+            Tsunagu にログイン
+          </Typography>
+          {apiError && <Alert severity="error">{apiError}</Alert>}
+          <TextField
+            type="email"
+            label="メールアドレス"
+            value={emailAddress}
+            onChange={(e) => setEmailAddress(e.target.value)}
+            error={!!emailError}
+            helperText={emailError}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            type={showPassword ? "text" : "password"}
+            label="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!passwordError}
+            helperText={passwordError}
+            fullWidth
+            sx={{ mb: 1 }}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <Box sx={{ textAlign: "right", mb: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "#1a3a5c", cursor: "pointer" }}
+            >
+              パスワードを忘れた方
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            fullWidth
+            disabled={isLoading}
+            sx={{ mb: 1 }}
+          >
+            {isLoading ? "ログイン中..." : "ログイン"}
+          </Button>
+          <Box sx={{ textAlign: "center", mb: 2, px: 2 }}>
+            <Typography variant="body2" sx={{ color: "#555" }}>
+              アカウントをお持ちでない方?{" "}
+              <Typography
+                component="span"
+                variant="body2"
+                onClick={() => router.push("/register")}
+                sx={{ color: "#1a3a5c", fontWeight: "bold", cursor: "pointer" }}
+              >
+                ユーザー登録はこちら
+              </Typography>
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

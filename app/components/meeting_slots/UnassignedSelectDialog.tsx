@@ -65,10 +65,15 @@ export default function UnassignedSelectDialog({
   };
 
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    const timer = setTimeout(() => {
       fetchUnassigned();
-    }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [open]);
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>未割り当て児童から選択</DialogTitle>

@@ -3,12 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Chip from "@mui/material/Chip";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SlotAddPopover from "../components/meeting_slots/SlotAddPopover";
 
@@ -55,7 +52,6 @@ export default function MeetingSlotPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const isMobile = useMediaQuery("(max-width:600px)");
   const [unassignedChildren, setUnassignedChildren] = useState<
     { id: number; child_name: string; family_name: string }[]
   >([]);
@@ -133,7 +129,11 @@ export default function MeetingSlotPage() {
         <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
           面談スケジュール
         </Typography>
-        <Box className="no-print" sx={{ mb: 2, display: "flex", gap: 1 }}>
+        <Box
+          className="no-print"
+          sx={{ alignItems: "center", display: "flex", gap: 1 }}
+        >
+          <p>{message}</p>
           <Button variant="contained" color="primary" onClick={handleClick}>
             割り当てを実行する
           </Button>
@@ -145,11 +145,10 @@ export default function MeetingSlotPage() {
             印刷
           </Button>
         </Box>
-        <p>{message}</p>
       </Box>
 
       <Box sx={{ display: "flex", gap: 2 }}>
-        <Box sx={{ width: "260px", flexShrink: 0 }}>
+        <Box sx={{ width: "200px", flexShrink: 0 }}>
           <Typography>
             未割り当て児童
             <Chip
@@ -179,7 +178,8 @@ export default function MeetingSlotPage() {
               <Box
                 key={date}
                 sx={{
-                  width: "120px",
+                  flex: 1,
+                  minWidth: "120px",
                   border: "1px solid #e0e0e0",
                   p: 1,
                   backgroundColor: "#1976d2",
@@ -217,7 +217,8 @@ export default function MeetingSlotPage() {
                   <Box
                     key={date}
                     sx={{
-                      width: "120px",
+                      flex: 1,
+                      minWidth: "120px",
                       border: "1px solid #e0e0e0",
                       p: 1,
                       minHeight: "80px",
@@ -225,18 +226,22 @@ export default function MeetingSlotPage() {
                   >
                     {matrix[time][date]?.child_name ? (
                       <>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
                           {matrix[time][date].child_name}
                         </Typography>
                         <Chip
                           label="確定"
                           color="primary"
-                          size="small"
                           sx={{ borderRadius: "4px" }}
                         />
                       </>
                     ) : (
-                      <Box sx={{ textAlign: "center", minHeight: "80px" }}>
+                      <Box
+                        sx={{
+                          textAlign: "center",
+                          minHeight: "80px",
+                        }}
+                      >
                         <Typography
                           variant="body2"
                           sx={{ color: "text.secondary" }}
