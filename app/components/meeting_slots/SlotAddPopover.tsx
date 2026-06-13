@@ -58,7 +58,9 @@ export default function SlotAddPopover({
             <ListItemIcon>
               <PeopleIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>未割り当てから選択</ListItemText>
+            <ListItemText>
+              {dateLabel} {timeLabel} の枠に追加する児童を選択
+            </ListItemText>
           </MenuItem>
         </MenuList>
       </Popover>

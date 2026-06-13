@@ -8,6 +8,13 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 type ClassRoom = {
   id: number;
@@ -19,12 +26,16 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [familyName, setFamilyName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [classRooms, setClassRooms] = useState<ClassRoom[]>([]);
   const [children, setChildren] = useState([
     { childName: "", classRoomId: "" },
   ]);
   const addChild = () => {
     setChildren([...children, { childName: "", classRoomId: "" }]);
+  };
+  const removeChild = (index: number) => {
+    setChildren(children.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
@@ -60,7 +71,11 @@ export default function RegisterPage() {
       setMessage("登録が完了した");
       window.location.href = "/family_unavailabilities";
     } else {
-      setMessage(data.errors.join(","));
+      setMessage(
+        Array.isArray(data.errors)
+          ? data.errors.join(",")
+          : JSON.stringify(data.errors),
+      );
     }
   };
 
@@ -71,70 +86,128 @@ export default function RegisterPage() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "100vh",
+        width: "100%",
+        minHeight: "calc(100vh - 64px)",
         gap: 2,
-        maxWidth: 400,
         margin: "0 auto",
+        backgroundImage: "url('tsunagu.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      <h1>ユーザー登録</h1>
-      <TextField
-        type="text"
-        label="保護者名"
-        value={familyName}
-        onChange={(e) => setFamilyName(e.target.value)}
-      />
-      {children.map((child, index) => (
-        <Box key={index}>
+      <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          ユーザー登録
+        </Typography>
+        <TextField
+          type="text"
+          label="保護者名"
+          value={familyName}
+          sx={{ mb: 2, width: 350 }}
+          onChange={(e) => setFamilyName(e.target.value)}
+        />
+
+        <Card
+          sx={{
+            p: 2,
+            boxShadow: 2,
+            borderRadius: 3,
+            backgroundColor: "#f0f4f8",
+            mb: 2,
+          }}
+        >
+          {children.map((child, index) => (
+            <Box key={index} sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <TextField
+                type="text"
+                sx={{ flex: 1 }}
+                label="児童名"
+                value={child.childName}
+                onChange={(e) => {
+                  const newChildren = [...children];
+                  newChildren[index].childName = e.target.value;
+                  setChildren(newChildren);
+                }}
+              />
+              <FormControl fullWidth sx={{ flex: 1 }}>
+                <InputLabel>クラス選択</InputLabel>
+                <Select
+                  value={child.classRoomId}
+                  onChange={(e) => {
+                    const newChildren = [...children];
+                    newChildren[index].classRoomId = e.target.value;
+                    setChildren(newChildren);
+                  }}
+                >
+                  {classRooms.map((classRoom) => (
+                    <MenuItem key={classRoom.id} value={classRoom.id}>
+                      {classRoom.classname}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {children.length > 1 && (
+                <IconButton
+                  onClick={() => removeChild(index)}
+                  color="error"
+                  aria-label="この児童を削除"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
+            </Box>
+          ))}
+
+          <Button
+            onClick={addChild}
+            fullWidth
+            sx={{
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 4,
+            }}
+          >
+            + 児童を追加する
+          </Button>
+        </Card>
+
+        <Box sx={{ display: "flex", mb: 2, gap: 2 }}>
           <TextField
-            type="text"
-            label="児童名"
-            value={child.childName}
-            onChange={(e) => {
-              const newChildren = [...children];
-              newChildren[index].childName = e.target.value;
-              setChildren(newChildren);
+            type="email"
+            label="メールアドレス"
+            value={emailAddress}
+            onChange={(e) => setEmailAddress(e.target.value)}
+          />
+
+          <TextField
+            type={showPassword ? "text" : "password"}
+            label="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
-          <FormControl fullWidth>
-            <InputLabel>クラス選択</InputLabel>
-            <Select
-              value={child.classRoomId}
-              onChange={(e) => {
-                const newChildren = [...children];
-                newChildren[index].classRoomId = e.target.value;
-                setChildren(newChildren);
-              }}
-            >
-              {classRooms.map((classRoom) => (
-                <MenuItem key={classRoom.id} value={classRoom.id}>
-                  {classRoom.classname}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
         </Box>
-      ))}
-      <Button onClick={addChild}>+ 児童を追加する</Button>
-
-      <TextField
-        type="email"
-        label="メールアドレス"
-        value={emailAddress}
-        onChange={(e) => setEmailAddress(e.target.value)}
-      />
-      <TextField
-        type="password"
-        label="パスワード"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <FormControl fullWidth>
-        <Button variant="contained" onClick={handleSubmit}>
-          登録
-        </Button>
-        {message && <p>{message}</p>}
-      </FormControl>
+        <FormControl fullWidth>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            sx={{ borderRadius: 3 }}
+          >
+            登録
+          </Button>
+          {message && <p>{message}</p>}
+        </FormControl>
+      </Card>
     </Box>
   );
 }
