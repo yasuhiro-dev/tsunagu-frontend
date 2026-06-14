@@ -8,7 +8,6 @@ import Toolbar from "@mui/material/Toolbar";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import SecurityIcon from "@mui/icons-material/Security";
 import Box from "@mui/material/Box";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
@@ -16,6 +15,7 @@ import Avatar from "@mui/material/Avatar";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import Image from "next/image";
 
 const decodeToken = (token: string) => {
   const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -66,16 +66,19 @@ export default function Navbar() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: "#1a3a6b" }}>
+      <AppBar
+        position="static"
+        sx={{ backgroundColor: "#ffffff", color: "#1a3a6b" }}
+      >
         <Toolbar>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-            <SecurityIcon />
-            <Typography
-              sx={{ mr: 3, flexGrow: 1 }}
-              variant={isMobile ? "body2" : "h6"}
-            >
-              保護者面談管理アプリ
-            </Typography>
+          <Box sx={{ padding: "24px" }}>
+            <Image
+              src="/tsunag_logo2.png"
+              alt="Tsunagu"
+              width={140}
+              height={40}
+              className="h-12 w-auto"
+            />
           </Box>
 
           <Box
@@ -204,7 +207,11 @@ export default function Navbar() {
                     {name?.charAt(0)}
                   </Avatar>
                   <Typography variant="body2" color="inherit">
-                    {role === "teacher" ? `${name} 先生` : `${name} 様`}
+                    {role === "teacher"
+                      ? `${name} 先生`
+                      : role === "admin"
+                        ? `管理者`
+                        : `${name} 様`}
                   </Typography>
                 </Box>
               </>
