@@ -27,6 +27,16 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Box from "@mui/material/Box";
 import Pagination from "@mui/material/Pagination";
 import Checkbox from "@mui/material/Checkbox";
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
+import PersonIcon from "@mui/icons-material/Person";
+import GroupIcon from "@mui/icons-material/Group";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
 
 type Teacher = {
   name: string;
@@ -91,6 +101,17 @@ export default function Admin() {
   const itemsPerTeacherPage = 10;
   const [selectedParentIds, setSelectedParentIds] = useState<number[]>([]);
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
+  const [teacherSerchText, setTeacherSerchText] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
+
+  const filteredTeachers = useMemo(() => {
+    return teachers.filter((t) => t.name.includes(teacherSerchText));
+  }, [teachers, teacherSerchText]);
 
   const handleCheck = (id: number) => {
     if (selectedParentIds.includes(id)) {
@@ -121,8 +142,15 @@ export default function Admin() {
       },
     );
     if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("削除されました");
       setParents(parents.filter((p) => !selectedParentIds.includes(p.id)));
       setSelectedParentIds([]);
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("削除されませんでした");
     }
   };
 
@@ -140,8 +168,15 @@ export default function Admin() {
       },
     );
     if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("削除しました");
       setTeachers(teachers.filter((t) => !selectedTeacherIds.includes(t.id)));
       setSelectedTeacherIds([]);
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("削除されませんでした");
     }
   };
 
@@ -209,14 +244,14 @@ export default function Admin() {
   }, [filteredParents, currentPage, itemsPerPage]);
 
   const totalTeacherPages = useMemo(() => {
-    return Math.ceil(teachers.length / itemsPerTeacherPage);
-  }, [teachers, itemsPerTeacherPage]);
+    return Math.ceil(filteredTeachers.length / itemsPerTeacherPage);
+  }, [filteredTeachers, itemsPerTeacherPage]);
 
   const pageTeachers = useMemo(() => {
     const start = (currentTeacherPage - 1) * itemsPerTeacherPage;
     const end = currentTeacherPage * itemsPerTeacherPage;
-    return teachers.slice(start, end);
-  }, [teachers, currentTeacherPage, itemsPerTeacherPage]);
+    return filteredTeachers.slice(start, end);
+  }, [filteredTeachers, currentTeacherPage, itemsPerTeacherPage]);
 
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
@@ -247,7 +282,9 @@ export default function Admin() {
     );
     const data = await res.json();
     if (res.ok) {
-      alert("登録が完了しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("登録が完了しました");
 
       setParents([
         ...parents,
@@ -268,12 +305,15 @@ export default function Admin() {
             .join("、"),
         },
       ]);
-      setName("");
+      setFamilyName("");
+      setNameKana("");
       setEmailAddress("");
       setPassword("");
-      setClassRoomId("");
+      setChildren([{ childName: "", classRoomId: "" }]);
     } else {
-      alert(data.errors?.join(",") ?? "エラーが発生しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage(data.errors?.join(",") ?? "エラーが発生しました");
     }
   };
 
@@ -299,7 +339,9 @@ export default function Admin() {
     );
     const data = await res.json();
     if (res.ok) {
-      alert("登録が完了しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("登録が完了しました");
       const selectedClass = classRooms.find(
         (c) => c.id === Number(classRoomId),
       );
@@ -317,7 +359,9 @@ export default function Admin() {
       setPassword("");
       setClassRoomId("");
     } else {
-      alert(data.errors?.join(",") ?? "エラーが発生しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage(data.errors?.join(",") ?? "登録されませんでした");
     }
   };
 
@@ -331,10 +375,14 @@ export default function Admin() {
       },
     );
     if (res.ok) {
-      alert("削除しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("削除しました");
       setTeachers(teachers.filter((t) => t.id !== id));
     } else {
-      alert("削除されませんでした");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("削除されませんでした");
     }
   };
 
@@ -348,8 +396,14 @@ export default function Admin() {
       },
     );
     if (res.ok) {
-      alert("削除しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("削除しました");
       setParents(parents.filter((p) => p.id !== id));
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("削除できませんでした");
     }
   };
 
@@ -371,7 +425,9 @@ export default function Admin() {
       },
     );
     if (res.ok) {
-      alert("更新しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("更新しました");
       setTeacherModalOpen(false);
       const selectedClass = classRooms.find(
         (c) => c.id === Number(editClassRoomId),
@@ -389,7 +445,9 @@ export default function Admin() {
         ),
       );
     } else {
-      alert("更新に失敗しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("更新に失敗しました");
     }
   };
   const handleUpdateParent = async () => {
@@ -409,7 +467,9 @@ export default function Admin() {
       },
     );
     if (res.ok) {
-      alert("更新しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("更新しました");
       setParentModalOpen(false);
       setParents(
         parents.map((p) =>
@@ -431,279 +491,169 @@ export default function Admin() {
         ),
       );
     } else {
-      alert("更新に失敗しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("更新に失敗しました");
     }
   };
+  const sidebarButtonStyle = (tabIndex: number) => ({
+    justifyContent: "flex-start",
+    borderRadius: 2,
+    width: "100%",
+    borderLeft: tab === tabIndex ? "3px solid #1a3a6b" : "none",
+    color: tab === tabIndex ? "#1a3a6b" : "#5f6b7a",
+    backgroundColor:
+      tab === tabIndex ? "rgba(26, 58, 107, 0.08)" : "transparent",
+    fontWeight: tab === tabIndex ? "bold" : "normal",
+    "&:hover": { backgroundColor: "rgba(26, 58, 107, 0.08)" },
+  });
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        ユーザー管理
-      </Typography>
-      <Box sx={{ display: "flex" }}>
-        <Box
-          sx={{
-            width: 200,
-            backgroundColor: "#323131ff",
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Button
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={alertOpen}
+        autoHideDuration={3000}
+        onClose={() => setAlertOpen(false)}
+      >
+        <Alert severity={alertSeverity}>{alertMessage}</Alert>
+      </Snackbar>
+      <Paper sx={{ p: 3 }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          ユーザー管理
+        </Typography>
+
+        <Box sx={{ display: "flex" }}>
+          <Box
             sx={{
-              color: "white",
-              backgroundColor: tab === 0 ? "#1a3a6b" : "transparent",
-              "&:hover": { backgroundColor: "#1a3a6b" },
+              width: 200,
+              backgroundColor: "#ffffff",
+              borderRight: "1px solid #e0e0e0",
+              display: "flex",
+              flexDirection: "column",
+              p: 1,
+              gap: 0.5,
             }}
-            onClick={() => setTab(0)}
           >
-            教師一覧
-          </Button>
-          <Button
-            sx={{
-              color: "white",
-              backgroundColor: tab === 1 ? "#1a3a6b" : "transparent",
-              "&:hover": { backgroundColor: "#1a3a6b" },
-            }}
-            onClick={() => setTab(1)}
-          >
-            保護者一覧
-          </Button>
-          <Button
-            sx={{
-              color: "white",
-              backgroundColor: tab === 2 ? "#1a3a6b" : "transparent",
-              "&:hover": { backgroundColor: "#1a3a6b" },
-            }}
-            onClick={() => setTab(2)}
-          >
-            教師登録
-          </Button>
-          <Button
-            sx={{
-              color: "white",
-              backgroundColor: tab === 3 ? "#1a3a6b" : "transparent",
-              "&:hover": { backgroundColor: "#1a3a6b" },
-            }}
-            onClick={() => setTab(3)}
-          >
-            保護者登録
-          </Button>
-        </Box>
-        <Box sx={{ flexGrow: 1, p: 3 }}>
-          {tab === 0 && (
-            <Paper sx={{ mt: 2 }}>
-              <Button
-                variant="contained"
-                color="error"
-                disabled={selectedTeacherIds.length === 0}
-                onClick={handleBulkDeleteTeachers}
-              >
-                一括削除
-              </Button>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>選択</TableCell>
-                      <TableCell>名前</TableCell>
-                      <TableCell>メールアドレス</TableCell>
-                      <TableCell>クラス</TableCell>
-                      <TableCell>操作</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {pageTeachers.map((teacher, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedTeacherIds.includes(teacher.id)}
-                            onChange={() => teacherHandleCheck(teacher.id)}
-                          />
-                        </TableCell>
-                        <TableCell>{teacher.name}</TableCell>
-                        <TableCell>{teacher.email_address}</TableCell>
-                        <TableCell>
-                          {(teacher.classname ?? "")
-                            .split(",")
-                            .map((classname) => (
-                              <span
-                                key={classname}
-                                className="bg-green-100 text-green-800 rounded-full px-2 py-0.5 text-sm"
-                              >
-                                {classname}
-                              </span>
-                            ))}
-                        </TableCell>
-                        <TableCell>
-                          <IconButton
-                            sx={{
-                              color: "gray",
-                              "&:hover": { color: "green" },
-                            }}
-                            onClick={() => {
-                              setEditTarget(teacher);
-                              setEditName(teacher.name);
-                              setEditMailAddress(teacher.email_address);
-                              setEditClassRoomId("");
-                              setTeacherModalOpen(true);
-                            }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            sx={{ color: "gray", "&:hover": { color: "red" } }}
-                            onClick={() => {
-                              setOpen(true);
-                              setDeleteTargetId(teacher.id);
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </TableCell>
+            <Button
+              startIcon={<PersonIcon />}
+              sx={sidebarButtonStyle(0)}
+              onClick={() => setTab(0)}
+            >
+              教師一覧
+            </Button>
+            <Button
+              startIcon={<GroupIcon />}
+              sx={sidebarButtonStyle(1)}
+              onClick={() => setTab(1)}
+            >
+              保護者一覧
+            </Button>
+            <Button
+              startIcon={<PersonAddIcon />}
+              sx={sidebarButtonStyle(2)}
+              onClick={() => setTab(2)}
+            >
+              教師登録
+            </Button>
+            <Button
+              startIcon={<GroupAddIcon />}
+              sx={sidebarButtonStyle(3)}
+              onClick={() => setTab(3)}
+            >
+              保護者登録
+            </Button>
+          </Box>
+          <Box sx={{ flexGrow: 1 }}>
+            {tab === 0 && (
+              <Box sx={{ p: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h5">教師一覧</Typography>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchIcon sx={{ color: "text.secondary" }} />
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                      placeholder="名前を検索..."
+                      size="small"
+                      value={teacherSerchText}
+                      onChange={(e) => setTeacherSerchText(e.target.value)}
+                    />
+
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<DeleteIcon />}
+                      disabled={selectedTeacherIds.length === 0}
+                      onClick={handleBulkDeleteTeachers}
+                    >
+                      一括削除
+                    </Button>
+                  </Box>
+                </Box>
+
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>選択</TableCell>
+                        <TableCell>名前</TableCell>
+                        <TableCell>メールアドレス</TableCell>
+                        <TableCell>クラス</TableCell>
+                        <TableCell>操作</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Dialog open={open}>
-                <DialogTitle>削除確認</DialogTitle>
-                <DialogContent>本当に削除しますか？</DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setOpen(false)}>キャンセル</Button>
-                  <Button
-                    color="error"
-                    onClick={() => {
-                      if (deleteTargetId) handleDeleteTeacher(deleteTargetId);
-                      setOpen(false);
-                    }}
-                  >
-                    削除
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              <Pagination
-                count={totalTeacherPages}
-                page={currentTeacherPage}
-                onChange={(e, page) => setCurrentTeacherPage(page)}
-              />
-            </Paper>
-          )}
-          {tab === 1 && (
-            <Paper sx={{ mt: 2 }}>
-              <Box>
-                <Button
-                  variant="contained"
-                  color="error"
-                  disabled={selectedParentIds.length === 0}
-                  onClick={handleBulkDeleteParents}
-                >
-                  一括削除
-                </Button>
-                <TextField
-                  label="名前で検索"
-                  value={serchText}
-                  onChange={(e) => setSerchText(e.target.value)}
-                />
-                <Select
-                  value={filterClass}
-                  onChange={(e) => setFilterClass(e.target.value)}
-                  displayEmpty
-                >
-                  <MenuItem value="">全クラス</MenuItem>
-                  {classRooms.map((classRoom) => (
-                    <MenuItem key={classRoom.id} value={classRoom.classname}>
-                      {classRoom.classname}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <Select
-                  value={sortKey}
-                  onChange={(e) => setSortKey(e.target.value)}
-                  displayEmpty
-                >
-                  <MenuItem value="">並び替えなし</MenuItem>
-                  <MenuItem value="name">名前の順</MenuItem>
-                  <MenuItem value="class">クラス順</MenuItem>
-                </Select>
-              </Box>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>選択</TableCell>
-                      <TableCell>名前</TableCell>
-                      <TableCell>メールアドレス</TableCell>
-                      <TableCell>クラス</TableCell>
-                      <TableCell>児童名</TableCell>
-                      <TableCell>操作</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {pageParents.map((parent, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedParentIds.includes(parent.id)}
-                            onChange={() => handleCheck(parent.id)}
-                          />
-                        </TableCell>
-                        <TableCell>{parent.name}</TableCell>
-                        <TableCell>{parent.email_address}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-2">
-                            {parent.children_class
-                              .split(/[・、]/)
-                              .map((cls) => (
+                    </TableHead>
+                    <TableBody>
+                      {pageTeachers.map((teacher, i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedTeacherIds.includes(teacher.id)}
+                              onChange={() => teacherHandleCheck(teacher.id)}
+                            />
+                          </TableCell>
+                          <TableCell>{teacher.name}</TableCell>
+                          <TableCell>{teacher.email_address}</TableCell>
+                          <TableCell>
+                            {(teacher.classname ?? "")
+                              .split(",")
+                              .map((classname) => (
                                 <span
-                                  key={cls}
+                                  key={classname}
                                   className="bg-green-100 text-green-800 rounded-full px-2 py-0.5 text-sm"
                                 >
-                                  {cls}
+                                  {classname}
                                 </span>
                               ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-2">
-                            {parent.children_name.split("、").map((child) => (
-                              <span
-                                key={child}
-                                className="bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 text-sm"
-                              >
-                                {child}
-                              </span>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div style={{ display: "flex" }}>
+                          </TableCell>
+                          <TableCell>
                             <IconButton
                               sx={{
                                 color: "gray",
                                 "&:hover": { color: "green" },
                               }}
-                              onClick={async () => {
-                                const token = localStorage.getItem("token");
-                                const res = await fetch(
-                                  `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
-                                  {
-                                    headers: {
-                                      Authorization: `Bearer ${token}`,
-                                    },
-                                  },
-                                );
-                                const data = await res.json();
-                                setEditTargetParent(parent);
-                                setEditParentName(parent.name);
-                                setEditChildren(data.children);
-                                setParentModalOpen(true);
+                              onClick={() => {
+                                setEditTarget(teacher);
+                                setEditName(teacher.name);
+                                setEditMailAddress(teacher.email_address);
+                                setEditClassRoomId("");
+                                setTeacherModalOpen(true);
                               }}
                             >
                               <EditIcon />
                             </IconButton>
-
                             <IconButton
                               sx={{
                                 color: "gray",
@@ -711,310 +661,546 @@ export default function Admin() {
                               }}
                               onClick={() => {
                                 setOpen(true);
-                                setDeleteTargetId(parent.id);
+                                setDeleteTargetId(teacher.id);
                               }}
                             >
                               <DeleteIcon />
                             </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              <Dialog open={open}>
-                <DialogTitle>削除の確認</DialogTitle>
-                <DialogContent>本当に削除しますか？</DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setOpen(false)}>キャンセル</Button>
-                  <Button
-                    onClick={() => {
-                      if (deleteTargetId) handleDeleteParent(deleteTargetId);
-                      setOpen(false);
-                    }}
-                  >
-                    削除
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={(e, page) => setCurrentPage(page)}
-              />
-            </Paper>
-          )}
-          {tab === 2 && (
-            <Paper
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                p: 3,
-                flexGrow: 1,
-                margin: "auto",
-                width: 400,
-              }}
-            >
-              <TextField
-                label="名前"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <FormControl>
-                <InputLabel>クラス</InputLabel>
-                <Select
-                  value={classRoomId}
-                  onChange={(e) => setClassRoomId(e.target.value)}
-                  label="クラス"
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Dialog open={open}>
+                  <DialogTitle>削除確認</DialogTitle>
+                  <DialogContent>本当に削除しますか？</DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setOpen(false)}>キャンセル</Button>
+                    <Button
+                      color="error"
+                      onClick={() => {
+                        if (deleteTargetId) handleDeleteTeacher(deleteTargetId);
+                        setOpen(false);
+                      }}
+                    >
+                      削除
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                <Pagination
+                  count={totalTeacherPages}
+                  page={currentTeacherPage}
+                  onChange={(e, page) => setCurrentTeacherPage(page)}
+                />
+              </Box>
+            )}
+            {tab === 1 && (
+              <Box sx={{ p: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    mb: 2,
+                  }}
                 >
+                  <Typography variant="h5">保護者一覧</Typography>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                      placeholder="名前を検索..."
+                      size="small"
+                      value={serchText}
+                      onChange={(e) => setSerchText(e.target.value)}
+                      slotProps={{
+                        input: {
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <SearchIcon sx={{ color: "text.secondary" }} />
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                    <Select
+                      size="small"
+                      value={filterClass}
+                      onChange={(e) => setFilterClass(e.target.value)}
+                      displayEmpty
+                    >
+                      <MenuItem value="">全クラス</MenuItem>
+                      {classRooms.map((classRoom) => (
+                        <MenuItem
+                          key={classRoom.id}
+                          value={classRoom.classname}
+                        >
+                          {classRoom.classname}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <Select
+                      size="small"
+                      value={sortKey}
+                      onChange={(e) => setSortKey(e.target.value)}
+                      displayEmpty
+                    >
+                      <MenuItem value="">並び替えなし</MenuItem>
+                      <MenuItem value="name">名前の順</MenuItem>
+                      <MenuItem value="class">クラス順</MenuItem>
+                    </Select>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      disabled={selectedParentIds.length === 0}
+                      onClick={handleBulkDeleteParents}
+                      startIcon={<DeleteIcon />}
+                    >
+                      一括削除
+                    </Button>
+                  </Box>
+                </Box>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>選択</TableCell>
+                        <TableCell>名前</TableCell>
+                        <TableCell>メールアドレス</TableCell>
+                        <TableCell>クラス</TableCell>
+                        <TableCell>児童名</TableCell>
+                        <TableCell>操作</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {pageParents.map((parent, i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedParentIds.includes(parent.id)}
+                              onChange={() => handleCheck(parent.id)}
+                            />
+                          </TableCell>
+                          <TableCell>{parent.name}</TableCell>
+                          <TableCell>{parent.email_address}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-2">
+                              {parent.children_class
+                                .split(/[・、]/)
+                                .map((cls) => (
+                                  <span
+                                    key={cls}
+                                    className="bg-green-100 text-green-800 rounded-full px-2 py-0.5 text-sm"
+                                  >
+                                    {cls}
+                                  </span>
+                                ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-2">
+                              {parent.children_name.split("、").map((child) => (
+                                <span
+                                  key={child}
+                                  className="bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 text-sm"
+                                >
+                                  {child}
+                                </span>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div style={{ display: "flex" }}>
+                              <IconButton
+                                sx={{
+                                  color: "gray",
+                                  "&:hover": { color: "green" },
+                                }}
+                                onClick={async () => {
+                                  const token = localStorage.getItem("token");
+                                  const res = await fetch(
+                                    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
+                                    {
+                                      headers: {
+                                        Authorization: `Bearer ${token}`,
+                                      },
+                                    },
+                                  );
+                                  const data = await res.json();
+                                  setEditTargetParent(parent);
+                                  setEditParentName(parent.name);
+                                  setEditChildren(data.children);
+                                  setParentModalOpen(true);
+                                }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+
+                              <IconButton
+                                sx={{
+                                  color: "gray",
+                                  "&:hover": { color: "red" },
+                                }}
+                                onClick={() => {
+                                  setOpen(true);
+                                  setDeleteTargetId(parent.id);
+                                }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Dialog open={open}>
+                  <DialogTitle>削除の確認</DialogTitle>
+                  <DialogContent>本当に削除しますか？</DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setOpen(false)}>キャンセル</Button>
+                    <Button
+                      onClick={() => {
+                        if (deleteTargetId) handleDeleteParent(deleteTargetId);
+                        setOpen(false);
+                      }}
+                    >
+                      削除
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={(e, page) => setCurrentPage(page)}
+                />
+              </Box>
+            )}
+            {tab === 2 && (
+              <Paper
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  p: 3,
+                  flexGrow: 1,
+                  margin: "auto",
+                  width: 400,
+                }}
+              >
+                <Typography variant="h5">教師登録</Typography>
+                <TextField
+                  label="名前"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <FormControl>
+                  <InputLabel>クラス</InputLabel>
+                  <Select
+                    value={classRoomId}
+                    onChange={(e) => setClassRoomId(e.target.value)}
+                    label="クラス"
+                  >
+                    {classRooms.map((classRoom) => (
+                      <MenuItem key={classRoom.id} value={classRoom.id}>
+                        {classRoom.classname}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <TextField
+                  label="メールアドレス"
+                  value={emailAddress}
+                  onChange={(e) => setEmailAddress(e.target.value)}
+                />
+                <TextField
+                  label="パスワード"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  onClick={handleSubmit}
+                  disabled={
+                    name === "" ||
+                    classRoomId === "" ||
+                    emailAddress === "" ||
+                    password === ""
+                  }
+                >
+                  登録
+                </Button>
+              </Paper>
+            )}
+            {tab === 3 && (
+              <Paper
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  p: 3,
+                  flexGrow: 1,
+                  margin: "auto",
+                  width: 400,
+                }}
+              >
+                <Typography variant="h5">保護者登録</Typography>
+                <TextField
+                  label="保護者名"
+                  value={familyName}
+                  onChange={(e) => setFamilyName(e.target.value)}
+                />
+                <TextField
+                  label="ふりがな"
+                  value={nameKana}
+                  onChange={(e) => setNameKana(e.target.value)}
+                />
+                <TextField
+                  label="メールアドレス"
+                  value={emailAddress}
+                  onChange={(e) => setEmailAddress(e.target.value)}
+                />
+                <TextField
+                  type={showPassword ? "text" : "password"}
+                  label="パスワード"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+                {children.map((child, i) => (
+                  <div
+                    key={i}
+                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  >
+                    <TextField
+                      label="児童名"
+                      value={child.childName}
+                      onChange={(e) => {
+                        const updated = [...children];
+                        updated[i] = {
+                          ...updated[i],
+                          childName: e.target.value,
+                        };
+                        setChildren(updated);
+                      }}
+                    />
+                    <FormControl>
+                      <InputLabel>クラス</InputLabel>
+                      <Select
+                        value={child.classRoomId}
+                        onChange={(e) => {
+                          const updated = [...children];
+                          updated[i] = {
+                            ...updated[i],
+                            classRoomId: e.target.value,
+                          };
+                          setChildren(updated);
+                        }}
+                        label="クラス"
+                      >
+                        {classRooms.map((classRoom) => (
+                          <MenuItem key={classRoom.id} value={classRoom.id}>
+                            {classRoom.classname}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <Button
+                      onClick={() => {
+                        const updated = children.filter(
+                          (child, index) => index !== i,
+                        );
+                        setChildren(
+                          updated.length === 0
+                            ? [{ childName: "", classRoomId: "" }]
+                            : updated,
+                        );
+                      }}
+                    >
+                      元に戻す
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  onClick={() => {
+                    setChildren([
+                      ...children,
+                      { childName: "", classRoomId: "" },
+                    ]);
+                  }}
+                >
+                  児童を追加
+                </Button>
+
+                <Button
+                  disabled={
+                    familyName === "" ||
+                    nameKana === "" ||
+                    emailAddress === "" ||
+                    password === "" ||
+                    children.some(
+                      (child) =>
+                        child.childName === "" || child.classRoomId === "",
+                    )
+                  }
+                  variant="contained"
+                  onClick={handleSubmitParent}
+                >
+                  登録
+                </Button>
+              </Paper>
+            )}
+
+            <Dialog
+              open={teacherModalOpen}
+              onClose={() => setTeacherModalOpen(false)}
+            >
+              <DialogTitle>先生の編集</DialogTitle>
+              <DialogContent
+                sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+              >
+                <TextField
+                  label="名前"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+                <TextField
+                  label="メールアドレス"
+                  value={editMailAddress}
+                  onChange={(e) => setEditMailAddress(e.target.value)}
+                />
+                <Select
+                  value={editClassRoomId}
+                  onChange={(e) => setEditClassRoomId(e.target.value)}
+                  displayEmpty
+                >
+                  <MenuItem value="">クラス選択</MenuItem>
                   {classRooms.map((classRoom) => (
                     <MenuItem key={classRoom.id} value={classRoom.id}>
                       {classRoom.classname}
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
 
-              <TextField
-                label="メールアドレス"
-                value={emailAddress}
-                onChange={(e) => setEmailAddress(e.target.value)}
-              />
-              <TextField
-                label="パスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button variant="contained" onClick={handleSubmit}>
-                登録
-              </Button>
-            </Paper>
-          )}
-          {tab === 3 && (
-            <Paper
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                p: 3,
-                flexGrow: 1,
-                margin: "auto",
-                width: 400,
-              }}
+                <DialogActions>
+                  <Button onClick={() => setTeacherModalOpen(false)}>
+                    キャンセル
+                  </Button>
+                  <Button onClick={handleUpdate} variant="contained">
+                    更新
+                  </Button>
+                </DialogActions>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={parentModalOpen}
+              onClose={() => setParentModalOpen(false)}
             >
-              <TextField
-                label="保護者名"
-                value={familyName}
-                onChange={(e) => setFamilyName(e.target.value)}
-              />
-              <TextField
-                label="ふりがな"
-                value={nameKana}
-                onChange={(e) => setNameKana(e.target.value)}
-              />
-              <TextField
-                label="メールアドレス"
-                value={emailAddress}
-                onChange={(e) => setEmailAddress(e.target.value)}
-              />
-              <TextField
-                label="パスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {children.map((child, i) => (
-                <div
-                  key={i}
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                >
-                  <TextField
-                    label="児童名"
-                    value={child.childName}
-                    onChange={(e) => {
-                      const updated = [...children];
-                      updated[i] = { ...updated[i], childName: e.target.value };
-                      setChildren(updated);
-                    }}
-                  />
-                  <FormControl>
-                    <InputLabel>クラス</InputLabel>
-                    <Select
-                      value={child.classRoomId}
+              <DialogTitle>保護者の編集</DialogTitle>
+              <DialogContent
+                sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+              >
+                <TextField
+                  label="保護者名"
+                  value={editParentName}
+                  onChange={(e) => setEditParentName(e.target.value)}
+                />
+                {editChildren.map((child, i) => (
+                  <div key={i}>
+                    <TextField
+                      label="児童名"
+                      value={child.name}
                       onChange={(e) => {
-                        const updated = [...children];
+                        const updated = [...editChildren];
+                        updated[i] = { ...updated[i], name: e.target.value };
+                        setEditChildren(updated);
+                      }}
+                    />
+                    <Select
+                      value={child.class_room_ids[0] ?? ""}
+                      onChange={(e) => {
+                        const updated = [...editChildren];
                         updated[i] = {
                           ...updated[i],
-                          classRoomId: e.target.value,
+                          class_room_ids: [
+                            Number(e.target.value),
+                            child.class_room_ids[1],
+                          ],
                         };
-                        setChildren(updated);
+                        setEditChildren(updated);
                       }}
-                      label="クラス"
+                      displayEmpty
                     >
+                      <MenuItem value="">クラス選択</MenuItem>
                       {classRooms.map((classRoom) => (
                         <MenuItem key={classRoom.id} value={classRoom.id}>
                           {classRoom.classname}
                         </MenuItem>
                       ))}
                     </Select>
-                  </FormControl>
-                  <Button
-                    onClick={() => {
-                      const updated = children.filter(
-                        (child, index) => index !== i,
-                      );
-                      setChildren(
-                        updated.length === 0
-                          ? [{ childName: "", classRoomId: "" }]
-                          : updated,
-                      );
-                    }}
-                  >
-                    元に戻す
-                  </Button>
-                </div>
-              ))}
-              <Button
-                onClick={() => {
-                  setChildren([
-                    ...children,
-                    { childName: "", classRoomId: "" },
-                  ]);
-                }}
-              >
-                児童を追加
-              </Button>
-
-              <Button variant="contained" onClick={handleSubmitParent}>
-                登録
-              </Button>
-            </Paper>
-          )}
-
-          <Dialog
-            open={teacherModalOpen}
-            onClose={() => setTeacherModalOpen(false)}
-          >
-            <DialogTitle>先生の編集</DialogTitle>
-            <DialogContent
-              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
-            >
-              <TextField
-                label="名前"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-              />
-              <TextField
-                label="メールアドレス"
-                value={editMailAddress}
-                onChange={(e) => setEditMailAddress(e.target.value)}
-              />
-              <Select
-                value={editClassRoomId}
-                onChange={(e) => setEditClassRoomId(e.target.value)}
-                displayEmpty
-              >
-                <MenuItem value="">クラス選択</MenuItem>
-                {classRooms.map((classRoom) => (
-                  <MenuItem key={classRoom.id} value={classRoom.id}>
-                    {classRoom.classname}
-                  </MenuItem>
+                    <Select
+                      value={child.class_room_ids[1] ?? ""}
+                      onChange={(e) => {
+                        const updated = [...editChildren];
+                        updated[i] = {
+                          ...updated[i],
+                          class_room_ids: [
+                            child.class_room_ids[0],
+                            Number(e.target.value),
+                          ],
+                        };
+                        setEditChildren(updated);
+                      }}
+                      displayEmpty
+                    >
+                      <MenuItem value="">クラス選択</MenuItem>
+                      {classRooms.map((classRoom) => (
+                        <MenuItem key={classRoom.id} value={classRoom.id}>
+                          {classRoom.classname}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </div>
                 ))}
-              </Select>
-
-              <DialogActions>
-                <Button onClick={() => setTeacherModalOpen(false)}>
-                  キャンセル
-                </Button>
-                <Button onClick={handleUpdate} variant="contained">
-                  更新
-                </Button>
-              </DialogActions>
-            </DialogContent>
-          </Dialog>
-          <Dialog
-            open={parentModalOpen}
-            onClose={() => setParentModalOpen(false)}
-          >
-            <DialogTitle>保護者の編集</DialogTitle>
-            <DialogContent
-              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
-            >
-              <TextField
-                label="保護者名"
-                value={editParentName}
-                onChange={(e) => setEditParentName(e.target.value)}
-              />
-              {editChildren.map((child, i) => (
-                <div key={i}>
-                  <TextField
-                    label="児童名"
-                    value={child.name}
-                    onChange={(e) => {
-                      const updated = [...editChildren];
-                      updated[i] = { ...updated[i], name: e.target.value };
-                      setEditChildren(updated);
-                    }}
-                  />
-                  <Select
-                    value={child.class_room_ids[0] ?? ""}
-                    onChange={(e) => {
-                      const updated = [...editChildren];
-                      updated[i] = {
-                        ...updated[i],
-                        class_room_ids: [
-                          Number(e.target.value),
-                          child.class_room_ids[1],
-                        ],
-                      };
-                      setEditChildren(updated);
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="">クラス選択</MenuItem>
-                    {classRooms.map((classRoom) => (
-                      <MenuItem key={classRoom.id} value={classRoom.id}>
-                        {classRoom.classname}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <Select
-                    value={child.class_room_ids[1] ?? ""}
-                    onChange={(e) => {
-                      const updated = [...editChildren];
-                      updated[i] = {
-                        ...updated[i],
-                        class_room_ids: [
-                          child.class_room_ids[0],
-                          Number(e.target.value),
-                        ],
-                      };
-                      setEditChildren(updated);
-                    }}
-                    displayEmpty
-                  >
-                    <MenuItem value="">クラス選択</MenuItem>
-                    {classRooms.map((classRoom) => (
-                      <MenuItem key={classRoom.id} value={classRoom.id}>
-                        {classRoom.classname}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </div>
-              ))}
-              <DialogActions>
-                <Button onClick={() => setParentModalOpen(false)}>
-                  キャンセル
-                </Button>
-                <Button onClick={handleUpdateParent} variant="contained">
-                  更新
-                </Button>
-              </DialogActions>
-            </DialogContent>
-          </Dialog>
+                <DialogActions>
+                  <Button onClick={() => setParentModalOpen(false)}>
+                    キャンセル
+                  </Button>
+                  <Button onClick={handleUpdateParent} variant="contained">
+                    更新
+                  </Button>
+                </DialogActions>
+              </DialogContent>
+            </Dialog>
+          </Box>
         </Box>
-      </Box>
+      </Paper>
     </Container>
   );
 }
