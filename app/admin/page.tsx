@@ -313,7 +313,7 @@ export default function Admin() {
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
-      setAlertMessage(data.errors?.join(",") ?? "エラーが発生しました");
+      setAlertMessage(data.errors?.join(",") ?? "登録に失敗しました");
     }
   };
 

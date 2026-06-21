@@ -1,19 +1,18 @@
 "use client";
-
-import useSWR from "swr";
-import { fetcher } from "@/utils";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/health_check`;
-  const { data, error } = useSWR(url, fetcher);
+  const router = useRouter();
 
-  if (error) return <div>An error has occurred.</div>;
-  if (!data) return <div>Loading...</div>;
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/meeting_slots");
+    } else {
+      router.push("/login");
+    }
+  }, [router]);
 
-  return (
-    <div>
-      <p>Rails疎通確認</p>
-      <p>レスポンスメッセージ: {data.message}</p>
-    </div>
-  );
+  return <div>Loading...</div>;
 }
