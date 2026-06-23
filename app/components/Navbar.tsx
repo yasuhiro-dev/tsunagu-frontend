@@ -23,6 +23,7 @@ const decodeToken = (token: string) => {
 };
 
 const getRole = () => {
+  if (typeof window === "undefined") return null;
   const token = localStorage.getItem("token");
   if (!token) return null;
   try {
@@ -34,6 +35,7 @@ const getRole = () => {
 };
 
 const getName = () => {
+  if (typeof window === "undefined") return null;
   const token = localStorage.getItem("token");
   if (!token) return null;
   try {
