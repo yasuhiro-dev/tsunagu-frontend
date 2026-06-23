@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
@@ -46,18 +46,15 @@ const getName = () => {
 
 export default function Navbar() {
   const router = useRouter();
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(getRole());
   const isMobile = useMediaQuery("(max-width:600px)");
-  const [name, setName] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(getName());
   const [logoutMessageOpen, setLogoutMessageOpen] = useState(false);
 
-  useEffect(() => {
-    setRole(getRole());
-    setName(getName());
-  }, []);
   const handleLogout = () => {
     localStorage.removeItem("token");
     setRole(null);
+    setName(null);
     setLogoutMessageOpen(true);
     setTimeout(() => {
       router.push("/login");
