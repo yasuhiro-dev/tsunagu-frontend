@@ -13,6 +13,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Link from "next/link";
 
 type RedirectMap = {
   teacher: string;
@@ -142,12 +143,7 @@ export default function LoginPage() {
             }}
           />
           <Box sx={{ textAlign: "right", mb: 1 }}>
-            <Typography
-              variant="body2"
-              sx={{ color: "#1a3a5c", cursor: "pointer" }}
-            >
-              パスワードを忘れた方
-            </Typography>
+            <Link href="/password_reset">パスワードをお忘れの方はこちら</Link>
           </Box>
           <Button
             variant="contained"
