@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -10,7 +11,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 
-export default function PasswordReset() {
+function PasswordReset() {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [message, setMessage] = useState("");
@@ -146,5 +147,12 @@ export default function PasswordReset() {
         </CardContent>
       </Card>
     </Box>
+  );
+}
+export default function PasswordResetConfirm() {
+  return (
+    <Suspense fallback={<div>読み込み中...</div>}>
+      <PasswordReset />
+    </Suspense>
   );
 }
