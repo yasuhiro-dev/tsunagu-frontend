@@ -54,6 +54,7 @@ export default function LoginPage() {
       setPasswordError("");
     }
     setIsLoading(true);
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

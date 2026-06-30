@@ -15,6 +15,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Alert from "@mui/material/Alert";
+import FormHelperText from "@mui/material/FormHelperText";
 
 type ClassRoom = {
   id: number;
@@ -31,13 +33,20 @@ export default function RegisterPage() {
   const [children, setChildren] = useState([
     { childName: "", classRoomId: "" },
   ]);
+  const [childrenErrors, setChildrenErrors] = useState([
+    { childNameError: "", classRoomError: "" },
+  ]);
+  const [apiError, setApiError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [familyNameError, setFamilyNameError] = useState("");
   const addChild = () => {
     setChildren([...children, { childName: "", classRoomId: "" }]);
   };
   const removeChild = (index: number) => {
     setChildren(children.filter((_, i) => i !== index));
   };
-
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/class_rooms`)
       .then((res) => res.json())
@@ -45,6 +54,49 @@ export default function RegisterPage() {
   }, []);
 
   const handleSubmit = async () => {
+    setApiError("");
+    if (!familyName) {
+      setFamilyNameError("保護者名を入力してください");
+      return;
+    } else {
+      setFamilyNameError("");
+    }
+    if (!emailAddress) {
+      setEmailError("メールアドレスを入力してください");
+      return;
+    } else if (!emailAddress.includes("@")) {
+      setEmailError("正しいメールアドレスの形式で入力してください");
+      return;
+    } else {
+      setEmailError("");
+    }
+    if (!password) {
+      setPasswordError("パスワードを入力してください");
+      return;
+    } else if (password.length < 8) {
+      setPasswordError("パスワードは８文字以上にしましょう");
+      return;
+    } else {
+      setPasswordError("");
+    }
+    const hasChildError = children.some(
+      (child) => !child.childName || !child.classRoomId,
+    );
+    if (hasChildError) {
+      setChildrenErrors(
+        children.map((child) => ({
+          childNameError: !child.childName ? "児童名を入力してください" : "",
+          classRoomError: !child.classRoomId ? "クラスを選択してください" : "",
+        })),
+      );
+
+      return;
+    } else {
+      setChildrenErrors(
+        children.map(() => ({ childNameError: "", classRoomError: "" })),
+      );
+    }
+    setIsLoading(true);
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users/parent`,
       {
@@ -65,13 +117,15 @@ export default function RegisterPage() {
         }),
       },
     );
+
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("token", data.token);
       setMessage("登録が完了した");
       window.location.href = "/family_unavailabilities";
     } else {
-      setMessage(
+      setIsLoading(false);
+      setApiError(
         Array.isArray(data.errors)
           ? data.errors.join(",")
           : JSON.stringify(data.errors),
@@ -96,6 +150,7 @@ export default function RegisterPage() {
       }}
     >
       <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
+        {apiError && <Alert severity="error">{apiError}</Alert>}
         <Typography variant="h5" sx={{ mb: 2 }}>
           ユーザー登録
         </Typography>
@@ -105,6 +160,8 @@ export default function RegisterPage() {
           value={familyName}
           sx={{ mb: 2, width: 350 }}
           onChange={(e) => setFamilyName(e.target.value)}
+          error={!!familyNameError}
+          helperText={familyNameError}
         />
 
         <Card
@@ -123,13 +180,19 @@ export default function RegisterPage() {
                 sx={{ flex: 1 }}
                 label="児童名"
                 value={child.childName}
+                error={!!childrenErrors[index]?.childNameError}
+                helperText={childrenErrors[index]?.childNameError}
                 onChange={(e) => {
                   const newChildren = [...children];
                   newChildren[index].childName = e.target.value;
                   setChildren(newChildren);
                 }}
               />
-              <FormControl fullWidth sx={{ flex: 1 }}>
+              <FormControl
+                fullWidth
+                sx={{ flex: 1 }}
+                error={!!childrenErrors[index]?.classRoomError}
+              >
                 <InputLabel>クラス選択</InputLabel>
                 <Select
                   value={child.classRoomId}
@@ -145,6 +208,9 @@ export default function RegisterPage() {
                     </MenuItem>
                   ))}
                 </Select>
+                <FormHelperText>
+                  {childrenErrors[index]?.classRoomError}
+                </FormHelperText>
               </FormControl>
               {children.length > 1 && (
                 <IconButton
@@ -177,6 +243,8 @@ export default function RegisterPage() {
             label="メールアドレス"
             value={emailAddress}
             onChange={(e) => setEmailAddress(e.target.value)}
+            error={!!emailError}
+            helperText={emailError}
           />
 
           <TextField
@@ -184,6 +252,8 @@ export default function RegisterPage() {
             label="パスワード"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            error={!!passwordError}
+            helperText={passwordError}
             slotProps={{
               input: {
                 endAdornment: (
@@ -202,6 +272,7 @@ export default function RegisterPage() {
             variant="contained"
             onClick={handleSubmit}
             sx={{ borderRadius: 3 }}
+            disabled={isLoading}
           >
             登録
           </Button>
