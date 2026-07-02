@@ -36,29 +36,34 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (
+    loginEmail: string = emailAddress,
+    loginPassword: string = password,
+  ) => {
     setApiError("");
-    if (!emailAddress) {
+    if (!loginEmail) {
       setEmailError("メールアドレスを入力してください");
       return;
-    } else if (!emailAddress.includes("@")) {
+    } else if (!loginEmail.includes("@")) {
       setEmailError("正しいメールアドレスの形式で入力してください");
       return;
     } else {
       setEmailError("");
     }
-    if (!password) {
+    if (!loginPassword) {
       setPasswordError("パスワードを入力してください");
       return;
     } else {
       setPasswordError("");
     }
     setIsLoading(true);
-
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email_address: emailAddress, password }),
+      body: JSON.stringify({
+        email_address: loginEmail,
+        password: loginPassword,
+      }),
     });
 
     if (res.ok) {
@@ -148,13 +153,41 @@ export default function LoginPage() {
           </Box>
           <Button
             variant="contained"
-            onClick={handleSubmit}
+            onClick={() => handleSubmit()}
             fullWidth
             disabled={isLoading}
             sx={{ mb: 1 }}
           >
             {isLoading ? "ログイン中..." : "ログイン"}
           </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleSubmit("yamada@example.com", "password")}
+            fullWidth
+            disabled={isLoading}
+            sx={{ mb: 1 }}
+          >
+            {isLoading ? "ログイン中..." : "デモログイン（保護者）"}
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleSubmit("saito@example.com", "password")}
+            fullWidth
+            disabled={isLoading}
+            sx={{ mb: 1 }}
+          >
+            {isLoading ? "ログイン中..." : "デモログイン(教師)"}
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => handleSubmit("admin@example.com", "password")}
+            fullWidth
+            disabled={isLoading}
+            sx={{ mb: 1 }}
+          >
+            {isLoading ? "ログイン中..." : "デモログイン(管理者)"}
+          </Button>
+
           <Box sx={{ textAlign: "center", mb: 2, px: 2 }}>
             <Typography variant="body2" sx={{ color: "#555" }}>
               アカウントをお持ちでない方?{" "}
