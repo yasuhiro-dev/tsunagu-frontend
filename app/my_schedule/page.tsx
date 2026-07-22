@@ -15,6 +15,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 type Assignment = {
+  id: number;
   child_name: string;
   class_name: string;
   start_at: string;
@@ -65,6 +66,35 @@ export default function MySchedulePage() {
         setLoading(false);
       });
   }, [router]);
+
+  const handleClick = async (assignmentId: number) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    const data = await res.json();
+    if (data.connected == true) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_calendar/${assignmentId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+      const data = await res.json();
+      alert(data.message);
+    } else {
+      alert("Googleカレンダー連携が必要です");
+      router.push("/settings");
+    }
+  };
 
   if (error) return <p>エラー</p>;
   if (loading) return <p>読み込み中...</p>;
@@ -118,10 +148,12 @@ export default function MySchedulePage() {
               >
                 リマインドメッセージを送信
               </Button>
+
               <Button
                 variant="contained"
                 color="success"
                 startIcon={<CalendarMonthIcon />}
+                onClick={() => handleClick(a.id)}
               >
                 カレンダーに追加
               </Button>
