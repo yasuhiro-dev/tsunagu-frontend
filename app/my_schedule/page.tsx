@@ -111,7 +111,7 @@ export default function MySchedulePage() {
             mb: 2,
             borderRadius: 3,
             boxShadow: 3,
-            backgroundColor: "#FFFBF5",
+            backgroundColor: "parper",
           }}
         >
           <CardContent>
@@ -143,15 +143,7 @@ export default function MySchedulePage() {
             <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
               <Button
                 variant="contained"
-                color="success"
-                startIcon={<EmailIcon />}
-              >
-                リマインドメッセージを送信
-              </Button>
-
-              <Button
-                variant="contained"
-                color="success"
+                color="primary"
                 startIcon={<CalendarMonthIcon />}
                 onClick={() => handleClick(a.id)}
               >

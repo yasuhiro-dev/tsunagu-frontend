@@ -221,10 +221,10 @@ export default function FamilyUnavailability() {
                 <Typography
                   variant="h6"
                   sx={{
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    borderRadius: 2,
-                    padding: "4px 8px",
+                    color: "primary.dark",
+                    borderBottom: 2,
+                    borderColor: "primary.main",
+                    pb: 2,
                   }}
                 >
                   {date}

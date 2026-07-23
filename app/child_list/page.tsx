@@ -207,7 +207,7 @@ export default function ChildList() {
           >
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#1976d2" }}>
+                <TableRow sx={{ backgroundColor: "primary.dark" }}>
                   <TableCell sx={{ color: "white", width: "40%" }}>
                     児童名
                   </TableCell>

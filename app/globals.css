@@ -13,7 +13,6 @@
 }
 
 body {
-  background-color: #f5f7fa;
   color: var(--foreground);
 }
 @media print {
