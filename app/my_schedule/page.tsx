@@ -101,7 +101,7 @@ export default function MySchedulePage() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
+      <Typography variant="h5" gutterBottom>
         面談日程決定のお知らせ
       </Typography>
       {assignment.map((a, i) => (
@@ -111,7 +111,7 @@ export default function MySchedulePage() {
             mb: 2,
             borderRadius: 3,
             boxShadow: 3,
-            backgroundColor: "#FFFBF5",
+            backgroundColor: "parper",
           }}
         >
           <CardContent>
@@ -127,7 +127,7 @@ export default function MySchedulePage() {
               />
               <Chip label={a.class_name} size="small" color="default" />
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
+            <Typography variant="h6" gutterBottom>
               {a.child_name}（{a.class_name}）
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -143,15 +143,7 @@ export default function MySchedulePage() {
             <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
               <Button
                 variant="contained"
-                color="success"
-                startIcon={<EmailIcon />}
-              >
-                リマインドメッセージを送信
-              </Button>
-
-              <Button
-                variant="contained"
-                color="success"
+                color="primary"
                 startIcon={<CalendarMonthIcon />}
                 onClick={() => handleClick(a.id)}
               >

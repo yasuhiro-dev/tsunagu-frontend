@@ -1,6 +1,7 @@
 "use client";
 
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import { useState, useEffect } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -199,18 +200,18 @@ export default function FamilyUnavailability() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div style={{ padding: "24px" }}>
+    <Box sx={{ p: 3 }}>
       <Typography>面談に参加できない日時のボタンを押してください</Typography>
 
-      <div
-        style={
+      <Box
+        sx={
           isMobile
-            ? { display: "flex", flexDirection: "column", gap: "16px" }
-            : { display: "flex", gap: "16px" }
+            ? { display: "flex", flexDirection: "column", gap: 2 }
+            : { display: "flex", gap: 2 }
         }
       >
         {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
-          <div key={date} style={{ flex: 1, textAlign: "center" }}>
+          <Box key={date} sx={{ flex: 1, textAlign: "center" }}>
             <Card
               sx={{
                 boxShadow: 3,
@@ -221,30 +222,29 @@ export default function FamilyUnavailability() {
                 <Typography
                   variant="h6"
                   sx={{
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    borderRadius: 2,
-                    padding: "4px 8px",
+                    color: "primary.dark",
+                    borderBottom: 2,
+                    borderColor: "primary.main",
+                    pb: 2,
                   }}
                 >
                   {date}
                 </Typography>
                 {dateSlots.map((slot) => (
-                  <div key={slot.id} style={{ marginBottom: "8px" }}>
+                  <Box key={slot.id} sx={{ mb: 1 }}>
                     <Typography
-                      style={{
+                      sx={{
                         fontSize: "12px",
-                        marginBottom: "4px",
+                        mb: 1,
                         textAlign: "center",
                       }}
                     >
                       {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
                     </Typography>
-                    <div
-                      style={{
+                    <Box
+                      sx={{
                         borderBottom: "1px solid #e0e0e0",
-                        paddingBottom: "8px",
-                        marginBottom: "8px",
+                        mb: 1,
                       }}
                     >
                       <Button
@@ -270,16 +270,16 @@ export default function FamilyUnavailability() {
                           ? "面談不可"
                           : "面談可"}
                       </Button>
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 ))}
               </CardContent>
             </Card>
-            <div
-              style={{
+            <Box
+              sx={{
                 display: "flex",
-                gap: "8px",
-                marginTop: "8px",
+                gap: 2,
+                mt: 1,
                 justifyContent: "center",
               }}
             >
@@ -299,14 +299,12 @@ export default function FamilyUnavailability() {
               >
                 全解除
               </Button>
-            </div>
-          </div>
+            </Box>
+          </Box>
         ))}
-      </div>
+      </Box>
 
-      <div
-        style={isMobile ? { display: "flex", justifyContent: "center" } : {}}
-      >
+      <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
         <Button
           sx={{ mt: 3 }}
           variant="contained"
@@ -315,7 +313,7 @@ export default function FamilyUnavailability() {
         >
           {submitted ? "提出が完了しました" : "上記の内容で提出する"}
         </Button>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

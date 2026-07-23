@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
 export default function SettingPage() {
@@ -37,16 +38,14 @@ export default function SettingPage() {
   };
 
   return (
-    <div style={{ padding: "24px" }}>
+    <Box sx={{ p: 3 }}>
       {connected ? (
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          連携できています
-        </Typography>
+        <Typography variant="h5">連携できています</Typography>
       ) : (
         <Button variant="contained" color="primary" onClick={handleClick}>
           google連携をする
         </Button>
       )}
-    </div>
+    </Box>
   );
 }

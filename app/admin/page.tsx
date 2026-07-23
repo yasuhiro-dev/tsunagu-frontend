@@ -37,6 +37,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
+import Chip from "@mui/material/Chip";
 
 type Teacher = {
   name: string;
@@ -574,7 +575,7 @@ export default function Admin() {
                     mb: 2,
                   }}
                 >
-                  <Typography variant="h5">教師一覧</Typography>
+                  <Typography variant="h6">教師一覧</Typography>
                   <Box sx={{ display: "flex", gap: 2 }}>
                     <TextField
                       slotProps={{
@@ -607,7 +608,12 @@ export default function Admin() {
                 <TableContainer>
                   <Table>
                     <TableHead>
-                      <TableRow>
+                      <TableRow
+                        sx={{
+                          backgroundColor: "primary.dark",
+                          "& th": { color: "white" },
+                        }}
+                      >
                         <TableCell>選択</TableCell>
                         <TableCell>名前</TableCell>
                         <TableCell>メールアドレス</TableCell>
@@ -630,19 +636,20 @@ export default function Admin() {
                             {(teacher.classname ?? "")
                               .split(",")
                               .map((classname) => (
-                                <span
+                                <Chip
                                   key={classname}
-                                  className="bg-green-100 text-green-800 rounded-full px-2 py-0.5 text-sm"
-                                >
-                                  {classname}
-                                </span>
+                                  label={classname}
+                                  size="small"
+                                  variant="outlined"
+                                  color="primary"
+                                />
                               ))}
                           </TableCell>
                           <TableCell>
                             <IconButton
                               sx={{
-                                color: "gray",
-                                "&:hover": { color: "green" },
+                                color: "text.secondary",
+                                "&:hover": { color: "primary.main" },
                               }}
                               onClick={() => {
                                 setEditTarget(teacher);
@@ -656,8 +663,8 @@ export default function Admin() {
                             </IconButton>
                             <IconButton
                               sx={{
-                                color: "gray",
-                                "&:hover": { color: "red" },
+                                color: "text.secondary",
+                                "&:hover": { color: "error.main" },
                               }}
                               onClick={() => {
                                 setOpen(true);
@@ -704,7 +711,7 @@ export default function Admin() {
                     mb: 2,
                   }}
                 >
-                  <Typography variant="h5">保護者一覧</Typography>
+                  <Typography variant="h6">保護者一覧</Typography>
                   <Box sx={{ display: "flex", gap: 2 }}>
                     <TextField
                       placeholder="名前を検索..."
@@ -761,7 +768,12 @@ export default function Admin() {
                 <TableContainer>
                   <Table>
                     <TableHead>
-                      <TableRow>
+                      <TableRow
+                        sx={{
+                          backgroundColor: "primary.dark",
+                          "& th": { color: "white" },
+                        }}
+                      >
                         <TableCell>選択</TableCell>
                         <TableCell>名前</TableCell>
                         <TableCell>メールアドレス</TableCell>
@@ -782,37 +794,44 @@ export default function Admin() {
                           <TableCell>{parent.name}</TableCell>
                           <TableCell>{parent.email_address}</TableCell>
                           <TableCell>
-                            <div className="flex flex-wrap gap-2">
+                            <Box
+                              key={i}
+                              sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
+                            >
                               {parent.children_class
                                 .split(/[・、]/)
                                 .map((cls) => (
-                                  <span
+                                  <Chip
                                     key={cls}
-                                    className="bg-green-100 text-green-800 rounded-full px-2 py-0.5 text-sm"
-                                  >
-                                    {cls}
-                                  </span>
+                                    label={cls}
+                                    size="small"
+                                    variant="outlined"
+                                    color="primary"
+                                  />
                                 ))}
-                            </div>
+                            </Box>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-wrap gap-2">
+                            <Box
+                              sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
+                            >
                               {parent.children_name.split("、").map((child) => (
-                                <span
+                                <Chip
+                                  variant="outlined"
+                                  color="text.secondary"
                                   key={child}
-                                  className="bg-blue-100 text-blue-800 rounded-full px-2 py-0.5 text-sm"
-                                >
-                                  {child}
-                                </span>
+                                  label={child}
+                                  size="small"
+                                />
                               ))}
-                            </div>
+                            </Box>
                           </TableCell>
                           <TableCell>
-                            <div style={{ display: "flex" }}>
+                            <Box sx={{ display: "flex" }}>
                               <IconButton
                                 sx={{
-                                  color: "gray",
-                                  "&:hover": { color: "green" },
+                                  color: "text.secondary",
+                                  "&:hover": { color: "primary.main" },
                                 }}
                                 onClick={async () => {
                                   const token = localStorage.getItem("token");
@@ -836,8 +855,8 @@ export default function Admin() {
 
                               <IconButton
                                 sx={{
-                                  color: "gray",
-                                  "&:hover": { color: "red" },
+                                  color: "text.secondary",
+                                  "&:hover": { color: "error.main" },
                                 }}
                                 onClick={() => {
                                   setOpen(true);
@@ -846,7 +865,7 @@ export default function Admin() {
                               >
                                 <DeleteIcon />
                               </IconButton>
-                            </div>
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -994,9 +1013,9 @@ export default function Admin() {
                   }}
                 />
                 {children.map((child, i) => (
-                  <div
+                  <Box
                     key={i}
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                   >
                     <TextField
                       label="児童名"
@@ -1045,7 +1064,7 @@ export default function Admin() {
                     >
                       元に戻す
                     </Button>
-                  </div>
+                  </Box>
                 ))}
                 <Button
                   onClick={() => {
@@ -1132,7 +1151,7 @@ export default function Admin() {
                   onChange={(e) => setEditParentName(e.target.value)}
                 />
                 {editChildren.map((child, i) => (
-                  <div key={i}>
+                  <Box key={i}>
                     <TextField
                       label="児童名"
                       value={child.name}
@@ -1186,7 +1205,7 @@ export default function Admin() {
                         </MenuItem>
                       ))}
                     </Select>
-                  </div>
+                  </Box>
                 ))}
                 <DialogActions>
                   <Button onClick={() => setParentModalOpen(false)}>

@@ -78,7 +78,7 @@ export default function ChildList() {
   }, [filteredChildren, itemsPerPage, currentPage]);
 
   return (
-    <div style={{ padding: "24px" }}>
+    <Box sx={{ p: 1 }}>
       <Box
         sx={{
           display: "flex",
@@ -91,35 +91,35 @@ export default function ChildList() {
         <Box sx={{ display: "flex", gap: 2 }}>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>児童数</Typography>
-            <Typography variant="h5">{counts.all}</Typography>
+            <Typography variant="h4">{counts.all}</Typography>
           </Card>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>未提出</Typography>
-            <Typography variant="h5" color="error">
+            <Typography variant="h4" color="error">
               {counts.unsubmitted}
             </Typography>
           </Card>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>未割り当て</Typography>
-            <Typography variant="h5" color="warning">
+            <Typography variant="h4" color="warning">
               {counts.waiting}
             </Typography>
           </Card>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>予約済み</Typography>
-            <Typography variant="h5" color="success">
+            <Typography variant="h4" color="success">
               {counts.done}
             </Typography>
           </Card>
         </Box>
       </Box>
       {isMobile ? (
-        <div
-          style={{
-            padding: "16px",
+        <Box
+          sx={{
+            p: 1,
             display: "flex",
             flexDirection: "column",
-            gap: "12px",
+            gap: 3,
             textAlign: "center",
           }}
         >
@@ -130,11 +130,11 @@ export default function ChildList() {
                 <Typography variant="body2" color="text.secondary">
                   {child.family_name}
                 </Typography>
-                <div
-                  style={{
+                <Box
+                  sx={{
                     display: "flex",
-                    gap: "8px",
-                    marginTop: "8px",
+                    gap: 1,
+                    mt: 1,
                     justifyContent: "center",
                   }}
                 >
@@ -146,13 +146,13 @@ export default function ChildList() {
                     label={child.assigned ? "予約済み" : "予約なし"}
                     color={child.assigned ? "success" : "error"}
                   />
-                </div>
+                </Box>
               </CardContent>
             </Card>
           ))}
-        </div>
+        </Box>
       ) : (
-        <div>
+        <Box>
           <Tabs
             value={filter}
             onChange={(_, v) => {
@@ -207,7 +207,7 @@ export default function ChildList() {
           >
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#1976d2" }}>
+                <TableRow sx={{ backgroundColor: "primary.dark" }}>
                   <TableCell sx={{ color: "white", width: "40%" }}>
                     児童名
                   </TableCell>
@@ -244,8 +244,8 @@ export default function ChildList() {
               }}
             />
           </Box>
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

@@ -99,10 +99,7 @@ function PasswordReset() {
               mb: 2,
             }}
           >
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: "bold", color: "#1a3a5c" }}
-            >
+            <Typography variant="h5" sx={{ color: "#1a3a5c" }}>
               Tsunagu
             </Typography>
           </Box>
@@ -151,7 +148,7 @@ function PasswordReset() {
 }
 export default function PasswordResetConfirm() {
   return (
-    <Suspense fallback={<div>読み込み中...</div>}>
+    <Suspense fallback={<Box>読み込み中...</Box>}>
       <PasswordReset />
     </Suspense>
   );
