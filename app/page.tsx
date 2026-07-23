@@ -165,7 +165,7 @@ export default function Home() {
                 {problem.icon}
                 <Box>
                   <Typography>{problem.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {problem.description}
                   </Typography>
                 </Box>
@@ -183,7 +183,7 @@ export default function Home() {
                 {tsunagu.icon}
                 <Box>
                   <Typography>{tsunagu.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {tsunagu.description}
                   </Typography>
                 </Box>
@@ -327,7 +327,10 @@ export default function Home() {
                       {step.icon}
                     </Box>
                     <Typography sx={{ mt: 1 }}>{step.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary" }}
+                    >
                       {step.description}
                     </Typography>
                   </Box>

@@ -818,7 +818,7 @@ export default function Admin() {
                               {parent.children_name.split("、").map((child) => (
                                 <Chip
                                   variant="outlined"
-                                  color="text.secondary"
+                                  sx={{ color: "text.secondary" }}
                                   key={child}
                                   label={child}
                                   size="small"

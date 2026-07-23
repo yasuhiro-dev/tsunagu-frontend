@@ -127,7 +127,7 @@ export default function ChildList() {
             <Card sx={{ boxShadow: 3, borderRadius: 2 }} key={child.id}>
               <CardContent>
                 <Typography variant="h6">{child.child_name}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
                   {child.family_name}
                 </Typography>
                 <Box
