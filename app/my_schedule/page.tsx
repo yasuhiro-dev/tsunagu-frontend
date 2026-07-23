@@ -101,7 +101,7 @@ export default function MySchedulePage() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
+      <Typography variant="h5" gutterBottom>
         面談日程決定のお知らせ
       </Typography>
       {assignment.map((a, i) => (
@@ -127,7 +127,7 @@ export default function MySchedulePage() {
               />
               <Chip label={a.class_name} size="small" color="default" />
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold" }} gutterBottom>
+            <Typography variant="h6" gutterBottom>
               {a.child_name}（{a.class_name}）
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

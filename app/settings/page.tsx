@@ -39,9 +39,7 @@ export default function SettingPage() {
   return (
     <div style={{ padding: "24px" }}>
       {connected ? (
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          連携できています
-        </Typography>
+        <Typography variant="h5">連携できています</Typography>
       ) : (
         <Button variant="contained" color="primary" onClick={handleClick}>
           google連携をする

@@ -73,10 +73,7 @@ export default function PasswordReset() {
               mb: 2,
             }}
           >
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: "bold", color: "#1a3a5c" }}
-            >
+            <Typography variant="h5" sx={{ color: "#1a3a5c" }}>
               Tsunagu
             </Typography>
           </Box>

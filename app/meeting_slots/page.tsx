@@ -126,7 +126,7 @@ export default function MeetingSlotPage() {
           mb: 2,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
+        <Typography variant="h5" gutterBottom>
           面談スケジュール
         </Typography>
         <Box
@@ -162,9 +162,7 @@ export default function MeetingSlotPage() {
               key={child.id}
               sx={{ border: "1px solid #e0e0e0", p: 1, mb: 1, borderRadius: 1 }}
             >
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                {child.child_name}
-              </Typography>
+              <Typography variant="body2">{child.child_name}</Typography>
               <Typography variant="caption" sx={{ color: "text.secondary" }}>
                 保護者：{child.family_name}
               </Typography>
@@ -226,7 +224,7 @@ export default function MeetingSlotPage() {
                   >
                     {matrix[time][date]?.child_name ? (
                       <>
-                        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                        <Typography variant="body1">
                           {matrix[time][date].child_name}
                         </Typography>
                         <Chip

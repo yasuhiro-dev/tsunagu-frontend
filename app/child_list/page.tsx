@@ -91,23 +91,23 @@ export default function ChildList() {
         <Box sx={{ display: "flex", gap: 2 }}>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>児童数</Typography>
-            <Typography variant="h5">{counts.all}</Typography>
+            <Typography variant="h4">{counts.all}</Typography>
           </Card>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>未提出</Typography>
-            <Typography variant="h5" color="error">
+            <Typography variant="h4" color="error">
               {counts.unsubmitted}
             </Typography>
           </Card>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>未割り当て</Typography>
-            <Typography variant="h5" color="warning">
+            <Typography variant="h4" color="warning">
               {counts.waiting}
             </Typography>
           </Card>
           <Card sx={{ p: 2, minWidth: 100, textAlign: "center" }}>
             <Typography>予約済み</Typography>
-            <Typography variant="h5" color="success">
+            <Typography variant="h4" color="success">
               {counts.done}
             </Typography>
           </Card>
