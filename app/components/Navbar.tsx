@@ -70,7 +70,7 @@ export default function Navbar() {
         sx={{ backgroundColor: "#ffffff", color: "#1a3a6b" }}
       >
         <Toolbar>
-          <Box sx={{ padding: "24px" }}>
+          <Box sx={{ p: 1 }}>
             <Image
               src="/tsunag_logo2.png"
               alt="Tsunagu"
@@ -118,6 +118,7 @@ export default function Navbar() {
                 <Button
                   sx={{
                     borderRadius: "50px",
+                    fontSize: isMobile ? "12px" : "16px",
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
                     },
@@ -126,7 +127,6 @@ export default function Navbar() {
                   component={Link}
                   startIcon={<CalendarMonthIcon />}
                   href="/my_schedule"
-                  style={{ fontSize: isMobile ? "12px" : "16px" }}
                   color="inherit"
                 >
                   面談の決定日
@@ -134,6 +134,7 @@ export default function Navbar() {
                 <Button
                   sx={{
                     borderRadius: "50px",
+                    fontSize: isMobile ? "12px" : "16px",
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
                     },
@@ -141,7 +142,6 @@ export default function Navbar() {
                   variant="outlined"
                   component={Link}
                   href="/family_unavailabilities"
-                  style={{ fontSize: isMobile ? "12px" : "16px" }}
                   startIcon={<EventBusyIcon />}
                   color="inherit"
                 >

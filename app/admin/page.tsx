@@ -794,7 +794,10 @@ export default function Admin() {
                           <TableCell>{parent.name}</TableCell>
                           <TableCell>{parent.email_address}</TableCell>
                           <TableCell>
-                            <div className="flex flex-wrap gap-2">
+                            <Box
+                              key={i}
+                              sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
+                            >
                               {parent.children_class
                                 .split(/[・、]/)
                                 .map((cls) => (
@@ -806,7 +809,7 @@ export default function Admin() {
                                     color="primary"
                                   />
                                 ))}
-                            </div>
+                            </Box>
                           </TableCell>
                           <TableCell>
                             <Box
@@ -824,7 +827,7 @@ export default function Admin() {
                             </Box>
                           </TableCell>
                           <TableCell>
-                            <div style={{ display: "flex" }}>
+                            <Box sx={{ display: "flex" }}>
                               <IconButton
                                 sx={{
                                   color: "text.secondary",
@@ -862,7 +865,7 @@ export default function Admin() {
                               >
                                 <DeleteIcon />
                               </IconButton>
-                            </div>
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -1010,9 +1013,9 @@ export default function Admin() {
                   }}
                 />
                 {children.map((child, i) => (
-                  <div
+                  <Box
                     key={i}
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                   >
                     <TextField
                       label="児童名"
@@ -1061,7 +1064,7 @@ export default function Admin() {
                     >
                       元に戻す
                     </Button>
-                  </div>
+                  </Box>
                 ))}
                 <Button
                   onClick={() => {
@@ -1148,7 +1151,7 @@ export default function Admin() {
                   onChange={(e) => setEditParentName(e.target.value)}
                 />
                 {editChildren.map((child, i) => (
-                  <div key={i}>
+                  <Box key={i}>
                     <TextField
                       label="児童名"
                       value={child.name}
@@ -1202,7 +1205,7 @@ export default function Admin() {
                         </MenuItem>
                       ))}
                     </Select>
-                  </div>
+                  </Box>
                 ))}
                 <DialogActions>
                   <Button onClick={() => setParentModalOpen(false)}>

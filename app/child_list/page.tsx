@@ -78,7 +78,7 @@ export default function ChildList() {
   }, [filteredChildren, itemsPerPage, currentPage]);
 
   return (
-    <div style={{ padding: "24px" }}>
+    <Box sx={{ p: 1 }}>
       <Box
         sx={{
           display: "flex",
@@ -114,12 +114,12 @@ export default function ChildList() {
         </Box>
       </Box>
       {isMobile ? (
-        <div
-          style={{
-            padding: "16px",
+        <Box
+          sx={{
+            p: 1,
             display: "flex",
             flexDirection: "column",
-            gap: "12px",
+            gap: 3,
             textAlign: "center",
           }}
         >
@@ -130,11 +130,11 @@ export default function ChildList() {
                 <Typography variant="body2" color="text.secondary">
                   {child.family_name}
                 </Typography>
-                <div
-                  style={{
+                <Box
+                  sx={{
                     display: "flex",
-                    gap: "8px",
-                    marginTop: "8px",
+                    gap: 1,
+                    mt: 1,
                     justifyContent: "center",
                   }}
                 >
@@ -146,13 +146,13 @@ export default function ChildList() {
                     label={child.assigned ? "予約済み" : "予約なし"}
                     color={child.assigned ? "success" : "error"}
                   />
-                </div>
+                </Box>
               </CardContent>
             </Card>
           ))}
-        </div>
+        </Box>
       ) : (
-        <div>
+        <Box>
           <Tabs
             value={filter}
             onChange={(_, v) => {
@@ -244,8 +244,8 @@ export default function ChildList() {
               }}
             />
           </Box>
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

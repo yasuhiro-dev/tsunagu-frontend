@@ -117,7 +117,7 @@ export default function MeetingSlotPage() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div style={{ padding: "24px" }}>
+    <Box sx={{ p: 1 }}>
       <Box
         sx={{
           display: "flex",
@@ -271,6 +271,6 @@ export default function MeetingSlotPage() {
           </Box>
         </Box>
       </Box>
-    </div>
+    </Box>
   );
 }
