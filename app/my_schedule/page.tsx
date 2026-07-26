@@ -11,7 +11,6 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import EmailIcon from "@mui/icons-material/Email";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 type Assignment = {

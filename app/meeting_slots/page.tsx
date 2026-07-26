@@ -6,8 +6,10 @@ import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SlotAddPopover from "../components/meeting_slots/SlotAddPopover";
+import Container from "@mui/material/Container";
 
 type MeetingSlot = {
   id: number;
@@ -53,7 +55,12 @@ export default function MeetingSlotPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [unassignedChildren, setUnassignedChildren] = useState<
-    { id: number; child_name: string; family_name: string }[]
+    {
+      id: number;
+      child_name: string;
+      family_name: string;
+      child_name_kana: string;
+    }[]
   >([]);
 
   const handleClick = async () => {
@@ -102,7 +109,10 @@ export default function MeetingSlotPage() {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => setUnassignedChildren(data));
+      .then((data) => {
+        console.log("unassignedChildren data:", data);
+        setUnassignedChildren(data);
+      });
   }, [router]);
 
   const matrix = buildMatrix(slots);
@@ -117,160 +127,176 @@ export default function MeetingSlotPage() {
   if (error) return <p>{error}</p>;
 
   return (
-    <Box sx={{ p: 1 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItem: "center",
-          mb: 2,
-        }}
-      >
-        <Typography variant="h5" gutterBottom>
-          面談スケジュール
-        </Typography>
-        <Box
-          className="no-print"
-          sx={{ alignItems: "center", display: "flex", gap: 1 }}
-        >
-          <p>{message}</p>
-          <Button variant="contained" color="primary" onClick={handleClick}>
-            割り当てを実行する
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => window.print()}
+    <Container sx={{ mt: 4 }}>
+      <Paper sx={{ p: 3, borderRadius: 2, maxHeight: 680 }}>
+        <Box sx={{ p: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItem: "center",
+              mb: 2,
+            }}
           >
-            印刷
-          </Button>
-        </Box>
-      </Box>
-
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <Box sx={{ width: "200px", flexShrink: 0 }}>
-          <Typography>
-            未割り当て児童
-            <Chip
-              label={unassignedChildren.length}
-              size="small"
-              sx={{ ml: 1 }}
-            />
-          </Typography>
-          {unassignedChildren.map((child) => (
+            <Typography variant="h5" gutterBottom>
+              面談スケジュール
+            </Typography>
             <Box
-              key={child.id}
-              sx={{ border: "1px solid #e0e0e0", p: 1, mb: 1, borderRadius: 1 }}
+              className="no-print"
+              sx={{ alignItems: "center", display: "flex", gap: 1 }}
             >
-              <Typography variant="body2">{child.child_name}</Typography>
-              <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                保護者：{child.family_name}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-        <Box sx={{ flex: 1 }}>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Box sx={{ width: "60px" }}></Box>
-            {allDates.map((date) => (
-              <Box
-                key={date}
-                sx={{
-                  flex: 1,
-                  minWidth: "120px",
-                  border: "1px solid #e0e0e0",
-                  p: 1,
-                  backgroundColor: "primary.dark",
-                  color: "white",
-                  textAlign: "center",
-                }}
+              <p>{message}</p>
+              <Button variant="contained" color="primary" onClick={handleClick}>
+                割り当てを実行する
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => window.print()}
               >
-                <CalendarMonthIcon sx={{ fontSize: "14px" }} />
-                {date}
-              </Box>
-            ))}
+                印刷
+              </Button>
+            </Box>
           </Box>
 
-          <Box>
-            {allTimes.map((time) => (
-              <Box key={time} sx={{ display: "flex", gap: 2, mb: 1 }}>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Box sx={{ width: "200px", flexShrink: 0 }}>
+              <Typography>
+                未割り当て児童
+                <Chip
+                  label={unassignedChildren.length}
+                  size="small"
+                  sx={{ ml: 1 }}
+                />
+              </Typography>
+
+              {unassignedChildren.map((child) => (
                 <Box
+                  key={child.id}
                   sx={{
-                    width: "60px",
-                    border: "1px solid #e0e0e0",
+                    border: "1px solid",
+                    borderColor: "divider",
                     p: 1,
+                    mb: 1,
+                    borderRadius: 1,
                   }}
                 >
-                  <>
-                    <Typography variant="body2">{time}</Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      [15分]
-                    </Typography>
-                  </>
+                  <Typography variant="body2">{child.child_name}</Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    保護者：{child.family_name}
+                  </Typography>
                 </Box>
+              ))}
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Box sx={{ width: "60px" }}></Box>
                 {allDates.map((date) => (
                   <Box
                     key={date}
                     sx={{
                       flex: 1,
                       minWidth: "120px",
-                      border: "1px solid #e0e0e0",
+                      border: "1px solid ",
+                      borderColor: "divider",
                       p: 1,
-                      minHeight: "80px",
+                      backgroundColor: "primary.dark",
+                      color: "white",
+                      textAlign: "center",
+                      borderRadius: 1,
                     }}
                   >
-                    {matrix[time][date]?.child_name ? (
-                      <>
-                        <Typography variant="body1">
-                          {matrix[time][date].child_name}
-                        </Typography>
-                        <Chip
-                          label="確定"
-                          color="primary"
-                          sx={{ borderRadius: "4px" }}
-                        />
-                      </>
-                    ) : (
-                      <Box
-                        sx={{
-                          textAlign: "center",
-                          minHeight: "80px",
-                        }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "text.secondary" }}
-                        >
-                          空き
-                        </Typography>
-                        <SlotAddPopover
-                          slotId={matrix[time][date].id}
-                          dateLabel={date}
-                          timeLabel={time}
-                          onAdded={() => {
-                            const token = localStorage.getItem("token");
-                            fetch(
-                              `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
-                              {
-                                headers: { Authorization: `Bearer ${token}` },
-                              },
-                            )
-                              .then((res) => res.json())
-                              .then((data) => setslots(data));
-                          }}
-                        ></SlotAddPopover>
-                      </Box>
-                    )}
+                    <CalendarMonthIcon sx={{ fontSize: "14px" }} />
+                    {date}
                   </Box>
                 ))}
               </Box>
-            ))}
+
+              <Box>
+                {allTimes.map((time) => (
+                  <Box key={time} sx={{ display: "flex", gap: 2, mb: 1 }}>
+                    <Box
+                      sx={{
+                        width: "60px",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        p: 1,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <>
+                        <Typography variant="body2">{time}</Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          [15分]
+                        </Typography>
+                      </>
+                    </Box>
+                    {allDates.map((date) => (
+                      <Box
+                        key={date}
+                        sx={{
+                          flex: 1,
+                          minWidth: "120px",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          p: 1,
+                          minHeight: "80px",
+                          borderRadius: 1,
+                        }}
+                      >
+                        {matrix[time][date]?.child_name ? (
+                          <>
+                            <Typography variant="body1">
+                              {matrix[time][date].child_name}
+                            </Typography>
+                            <Chip
+                              label="確定"
+                              color="primary"
+                              sx={{ borderRadius: "4px" }}
+                            />
+                          </>
+                        ) : (
+                          <Box
+                            sx={{
+                              textAlign: "center",
+                              minHeight: "30px",
+                            }}
+                          >
+                            <SlotAddPopover
+                              slotId={matrix[time][date].id}
+                              dateLabel={date}
+                              timeLabel={time}
+                              onAdded={() => {
+                                const token = localStorage.getItem("token");
+                                fetch(
+                                  `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                  },
+                                )
+                                  .then((res) => res.json())
+                                  .then((data) => setslots(data));
+                              }}
+                            ></SlotAddPopover>
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
           </Box>
         </Box>
-      </Box>
-    </Box>
+      </Paper>
+    </Container>
   );
 }

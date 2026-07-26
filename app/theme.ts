@@ -11,6 +11,7 @@ export const theme = createTheme({
     },
   },
   palette: {
+    divider: "#e0e0e0",
     primary: {
       main: "#4a7ba7",
       light: "#7ba3c7ff",
@@ -28,6 +29,30 @@ export const theme = createTheme({
     background: {
       default: "#f0f5fa",
       paper: "#ffffff",
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: "none",
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiTableContainer: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+        },
+      },
     },
   },
 });

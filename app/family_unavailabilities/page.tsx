@@ -8,6 +8,7 @@ import CardContent from "@mui/material/CardContent";
 import { useRouter } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 
 const formatDate = (utcString: string) => {
   return new Date(utcString).toLocaleString("ja-JP", {
@@ -200,120 +201,125 @@ export default function FamilyUnavailability() {
   if (error) return <p>{error}</p>;
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography>面談に参加できない日時のボタンを押してください</Typography>
+    <Container sx={{ mt: 4 }}>
+      <Box sx={{ p: 3 }}>
+        <Typography>面談に参加できない日時のボタンを押してください</Typography>
 
-      <Box
-        sx={
-          isMobile
-            ? { display: "flex", flexDirection: "column", gap: 2 }
-            : { display: "flex", gap: 2 }
-        }
-      >
-        {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
-          <Box key={date} sx={{ flex: 1, textAlign: "center" }}>
-            <Card
-              sx={{
-                boxShadow: 3,
-                borderRadius: 2,
-              }}
-            >
-              <CardContent>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "primary.dark",
-                    borderBottom: 2,
-                    borderColor: "primary.main",
-                    pb: 2,
-                  }}
-                >
-                  {date}
-                </Typography>
-                {dateSlots.map((slot) => (
-                  <Box key={slot.id} sx={{ mb: 1 }}>
-                    <Typography
-                      sx={{
-                        fontSize: "12px",
-                        mb: 1,
-                        textAlign: "center",
-                      }}
-                    >
-                      {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
-                    </Typography>
-                    <Box
-                      sx={{
-                        borderBottom: "1px solid #e0e0e0",
-                        mb: 1,
-                      }}
-                    >
-                      <Button
-                        variant="contained"
-                        size="small"
-                        color={
-                          unavailableSlots.includes(slot.id)
-                            ? "error"
-                            : "primary"
-                        }
-                        onClick={() => handleClick(slot.id)}
-                        disabled={submitted}
+        <Box
+          sx={
+            isMobile
+              ? { display: "flex", flexDirection: "column", gap: 2 }
+              : { display: "flex", gap: 2 }
+          }
+        >
+          {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
+            <Box key={date} sx={{ flex: 1, textAlign: "center" }}>
+              <Card
+                sx={{
+                  boxShadow: 3,
+                  borderRadius: 2,
+                }}
+              >
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "primary.dark",
+                      borderBottom: 2,
+                      borderColor: "primary.main",
+                      pb: 2,
+                    }}
+                  >
+                    {date}
+                  </Typography>
+                  {dateSlots.map((slot) => (
+                    <Box key={slot.id} sx={{ mb: 1 }}>
+                      <Typography
                         sx={{
-                          "&.Mui-disabled": {
-                            backgroundColor: unavailableSlots.includes(slot.id)
-                              ? "#f44336" // 赤（面談不可）
-                              : "#1976d2", // 青（面談可）
-                            color: "white",
-                          },
+                          fontSize: "12px",
+                          mb: 1,
+                          textAlign: "center",
                         }}
                       >
-                        {unavailableSlots.includes(slot.id)
-                          ? "面談不可"
-                          : "面談可"}
-                      </Button>
+                        {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
+                      </Typography>
+                      <Box
+                        sx={{
+                          borderBottom: "1px solid",
+                          borderColor: "divider",
+                          mb: 1,
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          size="small"
+                          color={
+                            unavailableSlots.includes(slot.id)
+                              ? "error"
+                              : "primary"
+                          }
+                          onClick={() => handleClick(slot.id)}
+                          disabled={submitted}
+                          sx={{
+                            "&.Mui-disabled": {
+                              backgroundColor: unavailableSlots.includes(
+                                slot.id,
+                              )
+                                ? "#f44336" // 赤（面談不可）
+                                : "#1976d2", // 青（面談可）
+                              color: "white",
+                            },
+                          }}
+                        >
+                          {unavailableSlots.includes(slot.id)
+                            ? "面談不可"
+                            : "面談可"}
+                        </Button>
+                      </Box>
                     </Box>
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                mt: 1,
-                justifyContent: "center",
-              }}
-            >
-              <Button
-                variant="outlined"
-                size="small"
-                disabled={submitted}
-                onClick={() => handleSelectAll(dateSlots)}
+                  ))}
+                </CardContent>
+              </Card>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  mt: 1,
+                  justifyContent: "center",
+                }}
               >
-                全選択
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                disabled={submitted}
-                onClick={() => handleClerAll(dateSlots)}
-              >
-                全解除
-              </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={submitted}
+                  onClick={() => handleSelectAll(dateSlots)}
+                >
+                  全選択
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  disabled={submitted}
+                  onClick={() => handleClerAll(dateSlots)}
+                >
+                  全解除
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        ))}
-      </Box>
+          ))}
+        </Box>
 
-      <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
-        <Button
-          sx={{ mt: 3 }}
-          variant="contained"
-          disabled={submitted}
-          onClick={hundleSubmit}
-        >
-          {submitted ? "提出が完了しました" : "上記の内容で提出する"}
-        </Button>
+        <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
+          <Button
+            sx={{ mt: 3 }}
+            variant="contained"
+            disabled={submitted}
+            onClick={hundleSubmit}
+          >
+            {submitted ? "提出が完了しました" : "上記の内容で提出する"}
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    </Container>
   );
 }

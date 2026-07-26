@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
@@ -48,10 +48,17 @@ const getName = () => {
 
 export default function Navbar() {
   const router = useRouter();
-  const [role, setRole] = useState<string | null>(getRole());
+  const [role, setRole] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
-  const [name, setName] = useState<string | null>(getName());
+  const [name, setName] = useState<string | null>(null);
   const [logoutMessageOpen, setLogoutMessageOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setRole(getRole());
+    setName(getName());
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -67,7 +74,7 @@ export default function Navbar() {
     <>
       <AppBar
         position="static"
-        sx={{ backgroundColor: "#ffffff", color: "#1a3a6b" }}
+        sx={{ backgroundColor: "#ffffff", color: "primary.main" }}
       >
         <Toolbar>
           <Box sx={{ p: 1 }}>
@@ -83,7 +90,7 @@ export default function Navbar() {
           <Box
             sx={{ flex: 1, display: "flex", justifyContent: "center", gap: 4 }}
           >
-            {role === "teacher" && (
+            {mounted && role === "teacher" && (
               <>
                 <Button
                   component={Link}
@@ -91,7 +98,7 @@ export default function Navbar() {
                   variant="outlined"
                   color="inherit"
                   sx={{
-                    borderRadius: "50px",
+                    borderRadius: 3,
                     "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
                     fontSize: isMobile ? "12px" : "16px",
                   }}
@@ -104,7 +111,7 @@ export default function Navbar() {
                   variant="outlined"
                   href="/meeting_slots"
                   sx={{
-                    borderRadius: "50px",
+                    borderRadius: 3,
                     "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
                     fontSize: isMobile ? "12px" : "16px",
                   }}
@@ -113,11 +120,11 @@ export default function Navbar() {
                 </Button>
               </>
             )}
-            {role === "parent" && (
+            {mounted && role === "parent" && (
               <>
                 <Button
                   sx={{
-                    borderRadius: "50px",
+                    borderRadius: 3,
                     fontSize: isMobile ? "12px" : "16px",
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -133,7 +140,7 @@ export default function Navbar() {
                 </Button>
                 <Button
                   sx={{
-                    borderRadius: "50px",
+                    borderRadius: 3,
                     fontSize: isMobile ? "12px" : "16px",
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -160,7 +167,7 @@ export default function Navbar() {
               gap: 1,
             }}
           >
-            {role === null && (
+            {mounted && role === null && (
               <Button
                 component={Link}
                 href="/login"
@@ -173,7 +180,7 @@ export default function Navbar() {
                 ログイン
               </Button>
             )}
-            {role !== null && (
+            {mounted && role !== null && (
               <>
                 <Button
                   sx={{

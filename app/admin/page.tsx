@@ -41,6 +41,7 @@ import Chip from "@mui/material/Chip";
 
 type Teacher = {
   name: string;
+  name_kana: string;
   email_address: string;
   classname: string;
   id: number;
@@ -81,6 +82,7 @@ export default function Admin() {
   const [parentModalOpen, setParentModalOpen] = useState(false);
   const [teacherModalOpen, setTeacherModalOpen] = useState(false);
   const [editName, setEditName] = useState("");
+  const [editNameKana, setEditNameKana] = useState("");
   const [editMailAddress, setEditMailAddress] = useState("");
   const [editClassRoomId, setEditClassRoomId] = useState("");
   const [editTargetParent, setEditTargetParent] = useState<Parent | null>(null);
@@ -97,9 +99,9 @@ export default function Admin() {
   const [filterClass, setFilterClass] = useState("");
   const [sortKey, setSortKey] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 6;
   const [currentTeacherPage, setCurrentTeacherPage] = useState(1);
-  const itemsPerTeacherPage = 10;
+  const itemsPerTeacherPage = 6;
   const [selectedParentIds, setSelectedParentIds] = useState<number[]>([]);
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
   const [teacherSerchText, setTeacherSerchText] = useState("");
@@ -111,7 +113,11 @@ export default function Admin() {
   );
 
   const filteredTeachers = useMemo(() => {
-    return teachers.filter((t) => t.name.includes(teacherSerchText));
+    return teachers.filter(
+      (t) =>
+        t.name.includes(teacherSerchText) ||
+        t.name_kana.includes(teacherSerchText),
+    );
   }, [teachers, teacherSerchText]);
 
   const handleCheck = (id: number) => {
@@ -217,7 +223,9 @@ export default function Admin() {
 
   const filteredParents = useMemo(() => {
     return [...parents]
-      .filter((p) => p.name.includes(serchText))
+      .filter(
+        (p) => p.name.includes(serchText) || p.name_kana.includes(serchText),
+      )
       .filter(
         (p) => filterClass === "" || p.children_class.includes(filterClass),
       )
@@ -318,6 +326,7 @@ export default function Admin() {
     }
   };
 
+  // 教師登録のAPI
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch(
@@ -334,6 +343,7 @@ export default function Admin() {
             password: password,
           },
           name: name,
+          name_kana: nameKana,
           class_room_id: classRoomId,
         }),
       },
@@ -351,6 +361,7 @@ export default function Admin() {
         {
           id: data.teacher.id,
           name: data.teacher.name,
+          name_kana: data.teacher.name_kana,
           email_address: emailAddress,
           classname: selectedClass?.classname ?? "",
         },
@@ -408,6 +419,7 @@ export default function Admin() {
     }
   };
 
+  // 教師の編集画面
   const handleUpdate = async () => {
     const token = localStorage.getItem("token");
     const res = await fetch(
@@ -420,6 +432,7 @@ export default function Admin() {
         },
         body: JSON.stringify({
           name: editName,
+          name_kana: editNameKana,
           email_address: editMailAddress,
           class_room_id: editClassRoomId,
         }),
@@ -439,6 +452,7 @@ export default function Admin() {
             ? {
                 id: t.id,
                 name: editName,
+                name_kana: editNameKana,
                 email_address: editMailAddress,
                 classname: selectedClass?.classname ?? t.classname,
               }
@@ -500,13 +514,14 @@ export default function Admin() {
   const sidebarButtonStyle = (tabIndex: number) => ({
     justifyContent: "flex-start",
     borderRadius: 2,
+    fontSize: "0.875rem",
     width: "100%",
     borderLeft: tab === tabIndex ? "3px solid #1a3a6b" : "none",
     color: tab === tabIndex ? "#1a3a6b" : "#5f6b7a",
     backgroundColor:
-      tab === tabIndex ? "rgba(26, 58, 107, 0.08)" : "transparent",
+      tab === tabIndex ? "rgba(26, 58, 107, 0.14)" : "transparent",
     fontWeight: tab === tabIndex ? "bold" : "normal",
-    "&:hover": { backgroundColor: "rgba(26, 58, 107, 0.08)" },
+    "&:hover": { backgroundColor: "rgba(26, 58, 107, 0.06)" },
   });
 
   return (
@@ -520,7 +535,7 @@ export default function Admin() {
         <Alert severity={alertSeverity}>{alertMessage}</Alert>
       </Snackbar>
       <Paper sx={{ p: 3 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
           ユーザー管理
         </Typography>
 
@@ -529,7 +544,8 @@ export default function Admin() {
             sx={{
               width: 200,
               backgroundColor: "#ffffff",
-              borderRight: "1px solid #e0e0e0",
+              borderRight: "1px solid ",
+              borderColor: "divider",
               display: "flex",
               flexDirection: "column",
               p: 1,
@@ -565,47 +581,67 @@ export default function Admin() {
               保護者登録
             </Button>
           </Box>
+
+          {/* 教師一覧画面 */}
+
           <Box sx={{ flexGrow: 1 }}>
             {tab === 0 && (
               <Box sx={{ p: 3 }}>
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
+                    flexDirection: "column",
                   }}
                 >
-                  <Typography variant="h6">教師一覧</Typography>
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <TextField
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon sx={{ color: "text.secondary" }} />
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
-                      placeholder="名前を検索..."
-                      size="small"
-                      value={teacherSerchText}
-                      onChange={(e) => setTeacherSerchText(e.target.value)}
-                    />
-
-                    <Button
-                      variant="contained"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      disabled={selectedTeacherIds.length === 0}
-                      onClick={handleBulkDeleteTeachers}
-                    >
-                      一括削除
-                    </Button>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6">教師一覧</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      mb: 3,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon sx={{ color: "text.secondary" }} />
+                              </InputAdornment>
+                            ),
+                          },
+                        }}
+                        placeholder="名前を検索..."
+                        size="small"
+                        value={teacherSerchText}
+                        onChange={(e) => setTeacherSerchText(e.target.value)}
+                      />
+                    </Box>
+                    <Box>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                        disabled={selectedTeacherIds.length === 0}
+                        onClick={handleBulkDeleteTeachers}
+                      >
+                        一括削除
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
 
-                <TableContainer>
+                <TableContainer
+                  sx={{
+                    maxHeight: "calc(100vh - 400px)",
+                    minHeight: "calc(100vh - 400px)",
+                    overflow: "auto",
+                  }}
+                >
                   <Table>
                     <TableHead>
                       <TableRow
@@ -654,6 +690,7 @@ export default function Admin() {
                               onClick={() => {
                                 setEditTarget(teacher);
                                 setEditName(teacher.name);
+                                setEditNameKana(teacher.name_kana);
                                 setEditMailAddress(teacher.email_address);
                                 setEditClassRoomId("");
                                 setTeacherModalOpen(true);
@@ -702,70 +739,90 @@ export default function Admin() {
                 />
               </Box>
             )}
+
+            {/* 保護者一覧 */}
             {tab === 1 && (
               <Box sx={{ p: 3 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="h6">保護者一覧</Typography>
-                  <Box sx={{ display: "flex", gap: 2 }}>
-                    <TextField
-                      placeholder="名前を検索..."
-                      size="small"
-                      value={serchText}
-                      onChange={(e) => setSerchText(e.target.value)}
-                      slotProps={{
-                        input: {
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon sx={{ color: "text.secondary" }} />
-                            </InputAdornment>
-                          ),
-                        },
-                      }}
-                    />
-                    <Select
-                      size="small"
-                      value={filterClass}
-                      onChange={(e) => setFilterClass(e.target.value)}
-                      displayEmpty
-                    >
-                      <MenuItem value="">全クラス</MenuItem>
-                      {classRooms.map((classRoom) => (
-                        <MenuItem
-                          key={classRoom.id}
-                          value={classRoom.classname}
-                        >
-                          {classRoom.classname}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <Select
-                      size="small"
-                      value={sortKey}
-                      onChange={(e) => setSortKey(e.target.value)}
-                      displayEmpty
-                    >
-                      <MenuItem value="">並び替えなし</MenuItem>
-                      <MenuItem value="name">名前の順</MenuItem>
-                      <MenuItem value="class">クラス順</MenuItem>
-                    </Select>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      disabled={selectedParentIds.length === 0}
-                      onClick={handleBulkDeleteParents}
-                      startIcon={<DeleteIcon />}
-                    >
-                      一括削除
-                    </Button>
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6">保護者一覧</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      mb: 3,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {/* 児童名の検索 */}
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
+                        placeholder="名前を検索..."
+                        size="small"
+                        value={serchText}
+                        onChange={(e) => setSerchText(e.target.value)}
+                        slotProps={{
+                          input: {
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <SearchIcon sx={{ color: "text.secondary" }} />
+                              </InputAdornment>
+                            ),
+                          },
+                        }}
+                      />
+                      {/* クラスの絞り込み */}
+                      <Select
+                        size="small"
+                        value={filterClass}
+                        onChange={(e) => setFilterClass(e.target.value)}
+                        displayEmpty
+                      >
+                        <MenuItem value="">全クラス</MenuItem>
+                        {classRooms.map((classRoom) => (
+                          <MenuItem
+                            key={classRoom.id}
+                            value={classRoom.classname}
+                          >
+                            {classRoom.classname}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      {/* 名前・クラスの並び替え */}
+                      <Select
+                        size="small"
+                        value={sortKey}
+                        onChange={(e) => setSortKey(e.target.value)}
+                        displayEmpty
+                      >
+                        <MenuItem value="">並び替えなし</MenuItem>
+                        <MenuItem value="name">名前の順</MenuItem>
+                        <MenuItem value="class">クラス順</MenuItem>
+                      </Select>
+                    </Box>
+
+                    {/* 一括削除 */}
+                    <Box>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        disabled={selectedParentIds.length === 0}
+                        onClick={handleBulkDeleteParents}
+                        startIcon={<DeleteIcon />}
+                      >
+                        一括削除
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
-                <TableContainer>
+                <TableContainer
+                  sx={{
+                    maxHeight: "calc(100vh - 400px)",
+                    minHeight: "calc(100vh - 400px)",
+                    overflow: "auto",
+                  }}
+                >
                   <Table>
                     <TableHead>
                       <TableRow
@@ -894,66 +951,86 @@ export default function Admin() {
                 />
               </Box>
             )}
+
+            {/* 教師登録画面 */}
             {tab === 2 && (
-              <Paper
+              <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
                   gap: 2,
                   p: 3,
-                  flexGrow: 1,
-                  margin: "auto",
-                  width: 400,
+                  minHeight: "calc(100vh - 264px)",
+                  maxHeight: "calc(100vh - 400px)",
+                  overflow: "auto",
+                  maxWidth: 500,
                 }}
               >
-                <Typography variant="h5">教師登録</Typography>
-                <TextField
-                  label="名前"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <FormControl>
-                  <InputLabel>クラス</InputLabel>
-                  <Select
-                    value={classRoomId}
-                    onChange={(e) => setClassRoomId(e.target.value)}
-                    label="クラス"
-                  >
-                    {classRooms.map((classRoom) => (
-                      <MenuItem key={classRoom.id} value={classRoom.id}>
-                        {classRoom.classname}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <TextField
-                  label="メールアドレス"
-                  value={emailAddress}
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                />
-                <TextField
-                  label="パスワード"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  type={showPassword ? "text" : "password"}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
+                <Typography variant="h6">教師登録</Typography>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="教師の名前"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                  <TextField
+                    fullWidth
+                    label="ふりがな"
+                    value={nameKana}
+                    onChange={(e) => setNameKana(e.target.value)}
+                  />
+                  <FormControl fullWidth>
+                    <InputLabel>クラス</InputLabel>
+                    <Select
+                      value={classRoomId}
+                      onChange={(e) => setClassRoomId(e.target.value)}
+                      label="クラス"
+                    >
+                      {classRooms.map((classRoom) => (
+                        <MenuItem key={classRoom.id} value={classRoom.id}>
+                          {classRoom.classname}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="メールアドレス"
+                    value={emailAddress}
+                    onChange={(e) => setEmailAddress(e.target.value)}
+                  />
+                  <TextField
+                    fullWidth
+                    label="パスワード"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </Box>
                 <Button
                   variant="contained"
                   onClick={handleSubmit}
+                  sx={{ display: "flex", justifyContent: "flex-start", mt: 3 }}
                   disabled={
                     name === "" ||
                     classRoomId === "" ||
@@ -963,119 +1040,158 @@ export default function Admin() {
                 >
                   登録
                 </Button>
-              </Paper>
+              </Box>
             )}
+
+            {/* 保護者登録画面 */}
             {tab === 3 && (
-              <Paper
+              <Box
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
                   gap: 2,
                   p: 3,
-                  flexGrow: 1,
-                  margin: "auto",
-                  width: 400,
+                  minHeight: "calc(100vh - 264px)",
+                  maxHeight: "calc(100vh - 400px)",
+                  overflow: "auto",
+                  maxWidth: 500,
+                  flexDirection: "column",
                 }}
               >
-                <Typography variant="h5">保護者登録</Typography>
-                <TextField
-                  label="保護者名"
-                  value={familyName}
-                  onChange={(e) => setFamilyName(e.target.value)}
-                />
-                <TextField
-                  label="ふりがな"
-                  value={nameKana}
-                  onChange={(e) => setNameKana(e.target.value)}
-                />
-                <TextField
-                  label="メールアドレス"
-                  value={emailAddress}
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                />
-                <TextField
-                  type={showPassword ? "text" : "password"}
-                  label="パスワード"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                />
+                {/* 保護者登録 */}
+
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  保護者登録
+                </Typography>
+
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="保護者名"
+                    value={familyName}
+                    onChange={(e) => setFamilyName(e.target.value)}
+                  />
+                  <TextField
+                    fullWidth
+                    label="ふりがな"
+                    value={nameKana}
+                    onChange={(e) => setNameKana(e.target.value)}
+                  />
+                </Box>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="メールアドレス"
+                    value={emailAddress}
+                    onChange={(e) => setEmailAddress(e.target.value)}
+                  />
+                  <TextField
+                    fullWidth
+                    type={showPassword ? "text" : "password"}
+                    label="パスワード"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                </Box>
+
+                {/* 児童登録 */}
+                <Typography variant="h6" sx={{ mt: 3 }}>
+                  児童登録
+                </Typography>
                 {children.map((child, i) => (
                   <Box
                     key={i}
-                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                    }}
                   >
-                    <TextField
-                      label="児童名"
-                      value={child.childName}
-                      onChange={(e) => {
-                        const updated = [...children];
-                        updated[i] = {
-                          ...updated[i],
-                          childName: e.target.value,
-                        };
-                        setChildren(updated);
-                      }}
-                    />
-                    <FormControl>
-                      <InputLabel>クラス</InputLabel>
-                      <Select
-                        value={child.classRoomId}
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <TextField
+                        fullWidth
+                        label="児童名"
+                        value={child.childName}
                         onChange={(e) => {
                           const updated = [...children];
                           updated[i] = {
                             ...updated[i],
-                            classRoomId: e.target.value,
+                            childName: e.target.value,
                           };
                           setChildren(updated);
                         }}
-                        label="クラス"
+                      />
+                      <FormControl fullWidth>
+                        <InputLabel>クラス</InputLabel>
+                        <Select
+                          value={child.classRoomId}
+                          onChange={(e) => {
+                            const updated = [...children];
+                            updated[i] = {
+                              ...updated[i],
+                              classRoomId: e.target.value,
+                            };
+                            setChildren(updated);
+                          }}
+                          label="クラス"
+                        >
+                          {classRooms.map((classRoom) => (
+                            <MenuItem key={classRoom.id} value={classRoom.id}>
+                              {classRoom.classname}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
+
+                    <Box sx={{ display: "flex", gap: 2 }}>
+                      <Button
+                        variant="outlined"
+                        sx={{ display: "flex", justifyContent: "flex-start" }}
+                        onClick={() => {
+                          setChildren([
+                            ...children,
+                            { childName: "", classRoomId: "" },
+                          ]);
+                        }}
                       >
-                        {classRooms.map((classRoom) => (
-                          <MenuItem key={classRoom.id} value={classRoom.id}>
-                            {classRoom.classname}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <Button
-                      onClick={() => {
-                        const updated = children.filter(
-                          (child, index) => index !== i,
-                        );
-                        setChildren(
-                          updated.length === 0
-                            ? [{ childName: "", classRoomId: "" }]
-                            : updated,
-                        );
-                      }}
-                    >
-                      元に戻す
-                    </Button>
+                        児童を追加
+                      </Button>
+                      <Button
+                        variant="text"
+                        sx={{ display: "flex", justifyContent: "flex-start" }}
+                        onClick={() => {
+                          const updated = children.filter(
+                            (child, index) => index !== i,
+                          );
+                          setChildren(
+                            updated.length === 0
+                              ? [{ childName: "", classRoomId: "" }]
+                              : updated,
+                          );
+                        }}
+                      >
+                        この児童を削除
+                      </Button>
+                    </Box>
                   </Box>
                 ))}
-                <Button
-                  onClick={() => {
-                    setChildren([
-                      ...children,
-                      { childName: "", classRoomId: "" },
-                    ]);
-                  }}
-                >
-                  児童を追加
-                </Button>
 
                 <Button
                   disabled={
@@ -1089,12 +1205,15 @@ export default function Admin() {
                     )
                   }
                   variant="contained"
+                  sx={{ display: "flex", justifyContent: "flex-start", mt: 3 }}
                   onClick={handleSubmitParent}
                 >
                   登録
                 </Button>
-              </Paper>
+              </Box>
             )}
+
+            {/* 教師編集画面 */}
 
             <Dialog
               open={teacherModalOpen}
@@ -1108,6 +1227,12 @@ export default function Admin() {
                   label="名前"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
+                />
+                <TextField
+                  fullWidth
+                  label="ふりがな"
+                  value={editNameKana}
+                  onChange={(e) => setEditNameKana(e.target.value)}
                 />
                 <TextField
                   label="メールアドレス"
@@ -1137,6 +1262,8 @@ export default function Admin() {
                 </DialogActions>
               </DialogContent>
             </Dialog>
+
+            {/* 保護者編集画面 */}
             <Dialog
               open={parentModalOpen}
               onClose={() => setParentModalOpen(false)}
