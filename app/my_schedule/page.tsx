@@ -100,58 +100,69 @@ export default function MySchedulePage() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
         面談日程決定のお知らせ
       </Typography>
-      {assignment.map((a, i) => (
-        <Card
-          key={i}
-          sx={{
-            mb: 2,
-            borderRadius: 3,
-            boxShadow: 3,
-            backgroundColor: "parper",
-          }}
-        >
-          <CardContent>
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
-            >
-              <Chip
-                icon={<FiberManualRecordIcon sx={{ fontSize: 10 }} />}
-                label="CONFIRMED"
-                size="small"
-                color="success"
-                variant="outlined"
-              />
-              <Chip label={a.class_name} size="small" color="default" />
-            </Box>
-            <Typography variant="h6" gutterBottom>
-              {a.child_name}（{a.class_name}）
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <CalendarMonthIcon color="primary" />
-              <Typography>{formatDate(a.start_at)}</Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-              <AccessTimeIcon color="primary" />
-              <Typography>
-                {formatTime(a.start_at)}〜{formatTime(a.end_at)}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<CalendarMonthIcon />}
-                onClick={() => handleClick(a.id)}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {assignment.map((a, i) => (
+          <Card
+            key={i}
+            sx={{
+              borderRadius: 3,
+              boxShadow: 3,
+              backgroundColor: "parper",
+            }}
+          >
+            <CardContent>
+              <Box
+                sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
               >
-                カレンダーに追加
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-      ))}
+                <Chip
+                  icon={<FiberManualRecordIcon sx={{ fontSize: 10 }} />}
+                  sx={{ mt: 2, mb: 2 }}
+                  label="確定しました"
+                  size="medium"
+                  color="success"
+                  variant="outlined"
+                />
+              </Box>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
+                {a.child_name}（{a.class_name}）
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <CalendarMonthIcon color="primary" />
+                <Typography variant="body1">
+                  {formatDate(a.start_at)}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mt: 1,
+                  mb: 3,
+                }}
+              >
+                <AccessTimeIcon color="primary" />
+                <Typography variant="body1">
+                  {formatTime(a.start_at)}〜{formatTime(a.end_at)}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<CalendarMonthIcon />}
+                  onClick={() => handleClick(a.id)}
+                >
+                  カレンダーに追加
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
     </Container>
   );
 }
