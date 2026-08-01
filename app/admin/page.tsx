@@ -93,7 +93,7 @@ export default function Admin() {
   const [familyName, setFamilyName] = useState("");
   const [nameKana, setNameKana] = useState("");
   const [children, setChildren] = useState([
-    { childName: "", classRoomId: "" },
+    { childName: "", childNameKana: "", classRoomId: "" },
   ]);
   const [serchText, setSerchText] = useState("");
   const [filterClass, setFilterClass] = useState("");
@@ -111,12 +111,12 @@ export default function Admin() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
-
+  // 教師名の絞り込み
   const filteredTeachers = useMemo(() => {
     return teachers.filter(
       (t) =>
-        t.name.includes(teacherSerchText) ||
-        t.name_kana.includes(teacherSerchText),
+        t.name.startsWith(teacherSerchText) ||
+        t.name_kana.startsWith(teacherSerchText),
     );
   }, [teachers, teacherSerchText]);
 
@@ -224,10 +224,11 @@ export default function Admin() {
   const filteredParents = useMemo(() => {
     return [...parents]
       .filter(
-        (p) => p.name.includes(serchText) || p.name_kana.includes(serchText),
+        (p) =>
+          p.name.startsWith(serchText) || p.name_kana.startsWith(serchText),
       )
       .filter(
-        (p) => filterClass === "" || p.children_class.includes(filterClass),
+        (p) => filterClass === "" || p.children_class.startsWith(filterClass),
       )
       .sort((a, b) => {
         if (sortKey === "name") {
@@ -318,7 +319,7 @@ export default function Admin() {
       setNameKana("");
       setEmailAddress("");
       setPassword("");
-      setChildren([{ childName: "", classRoomId: "" }]);
+      setChildren([{ childName: "", childNameKana: "", classRoomId: "" }]);
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
@@ -525,7 +526,7 @@ export default function Admin() {
   });
 
   return (
-    <Container sx={{ mt: 4 }}>
+    <Container maxWidth={false} sx={{ mt: 4 }}>
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         open={alertOpen}
@@ -650,11 +651,13 @@ export default function Admin() {
                           "& th": { color: "white" },
                         }}
                       >
-                        <TableCell>選択</TableCell>
-                        <TableCell>名前</TableCell>
-                        <TableCell>メールアドレス</TableCell>
-                        <TableCell>クラス</TableCell>
-                        <TableCell>操作</TableCell>
+                        <TableCell sx={{ width: "5%" }}>選択</TableCell>
+                        <TableCell sx={{ width: "15%" }}>名前</TableCell>
+                        <TableCell sx={{ width: "30%" }}>
+                          メールアドレス
+                        </TableCell>
+                        <TableCell sx={{ width: "35%" }}>クラス</TableCell>
+                        <TableCell sx={{ width: "15%" }}>操作</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -831,101 +834,125 @@ export default function Admin() {
                           "& th": { color: "white" },
                         }}
                       >
-                        <TableCell>選択</TableCell>
-                        <TableCell>名前</TableCell>
-                        <TableCell>メールアドレス</TableCell>
-                        <TableCell>クラス</TableCell>
-                        <TableCell>児童名</TableCell>
-                        <TableCell>操作</TableCell>
+                        <TableCell sx={{ width: "5%" }}>選択</TableCell>
+                        <TableCell sx={{ width: "10%" }}>名前</TableCell>
+                        <TableCell sx={{ width: "35%" }}>
+                          メールアドレス
+                        </TableCell>
+                        <TableCell sx={{ width: "20%" }}>クラス</TableCell>
+                        <TableCell sx={{ width: "20%" }}>児童名</TableCell>
+                        <TableCell sx={{ width: "10%" }}>操作</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {pageParents.map((parent, i) => (
-                        <TableRow key={i}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedParentIds.includes(parent.id)}
-                              onChange={() => handleCheck(parent.id)}
+                      {pageParents.map((parent, i) => {
+                        const classArray =
+                          parent.children_class.split(/[・、]/);
+                        const childList = classArray
+                          .slice(0, 2)
+                          .map((cls) => (
+                            <Chip
+                              key={cls}
+                              label={cls}
+                              size="small"
+                              variant="outlined"
+                              color="primary"
                             />
-                          </TableCell>
-                          <TableCell>{parent.name}</TableCell>
-                          <TableCell>{parent.email_address}</TableCell>
-                          <TableCell>
-                            <Box
-                              key={i}
-                              sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
-                            >
-                              {parent.children_class
-                                .split(/[・、]/)
-                                .map((cls) => (
-                                  <Chip
-                                    key={cls}
-                                    label={cls}
-                                    size="small"
-                                    variant="outlined"
-                                    color="primary"
-                                  />
-                                ))}
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box
-                              sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
-                            >
-                              {parent.children_name.split("、").map((child) => (
-                                <Chip
-                                  variant="outlined"
-                                  sx={{ color: "text.secondary" }}
-                                  key={child}
-                                  label={child}
-                                  size="small"
-                                />
-                              ))}
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: "flex" }}>
-                              <IconButton
-                                sx={{
-                                  color: "text.secondary",
-                                  "&:hover": { color: "primary.main" },
-                                }}
-                                onClick={async () => {
-                                  const token = localStorage.getItem("token");
-                                  const res = await fetch(
-                                    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
-                                    {
-                                      headers: {
-                                        Authorization: `Bearer ${token}`,
-                                      },
-                                    },
-                                  );
-                                  const data = await res.json();
-                                  setEditTargetParent(parent);
-                                  setEditParentName(parent.name);
-                                  setEditChildren(data.children);
-                                  setParentModalOpen(true);
-                                }}
-                              >
-                                <EditIcon />
-                              </IconButton>
+                          ));
 
-                              <IconButton
+                        return (
+                          <TableRow key={i}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedParentIds.includes(parent.id)}
+                                onChange={() => handleCheck(parent.id)}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                              {parent.name}
+                            </TableCell>
+                            <TableCell sx={{ whiteSpace: "nowrap" }}>
+                              {parent.email_address}
+                            </TableCell>
+                            <TableCell>
+                              <Box
+                                key={i}
                                 sx={{
-                                  color: "text.secondary",
-                                  "&:hover": { color: "error.main" },
-                                }}
-                                onClick={() => {
-                                  setOpen(true);
-                                  setDeleteTargetId(parent.id);
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
                                 }}
                               >
-                                <DeleteIcon />
-                              </IconButton>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                                {childList}
+                                {classArray.length > 2 &&
+                                  `+${classArray.length - 2}件`}
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
+                                }}
+                              >
+                                {parent.children_name
+                                  .split("、")
+                                  .map((child) => (
+                                    <Chip
+                                      variant="outlined"
+                                      sx={{ color: "text.secondary" }}
+                                      key={child}
+                                      label={child}
+                                      size="small"
+                                    />
+                                  ))}
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Box sx={{ display: "flex" }}>
+                                <IconButton
+                                  sx={{
+                                    color: "text.secondary",
+                                    "&:hover": { color: "primary.main" },
+                                  }}
+                                  onClick={async () => {
+                                    const token = localStorage.getItem("token");
+                                    const res = await fetch(
+                                      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
+                                      {
+                                        headers: {
+                                          Authorization: `Bearer ${token}`,
+                                        },
+                                      },
+                                    );
+                                    const data = await res.json();
+                                    setEditTargetParent(parent);
+                                    setEditParentName(parent.name);
+                                    setEditChildren(data.children);
+                                    setParentModalOpen(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+
+                                <IconButton
+                                  sx={{
+                                    color: "text.secondary",
+                                    "&:hover": { color: "error.main" },
+                                  }}
+                                  onClick={() => {
+                                    setOpen(true);
+                                    setDeleteTargetId(parent.id);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -1111,7 +1138,7 @@ export default function Admin() {
                 </Box>
 
                 {/* 児童登録 */}
-                <Typography variant="h6" sx={{ mt: 3 }}>
+                <Typography variant="h6" sx={{ mt: 10 }}>
                   児童登録
                 </Typography>
                 {children.map((child, i) => (
@@ -1133,6 +1160,19 @@ export default function Admin() {
                           updated[i] = {
                             ...updated[i],
                             childName: e.target.value,
+                          };
+                          setChildren(updated);
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        label="ふりがな"
+                        value={child.childNameKana}
+                        onChange={(e) => {
+                          const updated = [...children];
+                          updated[i] = {
+                            ...updated[i],
+                            childNameKana: e.target.value,
                           };
                           setChildren(updated);
                         }}
@@ -1163,26 +1203,43 @@ export default function Admin() {
                     <Box sx={{ display: "flex", gap: 2 }}>
                       <Button
                         variant="outlined"
-                        sx={{ display: "flex", justifyContent: "flex-start" }}
+                        sx={{
+                          border: "1px solid",
+                          borderColor: "divider",
+                          borderRadius: 4,
+                        }}
                         onClick={() => {
                           setChildren([
                             ...children,
-                            { childName: "", classRoomId: "" },
+                            {
+                              childName: "",
+                              childNameKana: "",
+                              classRoomId: "",
+                            },
                           ]);
                         }}
                       >
-                        児童を追加
+                        + 児童を追加する
                       </Button>
                       <Button
                         variant="text"
-                        sx={{ display: "flex", justifyContent: "flex-start" }}
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-start",
+                        }}
                         onClick={() => {
                           const updated = children.filter(
                             (child, index) => index !== i,
                           );
                           setChildren(
                             updated.length === 0
-                              ? [{ childName: "", classRoomId: "" }]
+                              ? [
+                                  {
+                                    childName: "",
+                                    childNameKana: "",
+                                    classRoomId: "",
+                                  },
+                                ]
                               : updated,
                           );
                         }}

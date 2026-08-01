@@ -55,6 +55,8 @@ export default function Navbar() {
   const [logoutMessageOpen, setLogoutMessageOpen] = useState(false);
 
   useEffect(() => {
+    // localStorageはクライアントでしか読めないため、マウント後に同期する
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setRole(getRole());
     setName(getName());
@@ -77,14 +79,14 @@ export default function Navbar() {
         sx={{ backgroundColor: "#ffffff", color: "primary.main" }}
       >
         <Toolbar>
-          <Box sx={{ p: 1 }}>
+          <Box sx={{ p: 1, display: "flex", alignItems: "center" }}>
             <Image
-              src="/tsunag_logo2.png"
+              src="/images/tsunagu4.png"
               alt="Tsunagu"
-              width={140}
-              height={40}
-              className="h-12 w-auto"
+              width={70}
+              height={70}
             />
+            <Typography variant="h6">Tsunagu</Typography>
           </Box>
 
           <Box

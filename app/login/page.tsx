@@ -82,124 +82,116 @@ export default function LoginPage() {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        backgroundImage: "url('/tsunagu.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mb: 2,
-            }}
-          >
-            <Typography variant="h5" sx={{ color: "#1a3a5c" }}>
-              Tsunagu
+    <Box sx={{ position: "relative", height: "100vh" }}>
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('/images/tsunagu.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          opacity: 0.25,
+        }}
+      ></Box>
+      <Box
+        sx={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+        }}
+      >
+        <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
+          <CardContent>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+              }}
+            ></Box>
+            <Typography
+              variant="h6"
+              sx={{ textAlign: "center", mb: 2, color: "#1a3a5c" }}
+            >
+              Tsunagu にログイン
             </Typography>
-          </Box>
-          <Typography
-            variant="h6"
-            sx={{ textAlign: "center", mb: 2, color: "#1a3a5c" }}
-          >
-            Tsunagu にログイン
-          </Typography>
-          {apiError && <Alert severity="error">{apiError}</Alert>}
-          <TextField
-            type="email"
-            label="メールアドレス"
-            value={emailAddress}
-            onChange={(e) => setEmailAddress(e.target.value)}
-            error={!!emailError}
-            helperText={emailError}
-            fullWidth
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            type={showPassword ? "text" : "password"}
-            label="パスワード"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={!!passwordError}
-            helperText={passwordError}
-            fullWidth
-            sx={{ mb: 1 }}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-          <Box sx={{ textAlign: "right", mb: 1 }}>
-            <Link href="/password_reset">パスワードをお忘れの方はこちら</Link>
-          </Box>
-          <Button
-            variant="contained"
-            onClick={() => handleSubmit()}
-            fullWidth
-            disabled={isLoading}
-            sx={{ mb: 1 }}
-          >
-            {isLoading ? "ログイン中..." : "ログイン"}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => handleSubmit("yamada@example.com", "password")}
-            fullWidth
-            disabled={isLoading}
-            sx={{ mb: 1 }}
-          >
-            {isLoading ? "ログイン中..." : "デモログイン（保護者）"}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => handleSubmit("saito@example.com", "password")}
-            fullWidth
-            disabled={isLoading}
-            sx={{ mb: 1 }}
-          >
-            {isLoading ? "ログイン中..." : "デモログイン(教師)"}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() => handleSubmit("admin@example.com", "password")}
-            fullWidth
-            disabled={isLoading}
-            sx={{ mb: 1 }}
-          >
-            {isLoading ? "ログイン中..." : "デモログイン(管理者)"}
-          </Button>
-
-          <Box sx={{ textAlign: "center", mb: 2, px: 2 }}>
-            <Typography variant="body2" sx={{ color: "#555" }}>
-              アカウントをお持ちでない方?{" "}
-              <Typography
-                component="span"
-                variant="body2"
-                onClick={() => router.push("/register")}
-                sx={{ color: "#1a3a5c", cursor: "pointer" }}
+            {apiError && <Alert severity="error">{apiError}</Alert>}
+            <TextField
+              type="email"
+              label="メールアドレス"
+              value={emailAddress}
+              onChange={(e) => setEmailAddress(e.target.value)}
+              error={!!emailError}
+              helperText={emailError}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              type={showPassword ? "text" : "password"}
+              label="パスワード"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={!!passwordError}
+              helperText={passwordError}
+              fullWidth
+              sx={{ mb: 1 }}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "center",
+                gap: 2,
+              }}
+            >
+              <Box sx={{ textAlign: "right", mt: 1 }}>
+                <Link href="/password_reset">
+                  パスワードをお忘れの方はこちら
+                </Link>
+              </Box>
+              <Button
+                variant="contained"
+                onClick={() => handleSubmit()}
+                fullWidth
+                disabled={isLoading}
+                sx={{ mb: 1 }}
               >
-                ユーザー登録はこちら
-              </Typography>
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
+                {isLoading ? "ログイン中..." : "ログイン"}
+              </Button>
+
+              <Box sx={{ textAlign: "right" }}>
+                <Typography variant="body2" sx={{ color: "#555", mt: 3 }}>
+                  アカウントをお持ちでない方は{" "}
+                </Typography>
+                <Typography
+                  component="span"
+                  variant="body2"
+                  onClick={() => router.push("/register")}
+                  sx={{ color: "#1a3a5c", cursor: "pointer" }}
+                >
+                  ユーザー登録はこちら
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
     </Box>
   );
 }

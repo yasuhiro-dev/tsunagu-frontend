@@ -66,8 +66,8 @@ export default function ChildList() {
   const serchChildren = useMemo(() => {
     return [...sortChildren].filter(
       (c) =>
-        c.child_name.includes(serchText) ||
-        c.child_name_kana.includes(serchText),
+        c.child_name.startsWith(serchText) ||
+        c.child_name_kana.startsWith(serchText),
     );
   }, [sortChildren, serchText]);
 
@@ -158,106 +158,110 @@ export default function ChildList() {
             </Box>
           ) : (
             <Box sx={{ p: 2 }}>
-              <Box sx={{ mb: 2 }}>
-                <Tabs
-                  value={filter}
-                  onChange={(_, v) => {
-                    setFilter(v);
-                    setCurrentPage(1);
-                  }}
-                  sx={{
-                    "& .MuiTab-root": {
-                      minWidth: 120,
-                      "&:hover": { backgroundColor: "rgba(26, 58, 107, 0.06)" },
-                    },
-                    "& .Mui-selected": {
-                      backgroundColor: "rgba(26, 58, 107, 0.14)",
-                      "& .MuiTypography-root": { fontWeight: "bold" },
-                    },
-                  }}
-                >
-                  <Tab
-                    sx={{ borderRadius: 2 }}
-                    label={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                        }}
-                      >
-                        <Typography>全て</Typography>
-                        <Chip variant="outlined" label={counts.all} />
-                      </Box>
-                    }
-                    value="all"
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Box sx={{ mb: 2 }}>
+                  <Tabs
+                    value={filter}
+                    onChange={(_, v) => {
+                      setFilter(v);
+                      setCurrentPage(1);
+                    }}
+                    sx={{
+                      "& .MuiTab-root": {
+                        minWidth: 120,
+                        "&:hover": {
+                          backgroundColor: "rgba(26, 58, 107, 0.06)",
+                        },
+                      },
+                      "& .Mui-selected": {
+                        backgroundColor: "rgba(26, 58, 107, 0.14)",
+                        "& .MuiTypography-root": { fontWeight: "bold" },
+                      },
+                    }}
+                  >
+                    <Tab
+                      sx={{ borderRadius: 2 }}
+                      label={
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <Typography>全て</Typography>
+                          <Chip variant="outlined" label={counts.all} />
+                        </Box>
+                      }
+                      value="all"
+                    />
+                    <Tab
+                      sx={{ borderRadius: 2 }}
+                      label={
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Typography>未提出</Typography>
+                          <Chip
+                            variant="outlined"
+                            color="error"
+                            label={counts.unsubmitted}
+                          />
+                        </Box>
+                      }
+                      value="unsubmitted"
+                    />
+                    <Tab
+                      sx={{ borderRadius: 2 }}
+                      label={
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Typography>予約待ち</Typography>
+                          <Chip
+                            variant="outlined"
+                            color="warning"
+                            label={counts.waiting}
+                          />
+                        </Box>
+                      }
+                      value="waiting"
+                    />
+                    <Tab
+                      sx={{ borderRadius: 2 }}
+                      label={
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Typography>予約済み</Typography>
+                          <Chip
+                            variant="outlined"
+                            color="success"
+                            label={counts.done}
+                          />
+                        </Box>
+                      }
+                      value="done"
+                    />
+                  </Tabs>
+                </Box>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <TextField
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon sx={{ color: "text.secondary" }} />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    placeholder="名前を検索..."
+                    size="small"
+                    value={serchText}
+                    onChange={(e) => setSerchText(e.target.value)}
                   />
-                  <Tab
-                    sx={{ borderRadius: 2 }}
-                    label={
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Typography>未提出</Typography>
-                        <Chip
-                          variant="outlined"
-                          color="error"
-                          label={counts.unsubmitted}
-                        />
-                      </Box>
-                    }
-                    value="unsubmitted"
-                  />
-                  <Tab
-                    sx={{ borderRadius: 2 }}
-                    label={
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Typography>予約待ち</Typography>
-                        <Chip
-                          variant="outlined"
-                          color="warning"
-                          label={counts.waiting}
-                        />
-                      </Box>
-                    }
-                    value="waiting"
-                  />
-                  <Tab
-                    sx={{ borderRadius: 2 }}
-                    label={
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Typography>予約済み</Typography>
-                        <Chip
-                          variant="outlined"
-                          color="success"
-                          label={counts.done}
-                        />
-                      </Box>
-                    }
-                    value="done"
-                  />
-                </Tabs>
-              </Box>
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <TextField
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon sx={{ color: "text.secondary" }} />
-                        </InputAdornment>
-                      ),
-                    },
-                  }}
-                  placeholder="名前を検索..."
-                  size="small"
-                  value={serchText}
-                  onChange={(e) => setSerchText(e.target.value)}
-                />
+                </Box>
               </Box>
 
               <TableContainer

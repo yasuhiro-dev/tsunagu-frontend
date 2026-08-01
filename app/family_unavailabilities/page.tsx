@@ -203,7 +203,9 @@ export default function FamilyUnavailability() {
   return (
     <Container sx={{ mt: 4 }}>
       <Box sx={{ p: 3 }}>
-        <Typography>面談に参加できない日時のボタンを押してください</Typography>
+        <Typography variant="h6" sx={{ mb: 3 }}>
+          面談に参加できない日時のボタンを押してください
+        </Typography>
 
         <Box
           sx={
@@ -265,8 +267,8 @@ export default function FamilyUnavailability() {
                               backgroundColor: unavailableSlots.includes(
                                 slot.id,
                               )
-                                ? "#f44336" // 赤（面談不可）
-                                : "#1976d2", // 青（面談可）
+                                ? "error" // 赤（面談不可）
+                                : "primary", // 青（面談可）
                               color: "white",
                             },
                           }}
