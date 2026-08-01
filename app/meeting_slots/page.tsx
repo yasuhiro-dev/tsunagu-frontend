@@ -62,7 +62,6 @@ export default function MeetingSlotPage() {
       child_name_kana: string;
     }[]
   >([]);
-
   const handleClick = async () => {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules`, {
       method: "POST",
@@ -114,6 +113,24 @@ export default function MeetingSlotPage() {
         setUnassignedChildren(data);
       });
   }, [router]);
+  const handleDownLoadPDF = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/teacher_exports`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "schedule.pdf";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   const matrix = buildMatrix(slots);
   const allTimes = [
@@ -152,19 +169,20 @@ export default function MeetingSlotPage() {
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={() => window.print()}
+                onClick={handleDownLoadPDF}
               >
-                印刷
+                PDFをダウンロード
               </Button>
             </Box>
           </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ width: "200px", flexShrink: 0 }}>
-              <Typography>
+              <Typography sx={{ mb: 2 }}>
                 未割り当て児童
                 <Chip
                   label={unassignedChildren.length}
+                  color="error"
                   size="small"
                   sx={{ ml: 1 }}
                 />
@@ -175,7 +193,7 @@ export default function MeetingSlotPage() {
                   key={child.id}
                   sx={{
                     border: "1px solid",
-                    borderColor: "divider",
+                    borderColor: "error.light",
                     p: 1,
                     mb: 1,
                     borderRadius: 1,
