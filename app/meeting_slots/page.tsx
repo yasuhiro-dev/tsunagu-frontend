@@ -109,7 +109,6 @@ export default function MeetingSlotPage() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("unassignedChildren data:", data);
         setUnassignedChildren(data);
       });
   }, [router]);
