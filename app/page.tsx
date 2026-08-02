@@ -493,10 +493,6 @@ export default function Home() {
           </Box>
         </Box>
       </Box>
-      {/* フッター */}
-      <Box component="footer" sx={{ p: 4, textAlign: "center" }}>
-        （仮）フッター
-      </Box>
     </>
   );
 }
