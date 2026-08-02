@@ -178,7 +178,7 @@ export default function MeetingSlotPage() {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ width: "200px", flexShrink: 0 }}>
               <Typography sx={{ mb: 2 }}>
-                未割り当て児童
+                未割り当て児
                 <Chip
                   label={unassignedChildren.length}
                   color="error"
@@ -186,27 +186,28 @@ export default function MeetingSlotPage() {
                   sx={{ ml: 1 }}
                 />
               </Typography>
-
-              {unassignedChildren.map((child) => (
-                <Box
-                  key={child.id}
-                  sx={{
-                    border: "1px solid",
-                    borderColor: "error.light",
-                    p: 1,
-                    mb: 1,
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography variant="body2">{child.child_name}</Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "text.secondary" }}
+              <Box sx={{ overflow: "auto", maxHeight: "600px" }}>
+                {unassignedChildren.map((child) => (
+                  <Box
+                    key={child.id}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "error.light",
+                      p: 1,
+                      mb: 1,
+                      borderRadius: 1,
+                    }}
                   >
-                    保護者：{child.family_name}
-                  </Typography>
-                </Box>
-              ))}
+                    <Typography variant="body2">{child.child_name}</Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.secondary" }}
+                    >
+                      保護者：{child.family_name}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
             </Box>
             <Box sx={{ flex: 1 }}>
               <Box sx={{ display: "flex", gap: 2 }}>
