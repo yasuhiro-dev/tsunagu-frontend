@@ -63,21 +63,31 @@ export default function MeetingSlotPage() {
     }[]
   >([]);
   const handleClick = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify({ id: 1 }),
     });
     setMessage("割り当て完了");
     const token = localStorage.getItem("token");
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => setslots(data));
+
+    await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setUnassignedChildren(data);
+      });
   };
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -178,7 +188,7 @@ export default function MeetingSlotPage() {
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ width: "200px", flexShrink: 0 }}>
               <Typography sx={{ mb: 2 }}>
-                未割り当て児
+                未割り当て児童
                 <Chip
                   label={unassignedChildren.length}
                   color="error"
@@ -186,7 +196,7 @@ export default function MeetingSlotPage() {
                   sx={{ ml: 1 }}
                 />
               </Typography>
-              <Box sx={{ overflow: "auto", maxHeight: "600px" }}>
+              <Box sx={{ overflow: "auto", maxHeight: "520px" }}>
                 {unassignedChildren.map((child) => (
                   <Box
                     key={child.id}
