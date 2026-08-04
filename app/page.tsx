@@ -168,7 +168,7 @@ export default function Home() {
             <Button
               variant="contained"
               onClick={() =>
-                handleSubmit("ja@deckow-larson.example", "password")
+                handleSubmit("evangeline@torphy-wolf.example", "password")
               }
             >
               保護者としてのデモを見る
