@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useRouter } from "next/navigation";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -10,22 +11,29 @@ import Alert from "@mui/material/Alert";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
 
 function PasswordReset() {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [message, setMessage] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [passwordConfirmError, setPasswordConfirmError] = useState("");
-  const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
+  const router = useRouter();
 
   const handleSubmit = async () => {
-    setApiError("");
     if (!password) {
       setPasswordError("パスワードを入力してください");
+      return;
+    } else if (password.length < 8) {
+      setPasswordError("8文字以上にしてください");
       return;
     } else {
       setPasswordError("");
@@ -41,7 +49,7 @@ function PasswordReset() {
     }
     setIsLoading(true);
 
-    await fetch(
+    const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/password_resets/${token}`,
       {
         method: "PATCH",
@@ -51,31 +59,20 @@ function PasswordReset() {
         body: JSON.stringify({ user: { password: password } }),
       },
     );
-    setMessage("送信完了しました");
+    const data = await res.json();
+    if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage(data.message);
+      router.push("/login");
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage(data.message);
+    }
+
     setIsLoading(false);
   };
-
-  if (message) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          backgroundImage: "url('/tsunagu.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
-          <CardContent>
-            <Alert severity="success">パスワードの登録完了しました</Alert>
-          </CardContent>
-        </Card>
-      </Box>
-    );
-  }
 
   return (
     <Box
@@ -89,6 +86,14 @@ function PasswordReset() {
         backgroundPosition: "center",
       }}
     >
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={alertOpen}
+        autoHideDuration={5000}
+        onClose={() => setAlertOpen(false)}
+      >
+        <Alert severity={alertSeverity}>{alertMessage}</Alert>
+      </Snackbar>
       <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
         <CardContent>
           <Box
@@ -110,7 +115,6 @@ function PasswordReset() {
             新しいパスワードを設定してください
           </Typography>
 
-          {apiError && <Alert severity="error">{apiError}</Alert>}
           <TextField
             type="password"
             label="パスワード"
