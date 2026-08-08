@@ -8,16 +8,20 @@ import Alert from "@mui/material/Alert";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Snackbar from "@mui/material/Snackbar";
 
 export default function PasswordReset() {
   const [emailAddress, setEmailAddress] = useState("");
-  const [message, setMessage] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [apiError, setApiError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
 
   const handleSubmit = async () => {
-    setApiError("");
+    // 送信前のバリデーション(サーバーに送る前に、入力内容そのものをチェックする)
     if (!emailAddress) {
       setEmailError("メールアドレスを入力してください");
       return;
@@ -27,29 +31,32 @@ export default function PasswordReset() {
     } else {
       setEmailError("");
     }
+
     setIsLoading(true);
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/password_resets`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/password_resets`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password_reset: { email: emailAddress } }),
       },
-      body: JSON.stringify({ password_reset: { email: emailAddress } }),
-    });
-    setMessage("送信完了しました");
-  };
-
-  if (message) {
-    return (
-      <Box>
-        <Card>
-          <CardContent>
-            <Alert severity="success">送信完了しました</Alert>
-          </CardContent>
-        </Card>
-      </Box>
     );
-  }
+    // 送信後の結果がどうであるかを確認
+    if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("メールが送信されました");
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("メールの送信に失敗しました");
+    }
+
+    setIsLoading(false);
+  };
 
   return (
     <Box
@@ -63,6 +70,14 @@ export default function PasswordReset() {
         backgroundPosition: "center",
       }}
     >
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={alertOpen}
+        autoHideDuration={5000}
+        onClose={() => setAlertOpen(false)}
+      >
+        <Alert severity={alertSeverity}>{alertMessage}</Alert>
+      </Snackbar>
       <Card sx={{ width: 400, p: 2, boxShadow: 3, borderRadius: 3 }}>
         <CardContent>
           <Box
@@ -83,7 +98,6 @@ export default function PasswordReset() {
           >
             登録されているメールアドレスをご記入ください
           </Typography>
-          {apiError && <Alert severity="error">{apiError}</Alert>}
           <TextField
             type="email"
             label="メールアドレス"
