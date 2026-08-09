@@ -38,6 +38,10 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import Chip from "@mui/material/Chip";
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 type Teacher = {
   name: string;
@@ -111,7 +115,31 @@ export default function Admin() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+  const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
+
+  // 提出締切日の変更の関数
+  const updateEditDeadLine = async () => {
+    const token = localStorage.getItem("token");
+    const scheduleId = 1;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        // フロントで設定した締切日（editDeadLine）をRailsに送る
+        body: JSON.stringify({ deadline_at: editDeadLine }),
+      },
+    );
+    // 更新された締め切り日が返ってくる
+    const data = await res.json();
+    setEditDeadLine(data.deadline_at);
+  };
+
   // 教師名の絞り込み
+  console.log("teachers中身:", teachers);
   const filteredTeachers = useMemo(() => {
     return teachers.filter(
       (t) =>
@@ -580,6 +608,13 @@ export default function Admin() {
               onClick={() => setTab(3)}
             >
               保護者登録
+            </Button>
+            <Button
+              // startIcon={<GroupAddIcon />}
+              sx={sidebarButtonStyle(4)}
+              onClick={() => setTab(4)}
+            >
+              日程の設定
             </Button>
           </Box>
 
@@ -1267,6 +1302,45 @@ export default function Admin() {
                 >
                   登録
                 </Button>
+              </Box>
+            )}
+
+            {/* 日程の設定 */}
+            {tab === 4 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  p: 3,
+                  minHeight: "calc(100vh - 264px)",
+                  maxHeight: "calc(100vh - 400px)",
+                  overflow: "auto",
+                  maxWidth: 500,
+                  flexDirection: "column",
+                }}
+              >
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="h6">締切日設定</Typography>
+                  {/* DatePickerの動作に必要な設定（dayjsを使うと指定） */}
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    {/* 締切日入力用のカレンダー */}
+                    <DatePicker
+                      //今どんな値を選んでいるか
+                      value={editDeadLine !== null ? dayjs(editDeadLine) : null}
+                      // カレンダーをクリックして変化したら処理される
+                      onChange={(newValue) =>
+                        // nullじゃなければ、選ばれた日付を文字列(.format)に変換してstateを更新する
+                        setEditDeadLine(
+                          newValue !== null
+                            ? newValue.format("YYYY-MM-DD")
+                            : null,
+                        )
+                      }
+                    />
+                  </LocalizationProvider>
+                  {/* 保存ボタンを押すと編集更新の関数が呼ばれる */}
+                  <Button onClick={updateEditDeadLine}>保存する</Button>
+                </Box>
               </Box>
             )}
 
