@@ -29,6 +29,7 @@ type MeetingSlot = {
   id: number;
   start_at: string;
   end_at: string;
+  schedule_id: number;
 };
 
 const groupByDate = (slots: MeetingSlot[]) => {
@@ -45,12 +46,13 @@ const groupByDate = (slots: MeetingSlot[]) => {
 
 export default function FamilyUnavailability() {
   const router = useRouter();
-  const [slots, setSlots] = useState([]);
+  const [slots, setSlots] = useState<MeetingSlot[]>([]);
   const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
+  const [deadLine, setDeadLine] = useState<null | string>(null);
 
   const decodeToken = (token: string) => {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -129,17 +131,39 @@ export default function FamilyUnavailability() {
       },
     })
       .then((res) => {
+        // falseの場合エラーメッセージがthrow→catchへ
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
       })
+      // バックエンドからslotsが届く
       .then((data) => {
         setSlots(data);
         setLoading(false);
+        // .then（data）を受け取ってから関数を実行したいためここに関数実行を書く
+        fetchDeadline(data);
       })
+      // 受け取ったメッセージをsetErrorに渡して更新する
       .catch((e) => {
         setError(e.message);
         setLoading(false);
       });
+    // fetchDeadline(data)から渡された引数を(slots: MeetingSlot[]) とする
+    const fetchDeadline = async (slots: MeetingSlot[]) => {
+      const token = localStorage.getItem("token");
+      const scheduleId = slots[0].schedule_id;
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      const data = await res.json();
+      setDeadLine(data.deadline_at);
+    };
 
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`, {
       headers: {
@@ -200,11 +224,19 @@ export default function FamilyUnavailability() {
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
 
+  const now = new Date();
+  const deadLineDate = deadLine !== null ? new Date(deadLine) : null;
+
   return (
     <Container sx={{ mt: 4 }}>
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ mb: 3 }}>
           面談に参加できない日時のボタンを押してください
+        </Typography>
+
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
+          回答締切：{deadLine !== null ? formatDate(deadLine) : null}
         </Typography>
 
         <Box
@@ -261,7 +293,10 @@ export default function FamilyUnavailability() {
                               : "primary"
                           }
                           onClick={() => handleClick(slot.id)}
-                          disabled={submitted}
+                          disabled={
+                            submitted ||
+                            (deadLineDate !== null && now > deadLineDate)
+                          }
                           sx={{
                             "&.Mui-disabled": {
                               backgroundColor: unavailableSlots.includes(
@@ -293,7 +328,9 @@ export default function FamilyUnavailability() {
                 <Button
                   variant="outlined"
                   size="small"
-                  disabled={submitted}
+                  disabled={
+                    submitted || (deadLineDate !== null && now > deadLineDate)
+                  }
                   onClick={() => handleSelectAll(dateSlots)}
                 >
                   全選択
@@ -301,7 +338,9 @@ export default function FamilyUnavailability() {
                 <Button
                   variant="outlined"
                   size="small"
-                  disabled={submitted}
+                  disabled={
+                    submitted || (deadLineDate !== null && now > deadLineDate)
+                  }
                   onClick={() => handleClerAll(dateSlots)}
                 >
                   全解除
@@ -315,7 +354,9 @@ export default function FamilyUnavailability() {
           <Button
             sx={{ mt: 3 }}
             variant="contained"
-            disabled={submitted}
+            disabled={
+              submitted || (deadLineDate !== null && now > deadLineDate)
+            }
             onClick={hundleSubmit}
           >
             {submitted ? "提出が完了しました" : "上記の内容で提出する"}

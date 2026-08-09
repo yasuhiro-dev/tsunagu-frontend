@@ -66,6 +66,7 @@ export default function MySchedulePage() {
       });
   }, [router]);
 
+  // googleカレンダー連携のAPI
   const handleClick = async (assignmentId: number) => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`,
@@ -76,7 +77,9 @@ export default function MySchedulePage() {
         },
       },
     );
+    // トークンがあるかないかを確認する
     const data = await res.json();
+    // トークンがあるならば、google_calernder_controllerへAPIを送る
     if (data.connected == true) {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_calendar/${assignmentId}`,
@@ -87,6 +90,7 @@ export default function MySchedulePage() {
           },
         },
       );
+      // 登録されたかされていないかメッセージが返る
       const data = await res.json();
       alert(data.message);
     } else {

@@ -17,6 +17,7 @@ type MeetingSlot = {
   end_at: string;
   status: string;
   child_name: string | null;
+  schedule_id: number;
 };
 
 const formatDate = (utcString: string) => {
@@ -62,6 +63,7 @@ export default function MeetingSlotPage() {
       child_name_kana: string;
     }[]
   >([]);
+  // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`, {
       method: "POST",
@@ -71,13 +73,15 @@ export default function MeetingSlotPage() {
       },
     });
     setMessage("割り当て完了");
+
+    // 面談表を取得する
     const token = localStorage.getItem("token");
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => setslots(data));
-
+    // 保護者の不可日時を取得する
     await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
       {
@@ -89,6 +93,7 @@ export default function MeetingSlotPage() {
         setUnassignedChildren(data);
       });
   };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
