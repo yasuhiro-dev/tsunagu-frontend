@@ -127,6 +127,7 @@ export default function MeetingSlotPage() {
         setUnassignedChildren(data);
       });
   }, [router]);
+
   const handleDownLoadPDF = async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/teacher_exports`,
