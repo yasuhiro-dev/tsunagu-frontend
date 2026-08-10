@@ -10,31 +10,7 @@ import Paper from "@mui/material/Paper";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SlotAddPopover from "../components/meeting_slots/SlotAddPopover";
 import Container from "@mui/material/Container";
-
-type MeetingSlot = {
-  id: number;
-  start_at: string;
-  end_at: string;
-  status: string;
-  child_name: string | null;
-  schedule_id: number;
-};
-
-const formatDate = (utcString: string) => {
-  return new Date(utcString).toLocaleString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  });
-};
-const formatTime = (utcString: string) => {
-  return new Date(utcString).toLocaleString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+import { MeetingSlot, formatDate, formatTime } from "@/utils/dateUtils";
 
 const buildMatrix = (slots: MeetingSlot[]) => {
   return slots.reduce(
@@ -63,6 +39,7 @@ export default function MeetingSlotPage() {
       child_name_kana: string;
     }[]
   >([]);
+
   // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`, {

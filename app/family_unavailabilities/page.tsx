@@ -9,40 +9,12 @@ import { useRouter } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-
-const formatDate = (utcString: string) => {
-  return new Date(utcString).toLocaleString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    month: "long",
-    day: "numeric",
-  });
-};
-const formatTime = (utcString: string) => {
-  return new Date(utcString).toLocaleString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-type MeetingSlot = {
-  id: number;
-  start_at: string;
-  end_at: string;
-  schedule_id: number;
-};
-
-const groupByDate = (slots: MeetingSlot[]) => {
-  return slots.reduce(
-    (acc, slot) => {
-      const date = formatDate(slot.start_at);
-      if (!acc[date]) acc[date] = [];
-      acc[date].push(slot);
-      return acc;
-    },
-    {} as Record<string, MeetingSlot[]>,
-  );
-};
+import {
+  MeetingSlot,
+  formatDate,
+  formatTime,
+  groupByDate,
+} from "@/utils/dateUtils";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -59,6 +31,7 @@ export default function FamilyUnavailability() {
     return JSON.parse(decodeURIComponent(escape(atob(base64))));
   };
 
+  // １日全選択の関数（保護者）
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
     const token = localStorage.getItem("token");
     const newIds = dateSlots
@@ -79,6 +52,8 @@ export default function FamilyUnavailability() {
     }
     setUnavailableSlots((prev) => [...prev, ...newIds]);
   };
+
+  // １日全削除の関数（保護者）
   const handleClerAll = async (dateSlots: MeetingSlot[]) => {
     const token = localStorage.getItem("token");
     const removeIds = dateSlots
@@ -98,9 +73,41 @@ export default function FamilyUnavailability() {
     setUnavailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
   };
 
+  //１コマ分選択/選択解除の関数
+
+  const handleClick = async (slotId: number) => {
+    const token = localStorage.getItem("token");
+    if (unavailableSlots.includes(slotId)) {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
+    } else {
+      console.log("POST送信", slotId);
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ meeting_slot_id: slotId }),
+        },
+      );
+      setUnavailableSlots((prev) => [...prev, slotId]);
+    }
+  };
+
+  // 面談不可日程の提出の関数（保護者）
   const hundleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
+    // ルーターでidを必要とするためURLに含めて持たせる（１家庭分）
     const familyId = decodeToken(token).family_id;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${familyId}`,
@@ -192,34 +199,6 @@ export default function FamilyUnavailability() {
         setSubmitted(data.submitted);
       });
   }, [router]);
-
-  const handleClick = async (slotId: number) => {
-    const token = localStorage.getItem("token");
-    if (unavailableSlots.includes(slotId)) {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
-    } else {
-      console.log("POST送信", slotId);
-      await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ meeting_slot_id: slotId }),
-        },
-      );
-      setUnavailableSlots((prev) => [...prev, slotId]);
-    }
-  };
 
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;

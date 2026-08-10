@@ -120,6 +120,19 @@ export default function Navbar() {
                 >
                   面談表
                 </Button>
+                <Button
+                  component={Link}
+                  color="inherit"
+                  variant="outlined"
+                  href="/teacher_unavailabilities"
+                  sx={{
+                    borderRadius: 3,
+                    "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
+                    fontSize: isMobile ? "12px" : "16px",
+                  }}
+                >
+                  不可日程
+                </Button>
               </>
             )}
             {mounted && role === "parent" && (
