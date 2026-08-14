@@ -3,7 +3,9 @@ export type MeetingSlot = {
   start_at: string;
   end_at: string;
   schedule_id: number;
+  status: string;
   child_name: string;
+  assignment_id: number | null;
 };
 // 日付を日本版で読みやすくした形
 export const formatDate = (utcString: string) => {
