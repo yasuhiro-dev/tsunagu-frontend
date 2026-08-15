@@ -82,6 +82,7 @@ export default function MeetingSlotPage() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("提出しました");
+
       setUnavailableSlots(data.map((slot: MeetingSlot) => slot.id));
     } else {
       setAlertOpen(true);
@@ -104,6 +105,7 @@ export default function MeetingSlotPage() {
       },
     })
       // エラーが発生したら、catchへ
+
       .then((res) => {
         if (!res.ok) throw new Error("データ取得に失敗しました");
         return res.json();
@@ -111,6 +113,7 @@ export default function MeetingSlotPage() {
       .then((data) => {
         setslots(data);
         setLoading(false);
+        console.log("中身みたい", data);
       })
       .catch((e) => {
         setError(e.message);
@@ -183,6 +186,9 @@ export default function MeetingSlotPage() {
                           variant="contained"
                           size="small"
                           color={
+                            // 提出前の仮選択(unavailableSlots)か、DB保存済みの状態(slot.status)、
+                            // どちらかがblockedなら赤色にする
+                            slot.status === "blocked" ||
                             unavailableSlots.includes(slot.id)
                               ? "error"
                               : "primary"
@@ -191,16 +197,16 @@ export default function MeetingSlotPage() {
                           disabled={submitted}
                           sx={{
                             "&.Mui-disabled": {
-                              backgroundColor: unavailableSlots.includes(
-                                slot.id,
-                              )
-                                ? "error" // 赤（面談不可）
-                                : "primary", // 青（面談可）
-                              color: "white",
+                              backgroundColor:
+                                slot.status === "blocked" ||
+                                unavailableSlots.includes(slot.id)
+                                  ? "error"
+                                  : "primary",
                             },
                           }}
                         >
-                          {unavailableSlots.includes(slot.id)
+                          {slot.status === "blocked" ||
+                          unavailableSlots.includes(slot.id)
                             ? "面談不可"
                             : "面談可"}
                         </Button>
