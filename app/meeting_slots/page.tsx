@@ -86,8 +86,8 @@ export default function MeetingSlotPage() {
   };
 
   // 編集完了の関数
-  const handleFinishEdit = () => {
-    handleReassign();
+  const handleFinishEdit = async () => {
+    await handleReassign();
     setIsEditMode(false);
   };
   // キャンセル時の関数
