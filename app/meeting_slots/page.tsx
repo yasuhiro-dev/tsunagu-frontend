@@ -11,18 +11,36 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import SlotAddPopover from "../components/meeting_slots/SlotAddPopover";
 import Container from "@mui/material/Container";
 import { MeetingSlot, formatDate, formatTime } from "@/utils/dateUtils";
+import Drawer from "@mui/material/Drawer";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
 
+// slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
   return slots.reduce(
     (acc, slot) => {
       const time = formatTime(slot.start_at);
       const date = formatDate(slot.start_at);
+      // 時間の棚がなければ作る
       if (!acc[time]) acc[time] = {};
-      acc[time][date] = slot;
+      // 時間と日付を組み合わせた位置に、対応するslotを保存
+      acc[time][date] = slot; //slot（MeetingSlot）を[time][date]の位置に格納
       return acc;
     },
-    {} as Record<string, Record<string, MeetingSlot>>,
+    {} as Record<string, Record<string, MeetingSlot>>, //accの初期値。型は {時間: {日付: slot}}
   );
+};
+// 特支・通常級担任の面談表の型
+type MeetingSchedule = {
+  teacher_name: string;
+  class_room_name: string;
+  slots: MeetingSlot[];
+};
+// 面談入れ替え予定一覧の型
+type ChangeSlot = {
+  from_assignment_id: number;
+  to_slot_id: number;
 };
 
 export default function MeetingSlotPage() {
@@ -39,6 +57,154 @@ export default function MeetingSlotPage() {
       child_name_kana: string;
     }[]
   >([]);
+  // サイドバー開閉
+  const [isOpen, setIsOpen] = useState(false);
+  // 移動元のslot
+  const [fromAssignmentId, setFromAssignmentId] = useState<number | null>(null);
+  // 移動先のslot
+  const [toSlotId, setToSlotId] = useState<null | number>(null);
+  // 編集先での面談入れ替え（面談表全体を表示）
+  const [editingSlots, setEditingSlots] = useState<MeetingSlot[]>([]);
+  // 編集先での面談入れ替え予定一覧（API送信用に変化したslotのみ保管）
+  const [changeSlotsList, setChangeSlotsList] = useState<ChangeSlot[]>([]);
+  // slot移動時の警告
+  const [alertOpen, setAlertOpen] = useState(false);
+  // 編集モードか
+  const [isEditMode, setIsEditMode] = useState(false);
+  // 面談不可日・兄弟の面談表・特別支援の面談表
+  const [validSlotsData, setValidSlotsData] = useState<{
+    unavailable_start_at: string[];
+    siblings_meeting_schedule: MeetingSchedule[][];
+    own_support_meeting_schedule: MeetingSchedule[];
+  } | null>(null);
+
+  // 編集開始の関数
+  const handleStartEdit = () => {
+    setIsEditMode(true);
+    setEditingSlots(slots); //面談表の中身をコピー
+    setChangeSlotsList([]);
+  };
+
+  // 編集完了の関数
+  const handleFinishEdit = () => {
+    handleReassign();
+    setIsEditMode(false);
+  };
+  // キャンセル時の関数
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setEditingSlots([]);
+    setChangeSlotsList([]);
+    setFromAssignmentId(null);
+    setToSlotId(null);
+  };
+  // 編集リセットボタンの関数
+  const handleEditReset = () => {
+    setFromAssignmentId(null);
+    setToSlotId(null);
+  };
+
+  // 案内表示で「いいえ」を押した時の関数
+  const handleFinishAlert = () => {
+    handleEditReset();
+    setAlertOpen(false);
+  };
+
+  // 案内表示で「はい」を押した時の関数
+  const handleApplyChange = () => {
+    if (fromAssignmentId === null || toSlotId === null) {
+      return; //もし中身がnullならここで終了する
+    }
+    // fromAssignmentIdとtoSlotIdに情報を持たせる（現時点では、番号のみしか持っていない）
+    const fromSlot = editingSlots.find(
+      (slot) => slot.assignment_id === fromAssignmentId,
+    );
+    const toSlot = editingSlots.find((slot) => slot.id === toSlotId);
+    // 画面上で再描写する時の関数
+    const newEditingSlots = editingSlots.map((slot) => {
+      if (slot.assignment_id === fromAssignmentId) {
+        return {
+          ...slot,
+          child_name: toSlot?.child_name ?? "",
+          assignment_id: toSlot?.assignment_id ?? null,
+        };
+      } else if (slot.id === toSlotId) {
+        return {
+          ...slot,
+          child_name: fromSlot?.child_name ?? "",
+          assignment_id: fromSlot?.assignment_id ?? null,
+        };
+      } else {
+        return slot;
+      }
+    });
+
+    // 編集した面談のデータ（再描写）
+    setEditingSlots(newEditingSlots);
+    // APIでRailsに送る面談のデータ（送る用）
+    setChangeSlotsList([
+      ...changeSlotsList,
+      {
+        from_assignment_id: fromAssignmentId,
+        to_slot_id: toSlotId,
+      },
+    ]);
+    setAlertOpen(false);
+    handleEditReset();
+  };
+
+  // １回目の選択と２回目の選択で分岐
+  const handleFromToSelect = (cell: MeetingSlot) => {
+    if (fromAssignmentId === null) {
+      setFromAssignmentId(cell?.assignment_id);
+    } else if (fromAssignmentId === cell?.assignment_id) {
+      setFromAssignmentId(null);
+    } else {
+      setToSlotId(cell?.id);
+      setAlertOpen(true);
+    }
+  };
+
+  // 面談slot編集・編集完了
+  const handleReassign = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ assignments: changeSlotsList }),
+      },
+    );
+    const data = await res.json();
+    setslots(data);
+  };
+
+  // １つのassignment_slotを選んだ時の情報を取得
+  const AssignmentHandleClick = async (id: number) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setValidSlotsData(data);
+    if (
+      data.siblings_meeting_schedule.length > 0 ||
+      data.own_support_meeting_schedule.length > 0
+    ) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
@@ -124,7 +290,10 @@ export default function MeetingSlotPage() {
     window.URL.revokeObjectURL(url);
   };
 
-  const matrix = buildMatrix(slots);
+  // 編集中であればeditingSlotsを使う
+  const matrix = buildMatrix(isEditMode ? editingSlots : slots);
+
+  // 全slotの面談表（メイン）
   const allTimes = [
     ...new Set(slots.map((s) => formatTime(s.start_at))),
   ].sort();
@@ -137,7 +306,16 @@ export default function MeetingSlotPage() {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Paper sx={{ p: 3, borderRadius: 2, maxHeight: 680 }}>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          maxHeight: 680,
+          // 編集モードの枠線
+          border: isEditMode ? "1px solid" : "none",
+          borderColor: isEditMode ? "primary.main" : "none",
+        }}
+      >
         <Box sx={{ p: 1 }}>
           <Box
             sx={{
@@ -154,6 +332,15 @@ export default function MeetingSlotPage() {
               className="no-print"
               sx={{ alignItems: "center", display: "flex", gap: 1 }}
             >
+              {isEditMode ? (
+                <Box>
+                  <Button onClick={handleFinishEdit}>編集完了</Button>
+                  <Button onClick={handleEditReset}>選択リセット</Button>
+                  <Button onClick={handleCancelEdit}>キャンセル</Button>
+                </Box>
+              ) : (
+                <Button onClick={handleStartEdit}>面談編集</Button>
+              )}
               <p>{message}</p>
               <Button variant="contained" color="primary" onClick={handleClick}>
                 割り当てを実行する
@@ -170,15 +357,15 @@ export default function MeetingSlotPage() {
 
           <Box sx={{ display: "flex", gap: 2 }}>
             <Box sx={{ width: "200px", flexShrink: 0 }}>
-              <Typography sx={{ mb: 2 }}>
-                未割り当て児童
+              <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
+                <Typography component="span">未割り当て児童</Typography>
                 <Chip
                   label={unassignedChildren.length}
                   color="error"
                   size="small"
                   sx={{ ml: 1 }}
                 />
-              </Typography>
+              </Box>
               <Box sx={{ overflow: "auto", maxHeight: "520px" }}>
                 {unassignedChildren.map((child) => (
                   <Box
@@ -251,14 +438,42 @@ export default function MeetingSlotPage() {
                     {allDates.map((date) => (
                       <Box
                         key={date}
+                        onClick={() => {
+                          const id = matrix[time][date].assignment_id;
+                          if (isEditMode) {
+                            // 編集モードだと入れ替えが可能
+                            handleFromToSelect(matrix[time][date]);
+                          } else if (id === null) {
+                            // 空きマスは、何もしない（SlotAddPopoverが、独立して、動く）
+                          } else {
+                            // 通常モードだと、児童詳細の取得
+                            AssignmentHandleClick(id);
+                          }
+                        }}
                         sx={{
                           flex: 1,
                           minWidth: "120px",
-                          border: "1px solid",
-                          borderColor: "divider",
+                          cursor: "pointer", // マウスを乗せたとき、指マークになる
+                          "&:hover": {
+                            backgroundColor: "action.hover", //  ホバー時に、薄く色がつく
+                          },
                           p: 1,
                           minHeight: "80px",
                           borderRadius: 1,
+                          // 選択中の枠線(編集中)
+                          border:
+                            matrix[time][date]?.assignment_id ===
+                              fromAssignmentId ||
+                            matrix[time][date]?.id === toSlotId
+                              ? "solid 2px "
+                              : "solid 1px ",
+                          borderColor:
+                            matrix[time][date]?.assignment_id ===
+                            fromAssignmentId
+                              ? "primary.main"
+                              : matrix[time][date]?.id === toSlotId
+                                ? "error.main"
+                                : "divider",
                         }}
                       >
                         {matrix[time][date]?.child_name ? (
@@ -279,6 +494,7 @@ export default function MeetingSlotPage() {
                               minHeight: "30px",
                             }}
                           >
+                            {/* 空きに児童を追加する */}
                             <SlotAddPopover
                               slotId={matrix[time][date].id}
                               dateLabel={date}
@@ -303,6 +519,268 @@ export default function MeetingSlotPage() {
                     ))}
                   </Box>
                 ))}
+              </Box>
+              {/* 面談児童入れ替え時の案内表示 */}
+              <Box>
+                <Dialog
+                  open={alertOpen}
+                  onClose={handleApplyChange || handleFinishAlert}
+                >
+                  <DialogTitle>{"変更してもよろしいですか"}</DialogTitle>
+                  <DialogActions>
+                    <Button
+                      // 編集用の面談表を再描写
+                      onClick={handleApplyChange}
+                      autoFocus
+                    >
+                      はい
+                    </Button>
+                    <Button onClick={handleFinishAlert}>いいえ</Button>
+                  </DialogActions>
+                </Dialog>
+              </Box>
+
+              {/* サイドバーの表示 */}
+              <Box>
+                <Drawer
+                  anchor="right"
+                  open={isOpen}
+                  onClose={() => setIsOpen(false)}
+                >
+                  <Box sx={{ width: 700, p: 2 }}>
+                    {/* validSlotsDataがnullじゃないなら実行する */}
+                    {validSlotsData && (
+                      <Box>
+                        {/* 特別支援の面談表があれば表示する */}
+                        {validSlotsData.own_support_meeting_schedule.map(
+                          (schedule, index) => {
+                            // バラバラなslotをまとめる
+                            const scheduleMatrix = buildMatrix(schedule.slots);
+                            // 時間を並べて見出しの役割
+                            const scheduleTimes = [
+                              ...new Set(
+                                schedule.slots.map((s) =>
+                                  formatTime(s.start_at),
+                                ),
+                              ),
+                            ].sort();
+                            // 日付を並べて見出しの役割
+                            const scheduleDates = [
+                              ...new Set(
+                                schedule.slots.map((s) =>
+                                  formatDate(s.start_at),
+                                ),
+                              ),
+                            ].sort();
+                            return (
+                              <Box key={index}>
+                                <Typography>
+                                  {schedule.teacher_name}先生（
+                                  {schedule.class_room_name}）
+                                </Typography>
+                                {/* 日付の見出しを表示 */}
+                                <Box sx={{ display: "flex", gap: 2 }}>
+                                  <Box sx={{ width: "60px" }}></Box>
+                                  {scheduleDates.map((date) => (
+                                    <Box
+                                      key={date}
+                                      sx={{
+                                        flex: 1,
+                                        textAlign: "center",
+                                        fontSize: "12px",
+                                        backgroundColor: "primary.dark",
+                                        color: "white",
+                                        borderRadius: 1,
+                                      }}
+                                    >
+                                      {/* 「6/1」「6/2」という、文字を表示 */}
+                                      {date}
+                                    </Box>
+                                  ))}
+                                </Box>
+                                {/* 時間の行の中で、日付ごとのマスを表示 */}
+                                {scheduleTimes.map((time) => (
+                                  <Box
+                                    key={time}
+                                    sx={{ display: "flex", gap: 1, mt: 0.5 }}
+                                  >
+                                    {/* 15:00・・・と表示 */}
+                                    <Box
+                                      sx={{ width: "50px", fontSize: "12px" }}
+                                    >
+                                      {time}
+                                    </Box>
+                                    {/* time と組み合わせて、1マスずつ作る */}
+                                    {scheduleDates.map((date) => {
+                                      // 面談表の１のセルを定義
+                                      const cell = scheduleMatrix[time][date];
+
+                                      return (
+                                        <Box
+                                          key={date}
+                                          sx={{
+                                            flex: 1,
+                                            textAlign: "center",
+                                            fontSize: "11px",
+                                            border: "1px solid",
+                                            borderColor: "divider",
+                                            backgroundColor:
+                                              validSlotsData.unavailable_start_at.includes(
+                                                cell?.start_at,
+                                              )
+                                                ? "error.light"
+                                                : cell?.status === "reserved"
+                                                  ? "grey.300"
+                                                  : "success.light",
+                                          }}
+                                        >
+                                          {validSlotsData.unavailable_start_at.includes(
+                                            cell?.start_at,
+                                          )
+                                            ? "不可日"
+                                            : cell?.status === "reserved"
+                                              ? "予約済"
+                                              : "空き"}
+                                          <Typography variant="body2">
+                                            {cell.child_name}
+                                          </Typography>
+                                        </Box>
+                                      );
+                                    })}
+                                  </Box>
+                                ))}
+                              </Box>
+                            );
+                          },
+                        )}
+                        {/* 兄弟の面談表を表示する */}
+                        {/* 外側の配列 */}
+                        {validSlotsData.siblings_meeting_schedule.map(
+                          (siblingSchedules, siblingIndex) => {
+                            // 外側の配列のreturn
+                            return (
+                              <Box key={siblingIndex}>
+                                {/* 内側の配列 */}
+                                {siblingSchedules.map((schedule, index) => {
+                                  // バラバラなslotをまとめる
+                                  const siblingsScheduleMatrix = buildMatrix(
+                                    schedule.slots,
+                                  );
+                                  // 時間を並べて見出しの役割
+                                  const siblingsScheduleTimes = [
+                                    ...new Set(
+                                      schedule.slots.map((s) =>
+                                        formatTime(s.start_at),
+                                      ),
+                                    ),
+                                  ].sort();
+                                  // 日付を並べて見出しの役割
+                                  const siblingsScheduleDates = [
+                                    ...new Set(
+                                      schedule.slots.map((s) =>
+                                        formatDate(s.start_at),
+                                      ),
+                                    ),
+                                  ].sort();
+                                  // 内側の配列のreturn
+                                  return (
+                                    <Box key={index}>
+                                      <Typography>
+                                        {schedule.teacher_name}先生（
+                                        {schedule.class_room_name}）
+                                      </Typography>
+                                      {/* 日付の見出しを表示 */}
+                                      <Box sx={{ display: "flex", gap: 2 }}>
+                                        <Box sx={{ width: "60px" }}></Box>
+                                        {siblingsScheduleDates.map((date) => (
+                                          <Box
+                                            key={date}
+                                            sx={{
+                                              flex: 1,
+                                              textAlign: "center",
+                                              fontSize: "12px",
+                                              backgroundColor: "primary.dark",
+                                              color: "white",
+                                              borderRadius: 1,
+                                            }}
+                                          >
+                                            {date}
+                                          </Box>
+                                        ))}
+                                      </Box>
+                                      {/* 時間の行の中で、日付ごとのマスを表示 */}
+                                      {siblingsScheduleTimes.map((time) => (
+                                        <Box
+                                          key={time}
+                                          sx={{
+                                            display: "flex",
+                                            gap: 1,
+                                            mt: 0.5,
+                                          }}
+                                        >
+                                          {/* 15:00・・・と表示 */}
+                                          <Box
+                                            sx={{
+                                              width: "50px",
+                                              fontSize: "12px",
+                                            }}
+                                          >
+                                            {time}
+                                          </Box>
+                                          {/* time と組み合わせて、1マスずつ作る */}
+                                          {siblingsScheduleDates.map((date) => {
+                                            // 面談表の１のセルを定義
+                                            const cell =
+                                              siblingsScheduleMatrix[time][
+                                                date
+                                              ];
+
+                                            return (
+                                              <Box
+                                                key={date}
+                                                sx={{
+                                                  flex: 1,
+                                                  textAlign: "center",
+                                                  fontSize: "11px",
+                                                  border: "1px solid",
+                                                  borderColor: "divider",
+                                                  backgroundColor:
+                                                    validSlotsData.unavailable_start_at.includes(
+                                                      cell?.start_at,
+                                                    )
+                                                      ? "error.light"
+                                                      : cell.status ===
+                                                          "reserved"
+                                                        ? "grey.300"
+                                                        : "success.light",
+                                                }}
+                                              >
+                                                {validSlotsData.unavailable_start_at.includes(
+                                                  cell?.start_at,
+                                                )
+                                                  ? "不可日"
+                                                  : cell?.status === "reserved"
+                                                    ? "予約済"
+                                                    : "空き"}
+                                                <Typography variant="body2">
+                                                  {cell.child_name}
+                                                </Typography>
+                                              </Box>
+                                            );
+                                          })}
+                                        </Box>
+                                      ))}
+                                    </Box>
+                                  );
+                                })}
+                              </Box>
+                            );
+                          },
+                        )}
+                      </Box>
+                    )}
+                  </Box>
+                </Drawer>
               </Box>
             </Box>
           </Box>
