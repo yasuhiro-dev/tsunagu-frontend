@@ -25,7 +25,7 @@ export default function FamilyUnavailability() {
   const [submitted, setSubmitted] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
-
+  const [blockedSlotIds, setBlockedSlotIds] = useState<number[]>([]);
   const decodeToken = (token: string) => {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(decodeURIComponent(escape(atob(base64))));
@@ -36,6 +36,7 @@ export default function FamilyUnavailability() {
     const token = localStorage.getItem("token");
     const newIds = dateSlots
       .filter((slot) => !unavailableSlots.includes(slot.id))
+      .filter((slot) => !blockedSlotIds.includes(slot.id))
       .map((slot) => slot.id);
     for (const slotId of newIds) {
       await fetch(
@@ -102,8 +103,24 @@ export default function FamilyUnavailability() {
       setUnavailableSlots((prev) => [...prev, slotId]);
     }
   };
+  // 教師の面談不可の日程を取得
+  const fetchBlockedSlots = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots/blocked_slots`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setBlockedSlotIds(data.map((slot: MeetingSlot) => slot.id));
+  };
 
-  // 面談不可日程の提出の関数（保護者）
+  // 保護者の面談不可日程の提出の関数
   const hundleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -198,6 +215,9 @@ export default function FamilyUnavailability() {
       .then((data) => {
         setSubmitted(data.submitted);
       });
+    // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchBlockedSlots();
   }, [router]);
 
   if (loading) return <p>読み込み中...</p>;
@@ -245,55 +265,69 @@ export default function FamilyUnavailability() {
                   >
                     {date}
                   </Typography>
-                  {dateSlots.map((slot) => (
-                    <Box key={slot.id} sx={{ mb: 1 }}>
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          mb: 1,
-                          textAlign: "center",
-                        }}
-                      >
-                        {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
-                      </Typography>
-                      <Box
-                        sx={{
-                          borderBottom: "1px solid",
-                          borderColor: "divider",
-                          mb: 1,
-                        }}
-                      >
-                        <Button
-                          variant="contained"
-                          size="small"
-                          color={
-                            unavailableSlots.includes(slot.id)
-                              ? "error"
-                              : "primary"
-                          }
-                          onClick={() => handleClick(slot.id)}
-                          disabled={
-                            submitted ||
-                            (deadLineDate !== null && now > deadLineDate)
-                          }
+                  {dateSlots.map((slot) => {
+                    const isBlocked = blockedSlotIds.includes(slot.id);
+                    const isReadOnly =
+                      submitted ||
+                      (deadLineDate !== null && now > deadLineDate);
+                    return (
+                      <Box key={slot.id} sx={{ mb: 1 }}>
+                        <Typography
                           sx={{
-                            "&.Mui-disabled": {
-                              backgroundColor: unavailableSlots.includes(
-                                slot.id,
-                              )
-                                ? "error" // 赤（面談不可）
-                                : "primary", // 青（面談可）
-                              color: "white",
-                            },
+                            fontSize: "12px",
+                            mb: 1,
+                            textAlign: "center",
                           }}
                         >
-                          {unavailableSlots.includes(slot.id)
-                            ? "面談不可"
-                            : "面談可"}
-                        </Button>
+                          {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            borderBottom: "1px solid",
+                            borderColor: "divider",
+                            mb: 1,
+                          }}
+                        >
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color={
+                              unavailableSlots.includes(slot.id)
+                                ? "error"
+                                : "primary"
+                            }
+                            onClick={() => handleClick(slot.id)}
+                            disabled={isReadOnly || isBlocked}
+                            sx={{
+                              "&.Mui-disabled": {
+                                backgroundColor: unavailableSlots.includes(
+                                  slot.id,
+                                )
+                                  ? "error" // 赤（面談不可）
+                                  : "primary", // 青（面談可）
+                                color: "white",
+                              },
+                            }}
+                          >
+                            {unavailableSlots.includes(slot.id)
+                              ? "面談不可"
+                              : "面談可"}
+                          </Button>
+
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              visibility: isBlocked ? "visible" : "hidden",
+                            }}
+                          >
+                            教師の都合により対応不可
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
               <Box
