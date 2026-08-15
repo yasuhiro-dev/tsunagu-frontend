@@ -10,6 +10,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { MeetingSlot, formatTime, groupByDate } from "@/utils/dateUtils";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -19,6 +20,11 @@ export default function MeetingSlotPage() {
   const [loading, setLoading] = useState(true);
   const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
 
   // 面談日程不可設定（教師）
 
@@ -72,13 +78,15 @@ export default function MeetingSlotPage() {
       },
     );
     const data = await res.json();
-    setUnavailableSlots(data.map((slot: MeetingSlot) => slot.id));
-
     if (res.ok) {
-      setSubmitted(true);
-      alert("提出しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("提出しました");
+      setUnavailableSlots(data.map((slot: MeetingSlot) => slot.id));
     } else {
-      alert("エラーが発生しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage(data.error);
     }
   };
 
@@ -115,6 +123,12 @@ export default function MeetingSlotPage() {
 
   return (
     <Container sx={{ mt: 4 }}>
+      <AlertSnackbar
+        open={alertOpen}
+        severity={alertSeverity}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ mb: 3 }}>
           面談に参加できない日時のボタンを押してください
