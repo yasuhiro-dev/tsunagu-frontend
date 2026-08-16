@@ -103,6 +103,26 @@ export default function FamilyUnavailability() {
       setUnavailableSlots((prev) => [...prev, slotId]);
     }
   };
+
+  // 保護者の面談不可日程締め切り日の表示
+  const fetchDeadline = async () => {
+    const token = localStorage.getItem("token");
+    const scheduleId = 1;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    console.log("締切日", data);
+    setDeadLine(data.deadline_at);
+  };
+
   // 教師の面談不可の日程を取得
   const fetchBlockedSlots = async () => {
     const token = localStorage.getItem("token");
@@ -120,7 +140,7 @@ export default function FamilyUnavailability() {
     setBlockedSlotIds(data.map((slot: MeetingSlot) => slot.id));
   };
 
-  // 保護者の面談不可日程の提出の関数
+  // 保護者の面談不可日程の提出
   const hundleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -163,31 +183,12 @@ export default function FamilyUnavailability() {
       .then((data) => {
         setSlots(data);
         setLoading(false);
-        // .then（data）を受け取ってから関数を実行したいためここに関数実行を書く
-        fetchDeadline(data);
       })
       // 受け取ったメッセージをsetErrorに渡して更新する
       .catch((e) => {
         setError(e.message);
         setLoading(false);
       });
-    // fetchDeadline(data)から渡された引数を(slots: MeetingSlot[]) とする
-    const fetchDeadline = async (slots: MeetingSlot[]) => {
-      const token = localStorage.getItem("token");
-      const scheduleId = slots[0].schedule_id;
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      const data = await res.json();
-      setDeadLine(data.deadline_at);
-    };
 
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`, {
       headers: {
@@ -218,6 +219,7 @@ export default function FamilyUnavailability() {
     // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBlockedSlots();
+    fetchDeadline();
   }, [router]);
 
   if (loading) return <p>読み込み中...</p>;

@@ -138,8 +138,25 @@ export default function Admin() {
     setEditDeadLine(data.deadline_at);
   };
 
+  // 締め切り日の変更を表示する
+  const fetchEditDeadLine = async () => {
+    const token = localStorage.getItem("token");
+    const scheduleId = 1;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setEditDeadLine(data.deadline_at);
+  };
+
   // 教師名の絞り込み
-  console.log("teachers中身:", teachers);
   const filteredTeachers = useMemo(() => {
     return teachers.filter(
       (t) =>
@@ -247,6 +264,9 @@ export default function Admin() {
         console.log(data);
         setClassRooms(data);
       });
+    // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchEditDeadLine();
   }, [router]);
 
   const filteredParents = useMemo(() => {
