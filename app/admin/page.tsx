@@ -112,10 +112,23 @@ export default function Admin() {
   const [showPassword, setShowPassword] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [message, setMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
   const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
+
+  // 割り当てボタンを押した時、schedulesにAPIを送る
+  const handleClick = async () => {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    setMessage("割り当て完了");
+  };
 
   // 提出締切日の変更の関数
   const updateEditDeadLine = async () => {
@@ -634,7 +647,7 @@ export default function Admin() {
               sx={sidebarButtonStyle(4)}
               onClick={() => setTab(4)}
             >
-              日程の設定
+              割り当て管理
             </Button>
           </Box>
 
@@ -1325,7 +1338,7 @@ export default function Admin() {
               </Box>
             )}
 
-            {/* 日程の設定 */}
+            {/* 割り当て管理 */}
             {tab === 4 && (
               <Box
                 sx={{
@@ -1340,7 +1353,15 @@ export default function Admin() {
                 }}
               >
                 <Box sx={{ mb: 3 }}>
-                  <Typography variant="h6">締切日設定</Typography>
+                  <p>{message}</p>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleClick}
+                  >
+                    割り当てを実行する
+                  </Button>
+                  <Typography variant="h6">割り当て管理</Typography>
                   {/* DatePickerの動作に必要な設定（dayjsを使うと指定） */}
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     {/* 締切日入力用のカレンダー */}

@@ -46,7 +46,6 @@ type ChangeSlot = {
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [unassignedChildren, setUnassignedChildren] = useState<
@@ -206,37 +205,6 @@ export default function MeetingSlotPage() {
     }
   };
 
-  // 割り当てボタンを押した時、schedulesにAPIを送る
-  const handleClick = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    setMessage("割り当て完了");
-
-    // 面談表を取得する
-    const token = localStorage.getItem("token");
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setslots(data));
-    // 保護者の不可日時を取得する
-    await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setUnassignedChildren(data);
-      });
-  };
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -341,10 +309,7 @@ export default function MeetingSlotPage() {
               ) : (
                 <Button onClick={handleStartEdit}>面談編集</Button>
               )}
-              <p>{message}</p>
-              <Button variant="contained" color="primary" onClick={handleClick}>
-                割り当てを実行する
-              </Button>
+
               <Button
                 variant="outlined"
                 color="primary"
