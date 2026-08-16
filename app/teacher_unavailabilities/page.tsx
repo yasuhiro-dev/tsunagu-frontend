@@ -16,7 +16,7 @@ export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
