@@ -80,15 +80,16 @@ export default function Navbar() {
       >
         <Toolbar>
           <Box sx={{ p: 1, display: "flex", alignItems: "center" }}>
-            <Image
-              src="/images/tsunagu4.png"
-              alt="Tsunagu"
-              width={70}
-              height={70}
-            />
-            <Typography variant="h6">Tsunagu</Typography>
+            <Button component={Link} href="/">
+              <Image
+                src="/images/tsunagu4.png"
+                alt="Tsunagu"
+                width={70}
+                height={70}
+              />
+              <Typography variant="h6">Tsunagu</Typography>
+            </Button>
           </Box>
-
           <Box
             sx={{ flex: 1, display: "flex", justifyContent: "center", gap: 4 }}
           >
