@@ -466,6 +466,7 @@ export default function MeetingSlotPage() {
                               timeLabel={time}
                               onAdded={() => {
                                 const token = localStorage.getItem("token");
+                                // １つ目：meeting_slotを再取得
                                 fetch(
                                   `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
                                   {
@@ -476,6 +477,17 @@ export default function MeetingSlotPage() {
                                 )
                                   .then((res) => res.json())
                                   .then((data) => setslots(data));
+                                // 2つ目：children/unassignedを再取得
+                                fetch(
+                                  `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                    },
+                                  },
+                                )
+                                  .then((res) => res.json())
+                                  .then((data) => setUnassignedChildren(data));
                               }}
                             ></SlotAddPopover>
                           </Box>
