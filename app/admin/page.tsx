@@ -42,6 +42,7 @@ import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import AssignmentState from "@/app/assignment_stats/page";
 
 type Teacher = {
   name: string;
@@ -1382,6 +1383,7 @@ export default function Admin() {
                   {/* 保存ボタンを押すと編集更新の関数が呼ばれる */}
                   <Button onClick={updateEditDeadLine}>保存する</Button>
                 </Box>
+                <AssignmentState />
               </Box>
             )}
 

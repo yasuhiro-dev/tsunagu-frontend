@@ -608,7 +608,9 @@ export default function MeetingSlotPage() {
                                                 ? "error.light"
                                                 : cell?.status === "reserved"
                                                   ? "grey.300"
-                                                  : "success.light",
+                                                  : cell?.status === "blocked"
+                                                    ? "warning.light"
+                                                    : "success.light",
                                           }}
                                         >
                                           {validSlotsData.unavailable_start_at.includes(
@@ -617,7 +619,9 @@ export default function MeetingSlotPage() {
                                             ? "不可日"
                                             : cell?.status === "reserved"
                                               ? "予約済"
-                                              : "空き"}
+                                              : cell?.status === "blocked"
+                                                ? "教師の都合で不可"
+                                                : "空き"}
                                           <Typography variant="body2">
                                             {cell.child_name}
                                           </Typography>
@@ -726,10 +730,13 @@ export default function MeetingSlotPage() {
                                                       cell?.start_at,
                                                     )
                                                       ? "error.light"
-                                                      : cell.status ===
+                                                      : cell?.status ===
                                                           "reserved"
                                                         ? "grey.300"
-                                                        : "success.light",
+                                                        : cell?.status ===
+                                                            "blocked"
+                                                          ? "warning.light"
+                                                          : "success.light",
                                                 }}
                                               >
                                                 {validSlotsData.unavailable_start_at.includes(
@@ -738,7 +745,9 @@ export default function MeetingSlotPage() {
                                                   ? "不可日"
                                                   : cell?.status === "reserved"
                                                     ? "予約済"
-                                                    : "空き"}
+                                                    : cell?.status === "blocked"
+                                                      ? "教師の都合で不可"
+                                                      : "空き"}
                                                 <Typography variant="body2">
                                                   {cell.child_name}
                                                 </Typography>
