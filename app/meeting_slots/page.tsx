@@ -550,14 +550,16 @@ export default function MeetingSlotPage() {
                               ),
                             ].sort();
                             return (
-                              <Box key={index}>
-                                <Typography>
-                                  {schedule.teacher_name}先生（
-                                  {schedule.class_room_name}）
-                                </Typography>
+                              <Box key={index} sx={{ p: 2 }}>
+                                <Box sx={{ p: 2 }}>
+                                  <Typography>
+                                    {schedule.teacher_name}先生（
+                                    {schedule.class_room_name}）
+                                  </Typography>
+                                </Box>
                                 {/* 日付の見出しを表示 */}
-                                <Box sx={{ display: "flex", gap: 2 }}>
-                                  <Box sx={{ width: "60px" }}></Box>
+                                <Box sx={{ display: "flex", gap: 1 }}>
+                                  <Box sx={{ width: "50px" }}></Box>
                                   {scheduleDates.map((date) => (
                                     <Box
                                       key={date}
@@ -596,6 +598,7 @@ export default function MeetingSlotPage() {
                                         <Box
                                           key={date}
                                           sx={{
+                                            minHeight: "38.52px",
                                             flex: 1,
                                             textAlign: "center",
                                             fontSize: "11px",
@@ -665,14 +668,17 @@ export default function MeetingSlotPage() {
                                   ].sort();
                                   // 内側の配列のreturn
                                   return (
-                                    <Box key={index}>
-                                      <Typography>
-                                        {schedule.teacher_name}先生（
-                                        {schedule.class_room_name}）
-                                      </Typography>
+                                    <Box key={index} sx={{ p: 2 }}>
+                                      <Box sx={{ p: 2 }}>
+                                        <Typography>
+                                          {schedule.teacher_name}先生（
+                                          {schedule.class_room_name}）
+                                        </Typography>
+                                      </Box>
+
                                       {/* 日付の見出しを表示 */}
-                                      <Box sx={{ display: "flex", gap: 2 }}>
-                                        <Box sx={{ width: "60px" }}></Box>
+                                      <Box sx={{ display: "flex", gap: 1 }}>
+                                        <Box sx={{ width: "50px" }}></Box>
                                         {siblingsScheduleDates.map((date) => (
                                           <Box
                                             key={date}
@@ -720,6 +726,7 @@ export default function MeetingSlotPage() {
                                               <Box
                                                 key={date}
                                                 sx={{
+                                                  minHeight: "38.52px",
                                                   flex: 1,
                                                   textAlign: "center",
                                                   fontSize: "11px",
