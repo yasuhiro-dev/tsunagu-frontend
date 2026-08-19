@@ -144,10 +144,8 @@ export default function FamilyUnavailability() {
   const hundleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    // ルーターでidを必要とするためURLに含めて持たせる（１家庭分）
-    const familyId = decodeToken(token).family_id;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${familyId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
       {
         method: "PATCH",
         headers: {

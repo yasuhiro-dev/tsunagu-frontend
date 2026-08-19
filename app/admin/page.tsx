@@ -121,14 +121,24 @@ export default function Admin() {
 
   // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       },
-    });
-    setMessage("割り当て完了");
+    );
+    const data = await res.json();
+    if (res.ok === true && data.unassigned_children.length === 0) {
+      setMessage("全員の割り当てが成功しました");
+    } else if (res.ok === true && data.unassigned_children.length > 0) {
+      setMessage("割り当て失敗した児童がいます");
+    } else {
+      setMessage(data.error);
+    }
   };
 
   // 提出締切日の変更の関数
