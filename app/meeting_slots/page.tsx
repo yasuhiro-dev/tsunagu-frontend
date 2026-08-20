@@ -219,6 +219,7 @@ export default function MeetingSlotPage() {
       },
     })
       .then((res) => {
+        if (!res.ok) throw new Error("データ取得に失敗しました");
         return res.json();
       })
       .then((data) => {
