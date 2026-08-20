@@ -167,9 +167,7 @@ export default function Home() {
             </Button>
             <Button
               variant="contained"
-              onClick={() =>
-                handleSubmit("evangeline@torphy-wolf.example", "password")
-              }
+              onClick={() => handleSubmit("parent@example.com", "password")}
             >
               保護者としてのデモを見る
             </Button>
@@ -303,9 +301,7 @@ export default function Home() {
               >
                 <Button
                   variant="contained"
-                  onClick={() =>
-                    handleSubmit("ishikawa@example.com", "password")
-                  }
+                  onClick={() => handleSubmit("aoki@example.com", "password")}
                 >
                   教師として体験する
                 </Button>
@@ -355,7 +351,7 @@ export default function Home() {
                   <Button
                     variant="contained"
                     onClick={() =>
-                      handleSubmit("freddy@morissette.test", "password")
+                      handleSubmit("parent@example.com", "password")
                     }
                   >
                     保護者として体験する
