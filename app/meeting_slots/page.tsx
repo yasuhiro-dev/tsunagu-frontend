@@ -211,26 +211,46 @@ export default function MeetingSlotPage() {
       router.push("/login");
       return;
     }
-
+    // indexメソッドを呼ぶ
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("データ取得に失敗しました");
         return res.json();
       })
       .then((data) => {
-        setslots(data);
-        setLoading(false);
+        // 空で返ってくる場合は、createメソッドへリクエスト
+        if (data.length === 0) {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((res) => {
+              return res.json();
+            })
+            .then((data) => {
+              setslots(data);
+              setLoading(false);
+            });
+          // 中身があった場合は、そのままdataを使う
+        } else {
+          setslots(data);
+          setLoading(false);
+        }
       })
       .catch((e) => {
         setError(e.message);
         setLoading(false);
       });
 
+    // 未割り当て児童を取得する（children_controller）
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`, {
+      method: "GET",
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -239,6 +259,7 @@ export default function MeetingSlotPage() {
       });
   }, [router]);
 
+  // PDFをダウンロードする
   const handleDownLoadPDF = async () => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/teacher_exports`,
