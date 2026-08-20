@@ -118,11 +118,31 @@ export default function Admin() {
     "success",
   );
   const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
+  const [currentSchedules, setCurrentSchedules] = useState<null | number>();
+
+  // 今年度のschedule_idを取得する
+  const fetchCurrentSchedule = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setCurrentSchedules(data.id);
+    return data.id;
+  };
 
   // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
+    const schedule = currentSchedules;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${1}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "POST",
         headers: {
@@ -144,9 +164,9 @@ export default function Admin() {
   // 提出締切日の変更の関数
   const updateEditDeadLine = async () => {
     const token = localStorage.getItem("token");
-    const scheduleId = 1;
+    const schedule = currentSchedules;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "PATCH",
         headers: {
@@ -163,11 +183,11 @@ export default function Admin() {
   };
 
   // 締め切り日の変更を表示する
-  const fetchEditDeadLine = async () => {
+  const fetchEditDeadLine = async (scheduleId: number) => {
     const token = localStorage.getItem("token");
-    const scheduleId = 1;
+    const schedule = scheduleId;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "GET",
         headers: {
@@ -288,9 +308,12 @@ export default function Admin() {
         console.log(data);
         setClassRooms(data);
       });
-    // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchEditDeadLine();
+    // fetchCurrentScheduleで今年度のscheduleIdを取得してからfetchEditDeadLineを実行
+    const loadSchedule = async () => {
+      const scheduleId = await fetchCurrentSchedule();
+      await fetchEditDeadLine(scheduleId);
+    };
+    loadSchedule();
   }, [router]);
 
   const filteredParents = useMemo(() => {

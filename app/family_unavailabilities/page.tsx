@@ -26,6 +26,7 @@ export default function FamilyUnavailability() {
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
   const [blockedSlotIds, setBlockedSlotIds] = useState<number[]>([]);
+  const [currentSchedules, setCurrentSchedules] = useState<null | number>();
   const decodeToken = (token: string) => {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(decodeURIComponent(escape(atob(base64))));
@@ -104,12 +105,30 @@ export default function FamilyUnavailability() {
     }
   };
 
-  // 保護者の面談不可日程締め切り日の表示
-  const fetchDeadline = async () => {
+  // 今年度のschedule_idを取得する
+  const fetchCurrentSchedule = async () => {
     const token = localStorage.getItem("token");
-    const scheduleId = 1;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${scheduleId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setCurrentSchedules(data.id);
+    return data.id;
+  };
+
+  // 保護者の面談不可日程締め切り日の表示
+  const fetchDeadline = async (scheduleId: number) => {
+    const token = localStorage.getItem("token");
+    const schedule = scheduleId;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "GET",
         headers: {
@@ -215,9 +234,12 @@ export default function FamilyUnavailability() {
         setSubmitted(data.submitted);
       });
     // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchBlockedSlots();
-    fetchDeadline();
+    const loadingSchedule = async () => {
+      const scheduleId = await fetchCurrentSchedule();
+      await fetchDeadline(scheduleId);
+      await fetchBlockedSlots();
+    };
+    loadingSchedule();
   }, [router]);
 
   if (loading) return <p>読み込み中...</p>;
