@@ -1,20 +1,14 @@
 "use client";
 
-import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import { useRouter } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import {
-  MeetingSlot,
-  formatDate,
-  formatTime,
-  groupByDate,
-} from "@/utils/dateUtils";
+import { MeetingSlot, formatDate, groupByDate } from "@/utils/dateUtils";
+import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -56,7 +50,7 @@ export default function FamilyUnavailability() {
   };
 
   // １日全削除の関数（保護者）
-  const handleClerAll = async (dateSlots: MeetingSlot[]) => {
+  const handleClearAll = async (dateSlots: MeetingSlot[]) => {
     const token = localStorage.getItem("token");
     const removeIds = dateSlots
       .filter((slot) => unavailableSlots.includes(slot.id))
@@ -160,7 +154,7 @@ export default function FamilyUnavailability() {
   };
 
   // 保護者の面談不可日程の提出
-  const hundleSubmit = async () => {
+  const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
     const res = await fetch(
@@ -169,7 +163,10 @@ export default function FamilyUnavailability() {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
+        // 保護者が選んだ面談不可日程をbodyにつける
+        body: JSON.stringify({ meeting_slot_ids: unavailableSlots }),
       },
     );
     if (res.ok) {
@@ -251,14 +248,15 @@ export default function FamilyUnavailability() {
   return (
     <Container sx={{ mt: 4 }}>
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3 }}>
-          面談に参加できない日時のボタンを押してください
-        </Typography>
-
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
-          回答締切：{deadLine !== null ? formatDate(deadLine) : null}
-        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="h6" sx={{ mb: 3 }}>
+            面談に参加できない日時のボタンを押してください
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
+            回答締切：{deadLine !== null ? formatDate(deadLine) : null}
+          </Typography>
+        </Box>
 
         <Box
           sx={
@@ -268,123 +266,24 @@ export default function FamilyUnavailability() {
           }
         >
           {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
-            <Box key={date} sx={{ flex: 1, textAlign: "center" }}>
-              <Card
-                sx={{
-                  boxShadow: 3,
-                  borderRadius: 2,
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "primary.dark",
-                      borderBottom: 2,
-                      borderColor: "primary.main",
-                      pb: 2,
-                    }}
-                  >
-                    {date}
-                  </Typography>
-                  {dateSlots.map((slot) => {
-                    const isBlocked = blockedSlotIds.includes(slot.id);
-                    const isReadOnly =
-                      submitted ||
-                      (deadLineDate !== null && now > deadLineDate);
-                    return (
-                      <Box key={slot.id} sx={{ mb: 1 }}>
-                        <Typography
-                          sx={{
-                            fontSize: "12px",
-                            mb: 1,
-                            textAlign: "center",
-                          }}
-                        >
-                          {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            borderBottom: "1px solid",
-                            borderColor: "divider",
-                            mb: 1,
-                          }}
-                        >
-                          <Button
-                            variant="contained"
-                            size="small"
-                            color={
-                              unavailableSlots.includes(slot.id)
-                                ? "error"
-                                : "primary"
-                            }
-                            onClick={() => handleClick(slot.id)}
-                            disabled={isReadOnly || isBlocked}
-                            sx={{
-                              "&.Mui-disabled": {
-                                backgroundColor: unavailableSlots.includes(
-                                  slot.id,
-                                )
-                                  ? "error" // 赤（面談不可）
-                                  : "primary", // 青（面談可）
-                                color: "white",
-                              },
-                            }}
-                          >
-                            {unavailableSlots.includes(slot.id)
-                              ? "面談不可"
-                              : "面談可"}
-                          </Button>
-
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              visibility: isBlocked ? "visible" : "hidden",
-                            }}
-                          >
-                            教師の都合により対応不可
-                          </Typography>
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  mt: 1,
-                  justifyContent: "center",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  size="small"
-                  disabled={
-                    submitted || (deadLineDate !== null && now > deadLineDate)
-                  }
-                  onClick={() => handleSelectAll(dateSlots)}
-                >
-                  全選択
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  disabled={
-                    submitted || (deadLineDate !== null && now > deadLineDate)
-                  }
-                  onClick={() => handleClerAll(dateSlots)}
-                >
-                  全解除
-                </Button>
-              </Box>
-            </Box>
+            <UnavailabilityCard
+              key={date}
+              date={date}
+              dateSlots={dateSlots}
+              isUnavailable={(slot) => unavailableSlots.includes(slot.id)}
+              isDisabled={(slot) =>
+                submitted ||
+                (deadLineDate !== null && now > deadLineDate) ||
+                blockedSlotIds.includes(slot.id)
+              }
+              onClickSlot={handleClick}
+              onSelectAll={handleSelectAll}
+              onClearAll={handleClearAll}
+              showBlockedNote={true}
+              isBlocked={(slot) => blockedSlotIds.includes(slot.id)}
+            />
           ))}
         </Box>
-
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
             sx={{ mt: 3 }}
@@ -392,7 +291,7 @@ export default function FamilyUnavailability() {
             disabled={
               submitted || (deadLineDate !== null && now > deadLineDate)
             }
-            onClick={hundleSubmit}
+            onClick={handleSubmit}
           >
             {submitted ? "提出が完了しました" : "上記の内容で提出する"}
           </Button>
