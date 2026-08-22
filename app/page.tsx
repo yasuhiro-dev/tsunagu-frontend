@@ -98,7 +98,8 @@ export default function Home() {
     },
   ];
   const teacherExperience = [
-    "面談の自動割り当て・手動調整",
+    "面談の自動割り当て",
+    "手動調整",
     "児童一覧・未提出者の確認",
     "面談表の印刷",
   ];
@@ -169,7 +170,15 @@ export default function Home() {
               variant="contained"
               onClick={() => handleSubmit("parent@example.com", "password")}
             >
-              保護者としてのデモを見る
+              保護者(提出済み)としてのデモを見る
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() =>
+                handleSubmit("parent-nonsubmit@example.com", "password")
+              }
+            >
+              保護者(提出前)0としてのデモを見る
             </Button>
             <Button
               variant="contained"
