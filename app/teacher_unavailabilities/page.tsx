@@ -11,6 +11,7 @@ import CardContent from "@mui/material/CardContent";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { MeetingSlot, formatTime, groupByDate } from "@/utils/dateUtils";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -145,105 +146,21 @@ export default function MeetingSlotPage() {
           }
         >
           {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
-            <Box key={date} sx={{ flex: 1, textAlign: "center" }}>
-              <Card
-                sx={{
-                  boxShadow: 3,
-                  borderRadius: 2,
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      color: "primary.dark",
-                      borderBottom: 2,
-                      borderColor: "primary.main",
-                      pb: 2,
-                    }}
-                  >
-                    {date}
-                  </Typography>
-                  {dateSlots.map((slot) => (
-                    <Box key={slot.id} sx={{ mb: 1 }}>
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          mb: 1,
-                          textAlign: "center",
-                        }}
-                      >
-                        {formatTime(slot.start_at)}~{formatTime(slot.end_at)}
-                      </Typography>
-                      <Box
-                        sx={{
-                          borderBottom: "1px solid",
-                          borderColor: "divider",
-                          mb: 1,
-                        }}
-                      >
-                        <Button
-                          variant="contained"
-                          size="small"
-                          color={
-                            // 提出前の仮選択(unavailableSlots)か、DB保存済みの状態(slot.status)、
-                            // どちらかがblockedなら赤色にする
-                            slot.status === "blocked" ||
-                            unavailableSlots.includes(slot.id)
-                              ? "error"
-                              : "primary"
-                          }
-                          onClick={() => teacherHandleClick(slot.id)}
-                          disabled={submitted}
-                          sx={{
-                            "&.Mui-disabled": {
-                              backgroundColor:
-                                slot.status === "blocked" ||
-                                unavailableSlots.includes(slot.id)
-                                  ? "error"
-                                  : "primary",
-                            },
-                          }}
-                        >
-                          {slot.status === "blocked" ||
-                          unavailableSlots.includes(slot.id)
-                            ? "面談不可"
-                            : "面談可"}
-                        </Button>
-                      </Box>
-                    </Box>
-                  ))}
-                </CardContent>
-              </Card>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  mt: 1,
-                  justifyContent: "center",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  size="small"
-                  disabled={submitted}
-                  onClick={() => teacherHandleSelectAll(dateSlots)}
-                >
-                  全選択
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  disabled={submitted}
-                  onClick={() => teacherHandleClearAll(dateSlots)}
-                >
-                  全解除
-                </Button>
-              </Box>
-            </Box>
+            <UnavailabilityCard
+              key={date}
+              date={date}
+              dateSlots={dateSlots}
+              isUnavailable={(slot) =>
+                slot.status === "blocked" || unavailableSlots.includes(slot.id)
+              }
+              isDisabled={() => submitted}
+              onClickSlot={teacherHandleClick}
+              onSelectAll={teacherHandleSelectAll}
+              onClearAll={teacherHandleClearAll}
+              showBlockedNote={false}
+            />
           ))}
         </Box>
-
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
             sx={{ mt: 3 }}
