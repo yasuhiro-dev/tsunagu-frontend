@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { MeetingSlot, formatDate, groupByDate } from "@/utils/dateUtils";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -25,6 +26,11 @@ export default function FamilyUnavailability() {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(decodeURIComponent(escape(atob(base64))));
   };
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
 
   // １日全選択の関数（保護者）
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
@@ -169,11 +175,17 @@ export default function FamilyUnavailability() {
         body: JSON.stringify({ meeting_slot_ids: unavailableSlots }),
       },
     );
+    const data = await res.json();
     if (res.ok) {
-      setSubmitted(true);
-      alert("提出しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("提出しました");
+
+      setUnavailableSlots(data.map((slot: MeetingSlot) => slot.id));
     } else {
-      alert("エラーが発生しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage(data.error);
     }
   };
 
@@ -247,6 +259,12 @@ export default function FamilyUnavailability() {
 
   return (
     <Container sx={{ mt: 4 }}>
+      <AlertSnackbar
+        open={alertOpen}
+        severity={alertSeverity}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography variant="h6" sx={{ mb: 3 }}>

@@ -35,7 +35,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Alert from "@mui/material/Alert";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
 import Snackbar from "@mui/material/Snackbar";
 import Chip from "@mui/material/Chip";
 import dayjs from "dayjs";
@@ -119,6 +119,7 @@ export default function Admin() {
   );
   const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
   const [currentSchedules, setCurrentSchedules] = useState<null | number>();
+  const [isAssigning, setIsAssigning] = useState(false);
 
   // 今年度のschedule_idを取得する
   const fetchCurrentSchedule = async () => {
@@ -140,6 +141,7 @@ export default function Admin() {
 
   // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
+    setIsAssigning(true);
     const schedule = currentSchedules;
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
@@ -152,13 +154,19 @@ export default function Admin() {
       },
     );
     const data = await res.json();
+
     if (res.ok === true && data.unassigned_children.length === 0) {
-      setMessage("全員の割り当てが成功しました");
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("全員の割り当てが成功しました");
     } else if (res.ok === true && data.unassigned_children.length > 0) {
-      setMessage("割り当て失敗した児童がいます");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("割り当て失敗した児童がいます");
     } else {
       setMessage(data.error);
     }
+    setIsAssigning(false);
   };
 
   // 提出締切日の変更の関数
@@ -179,7 +187,16 @@ export default function Admin() {
     );
     // 更新された締め切り日が返ってくる
     const data = await res.json();
-    setEditDeadLine(data.deadline_at);
+    if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("変更しました");
+      setEditDeadLine(data.deadline_at);
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("変更に失敗しました");
+    }
   };
 
   // 締め切り日の変更を表示する
@@ -622,14 +639,12 @@ export default function Admin() {
 
   return (
     <Container maxWidth={false} sx={{ mt: 4 }}>
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      <AlertSnackbar
         open={alertOpen}
-        autoHideDuration={3000}
+        severity={alertSeverity}
+        message={alertMessage}
         onClose={() => setAlertOpen(false)}
-      >
-        <Alert severity={alertSeverity}>{alertMessage}</Alert>
-      </Snackbar>
+      />
       <Paper sx={{ p: 3 }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
           ユーザー管理
@@ -1392,8 +1407,10 @@ export default function Admin() {
                     variant="contained"
                     color="primary"
                     onClick={handleClick}
+                    disabled={isAssigning}
+                    sx={{ minWidth: 160 }}
                   >
-                    割り当てを実行する
+                    {isAssigning ? "割り当て中" : "割り当てを実行する"}
                   </Button>
                   <Typography variant="h6">割り当て管理</Typography>
                   {/* DatePickerの動作に必要な設定（dayjsを使うと指定） */}

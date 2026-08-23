@@ -12,6 +12,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
 
 type Assignment = {
   id: number;
@@ -42,6 +43,11 @@ export default function MySchedulePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -92,10 +98,16 @@ export default function MySchedulePage() {
       );
       // 登録されたかされていないかメッセージが返る
       const data = await res.json();
-      alert(data.message);
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage(data.message);
     } else {
-      alert("Googleカレンダー連携が必要です");
-      router.push("/settings");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("Googleカレンダー連携が必要です");
+      setTimeout(() => {
+        router.push("/settings");
+      }, 2000);
     }
   };
 
@@ -104,6 +116,12 @@ export default function MySchedulePage() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
+      <AlertSnackbar
+        open={alertOpen}
+        severity={alertSeverity}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
         面談日程決定のお知らせ
       </Typography>
