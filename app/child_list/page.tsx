@@ -71,12 +71,14 @@ export default function ChildList() {
     );
   }, [sortChildren, serchText]);
 
+  // 提出・割り当て状況
   const getStatus = (child: Child) => {
     if (!child.submitted) return { label: "未提出", color: "error" as const };
     if (!child.assigned)
       return { label: "予約待ち", color: "warning" as const };
     return { label: "完了", color: "success" as const };
   };
+
   useEffect(() => {
     const fetchChildren = async () => {
       const token = localStorage.getItem("token");

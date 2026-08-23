@@ -114,7 +114,6 @@ export default function MeetingSlotPage() {
       .then((data) => {
         setslots(data);
         setLoading(false);
-        console.log("中身みたい", data);
       })
       .catch((e) => {
         setError(e.message);

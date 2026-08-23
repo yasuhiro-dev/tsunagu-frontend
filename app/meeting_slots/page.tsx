@@ -48,6 +48,8 @@ export default function MeetingSlotPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isDownload, setIsDownload] = useState(false);
+
   const [unassignedChildren, setUnassignedChildren] = useState<
     {
       id: number;
@@ -68,6 +70,8 @@ export default function MeetingSlotPage() {
   const [changeSlotsList, setChangeSlotsList] = useState<ChangeSlot[]>([]);
   // slot移動時の警告
   const [alertOpen, setAlertOpen] = useState(false);
+  // キャンセル時の警告
+  const [cancelAlertOpen, setCancelAlertOpen] = useState(false);
   // 編集モードか
   const [isEditMode, setIsEditMode] = useState(false);
   // 面談不可日・兄弟の面談表・特別支援の面談表
@@ -89,22 +93,34 @@ export default function MeetingSlotPage() {
     await handleReassign();
     setIsEditMode(false);
   };
-  // キャンセル時の関数
-  const handleCancelEdit = () => {
+
+  // キャンセルダイアログを呼ぶ
+  const handleCancelDialog = () => {
+    setCancelAlertOpen(true);
+  };
+  // キャンセル選択時で「はい」
+  const handleCancel = () => {
     setIsEditMode(false);
     setEditingSlots([]);
     setChangeSlotsList([]);
     setFromAssignmentId(null);
     setToSlotId(null);
+    setCancelAlertOpen(false);
   };
+
+  // キャンセル選択時で「いいえ」
+  const handleDismissCancel = () => {
+    setCancelAlertOpen(false);
+  };
+
   // 編集リセットボタンの関数
   const handleEditReset = () => {
     setFromAssignmentId(null);
     setToSlotId(null);
   };
 
-  // 案内表示で「いいえ」を押した時の関数
-  const handleFinishAlert = () => {
+  // キャンセル案内時に「いいえ」を押した時の関数
+  const handleCancelFinishAlert = () => {
     handleEditReset();
     setAlertOpen(false);
   };
@@ -180,6 +196,17 @@ export default function MeetingSlotPage() {
     const data = await res.json();
     setslots(data);
   };
+
+  // // 未提出児童の情報を取得する
+  // const fetcSubmittedChildren = async () => {
+  //   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1//`, {
+  //     method: "GET",
+  //     headers: {
+  //       Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //     },
+  //   });
+  //   const data = await res.json();
+  // };
 
   // １つのassignment_slotを選んだ時の情報を取得
   const AssignmentHandleClick = async (id: number) => {
@@ -262,6 +289,7 @@ export default function MeetingSlotPage() {
 
   // PDFをダウンロードする
   const handleDownLoadPDF = async () => {
+    setIsDownload(true);
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/teacher_exports`,
       {
@@ -278,6 +306,7 @@ export default function MeetingSlotPage() {
     a.download = "schedule.pdf";
     a.click();
     window.URL.revokeObjectURL(url);
+    setIsDownload(false);
   };
 
   // 編集中であればeditingSlotsを使う
@@ -323,22 +352,33 @@ export default function MeetingSlotPage() {
               sx={{ alignItems: "center", display: "flex", gap: 1 }}
             >
               {isEditMode ? (
-                <Box>
-                  <Button onClick={handleFinishEdit}>編集完了</Button>
-                  <Button onClick={handleEditReset}>選択リセット</Button>
-                  <Button onClick={handleCancelEdit}>キャンセル</Button>
+                <Box sx={{ display: "flex", gap: 5 }}>
+                  <Box>
+                    <Button onClick={handleFinishEdit}>編集完了</Button>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button onClick={handleEditReset}>選択解除</Button>
+                    <Button
+                      sx={{ color: "grey.600" }}
+                      onClick={handleCancelDialog}
+                    >
+                      キャンセル
+                    </Button>
+                  </Box>
                 </Box>
               ) : (
-                <Button onClick={handleStartEdit}>面談編集</Button>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button onClick={handleStartEdit}>面談編集</Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleDownLoadPDF}
+                    disabled={isDownload}
+                  >
+                    {isDownload ? "ダウンロード中" : "PDFをダウンロード"}
+                  </Button>
+                </Box>
               )}
-
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={handleDownLoadPDF}
-              >
-                PDFをダウンロード
-              </Button>
             </Box>
           </Box>
 
@@ -521,10 +561,7 @@ export default function MeetingSlotPage() {
               </Box>
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
-                <Dialog
-                  open={alertOpen}
-                  onClose={handleApplyChange || handleFinishAlert}
-                >
+                <Dialog open={alertOpen} onClose={handleCancelFinishAlert}>
                   <DialogTitle>{"変更してもよろしいですか"}</DialogTitle>
                   <DialogActions>
                     <Button
@@ -534,7 +571,24 @@ export default function MeetingSlotPage() {
                     >
                       はい
                     </Button>
-                    <Button onClick={handleFinishAlert}>いいえ</Button>
+                    <Button onClick={handleCancelFinishAlert}>いいえ</Button>
+                  </DialogActions>
+                </Dialog>
+              </Box>
+              {/* キャンセルを押した時の案内表示 */}
+              <Box>
+                <Dialog open={cancelAlertOpen} onClose={handleDismissCancel}>
+                  <DialogTitle>{"キャンセルしてもよろしいですか"}</DialogTitle>
+                  <DialogActions>
+                    <Button
+                      // 編集用の面談表を再描写
+                      onClick={handleCancel}
+                    >
+                      はい
+                    </Button>
+                    <Button onClick={handleDismissCancel} autoFocus>
+                      いいえ
+                    </Button>
                   </DialogActions>
                 </Dialog>
               </Box>
