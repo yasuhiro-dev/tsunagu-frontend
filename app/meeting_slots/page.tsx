@@ -49,7 +49,6 @@ export default function MeetingSlotPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [isDownload, setIsDownload] = useState(false);
-  const [submittedChildren, setSubmittedChildren] = useState<MeetingSlot[]>([]);
   const [unassignedChildren, setUnassignedChildren] = useState<
     {
       id: number;

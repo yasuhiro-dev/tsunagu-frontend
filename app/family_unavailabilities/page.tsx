@@ -21,7 +21,6 @@ export default function FamilyUnavailability() {
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
   const [blockedSlotIds, setBlockedSlotIds] = useState<number[]>([]);
-  const [currentSchedules, setCurrentSchedules] = useState<null | number>();
   const decodeToken = (token: string) => {
     const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
     return JSON.parse(decodeURIComponent(escape(atob(base64))));
@@ -119,7 +118,6 @@ export default function FamilyUnavailability() {
       },
     );
     const data = await res.json();
-    setCurrentSchedules(data.id);
     return data.id;
   };
 

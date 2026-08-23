@@ -6,13 +6,10 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { MeetingSlot, formatTime, groupByDate } from "@/utils/dateUtils";
+import { MeetingSlot, groupByDate } from "@/utils/dateUtils";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
-
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
