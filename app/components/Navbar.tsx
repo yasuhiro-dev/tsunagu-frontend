@@ -16,6 +16,9 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Image from "next/image";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 const decodeToken = (token: string) => {
   const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -53,6 +56,17 @@ export default function Navbar() {
   const isMobile = useMediaQuery("(max-width:600px)");
   const [name, setName] = useState<string | null>(null);
   const [logoutMessageOpen, setLogoutMessageOpen] = useState(false);
+  // 要素からMenuを下ろす
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // クリックした要素をstateで保管
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  // 要素が何もない時閉じる
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     // localStorageはクライアントでしか読めないため、マウント後に同期する
@@ -93,6 +107,7 @@ export default function Navbar() {
           <Box
             sx={{ flex: 1, display: "flex", justifyContent: "center", gap: 4 }}
           >
+            {/* 教師でログイン */}
             {mounted && role === "teacher" && (
               <>
                 <Button
@@ -132,10 +147,12 @@ export default function Navbar() {
                     fontSize: isMobile ? "12px" : "16px",
                   }}
                 >
-                  不可日程
+                  都合の悪い日時
                 </Button>
               </>
             )}
+
+            {/* 保護者でログイン */}
             {mounted && role === "parent" && (
               <>
                 <Button
@@ -168,7 +185,7 @@ export default function Navbar() {
                   startIcon={<EventBusyIcon />}
                   color="inherit"
                 >
-                  不可日時
+                  都合の悪い日時
                 </Button>
               </>
             )}
@@ -197,48 +214,46 @@ export default function Navbar() {
               </Button>
             )}
             {mounted && role !== null && (
-              <>
-                <Button
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                  color="inherit"
-                  onClick={handleLogout}
-                  startIcon={<LogoutIcon />}
-                >
-                  ログアウト
-                </Button>
-                <Box
-                  sx={{
-                    width: "1px",
-                    height: "24px",
-                    backgroundColor: "rgba(255,255,255,0.4)",
-                  }}
-                />
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mr: 2,
-                  }}
-                >
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: "#ffffff33" }}>
-                    {name?.charAt(0)}
-                  </Avatar>
-                  <Typography variant="body2" color="inherit">
-                    {role === "teacher"
-                      ? `${name} 先生`
-                      : role === "admin"
-                        ? `管理者`
-                        : `${name} 様`}
-                  </Typography>
-                </Box>
-              </>
+              <Box
+                onClick={handleClick}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mr: 2,
+                  cursor: "pointer",
+                  borderRadius: 2,
+                  px: 1,
+                  py: 0.5,
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
+              >
+                <Avatar sx={{ width: 32, height: 32, bgcolor: "#ffffff33" }}>
+                  {name?.charAt(0)}
+                </Avatar>
+                <Typography variant="body2" color="inherit">
+                  {role === "teacher"
+                    ? `${name} 先生`
+                    : role === "admin"
+                      ? `管理者`
+                      : `${name} 様`}
+                </Typography>
+                <KeyboardArrowDownIcon fontSize="small" />
+              </Box>
             )}
           </Box>
+          {/* メニュータグ */}
+          <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            {role !== "admin" && (
+              <MenuItem component={Link} href="/settings" onClick={handleClose}>
+                Googleアカウント連携
+              </MenuItem>
+            )}
+            <MenuItem onClick={handleLogout}>
+              <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
+              ログアウト
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
       <Snackbar
