@@ -498,7 +498,7 @@ export default function MeetingSlotPage() {
                               <Typography variant="body1">
                                 {matrix[time][date].child_name}
                               </Typography>
-                              {!matrix[time][date].submitted && (
+                              {matrix[time][date].submitted === false && (
                                 <Chip
                                   variant="outlined"
                                   label="未提出"
