@@ -6,6 +6,8 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { MeetingSlot, formatTime } from "@/utils/dateUtils";
 import Typography from "@mui/material/Typography";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
 
 type UnavailabilityCardProps = {
   date: string;
@@ -72,24 +74,44 @@ export default function UnavailabilityCard({
                   alignItems: "center",
                 }}
               >
-                <Button
-                  variant="contained"
-                  size="small"
+                <ToggleButtonGroup
                   color={isUnavailable(slot) ? "error" : "primary"}
-                  onClick={() => onClickSlot(slot.id)}
                   disabled={isDisabled(slot)}
-                  sx={{
-                    "&.Mui-disabled": {
-                      backgroundColor: isUnavailable(slot)
-                        ? "error"
-                        : "primary",
-                      color: "white",
-                    },
+                  value={isUnavailable(slot) ? "no" : "yes"} //unavailable_slotに値があるかないか
+                  exclusive //どちらか１つ
+                  size="small"
+                  onChange={(_, newValue) => {
+                    if (newValue === null) return; //同じボタンを押した時何もしない
+                    onClickSlot(slot.id); //違うボタンを押した時変わる
                   }}
                 >
-                  {isUnavailable(slot) ? "面談不可" : "面談可"}
-                  {/* 教師の都合によりボタン操作を不可にする */}
-                </Button>
+                  <Box>
+                    <ToggleButton
+                      sx={{
+                        "&.Mui-selected": {
+                          backgroundColor: "primary.main",
+                          color: "common.white",
+                          "&:hover": { backgroundColor: "primary.dark" },
+                        },
+                      }}
+                      value="yes"
+                    >
+                      ○ 可
+                    </ToggleButton>
+                    <ToggleButton
+                      sx={{
+                        "&.Mui-selected": {
+                          backgroundColor: "error.main",
+                          color: "common.white",
+                          "&:hover": { backgroundColor: "error.dark" },
+                        },
+                      }}
+                      value="no"
+                    >
+                      × 不可
+                    </ToggleButton>
+                  </Box>
+                </ToggleButtonGroup>
                 {showBlockedNote && (
                   <Typography
                     variant="caption"
@@ -100,6 +122,8 @@ export default function UnavailabilityCard({
                     教師の都合により対応不可
                   </Typography>
                 )}
+
+                {/* 教師の都合によりボタン操作を不可にする */}
               </Box>
             </Box>
           ))}

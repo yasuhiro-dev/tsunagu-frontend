@@ -75,7 +75,7 @@ export default function ChildList() {
   const getStatus = (child: Child) => {
     if (!child.submitted) return { label: "未提出", color: "error" as const };
     if (!child.assigned)
-      return { label: "予約待ち", color: "warning" as const };
+      return { label: "未割り当て", color: "warning" as const };
     return { label: "完了", color: "success" as const };
   };
 
@@ -219,7 +219,7 @@ export default function ChildList() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <Typography>予約待ち</Typography>
+                          <Typography>未割り当て</Typography>
                           <Chip
                             variant="outlined"
                             color="warning"
