@@ -6,6 +6,7 @@ export type MeetingSlot = {
   status: string;
   child_name: string;
   assignment_id: number | null;
+  submitted: boolean | null;
 };
 // 日付を日本版で読みやすくした形
 export const formatDate = (utcString: string) => {

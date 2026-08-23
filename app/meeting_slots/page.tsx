@@ -49,7 +49,7 @@ export default function MeetingSlotPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [isDownload, setIsDownload] = useState(false);
-
+  const [submittedChildren, setSubmittedChildren] = useState<MeetingSlot[]>([]);
   const [unassignedChildren, setUnassignedChildren] = useState<
     {
       id: number;
@@ -119,7 +119,7 @@ export default function MeetingSlotPage() {
     setToSlotId(null);
   };
 
-  // キャンセル案内時に「いいえ」を押した時の関数
+  // 変更案内時に「いいえ」を押した時の関数
   const handleCancelFinishAlert = () => {
     handleEditReset();
     setAlertOpen(false);
@@ -196,17 +196,6 @@ export default function MeetingSlotPage() {
     const data = await res.json();
     setslots(data);
   };
-
-  // // 未提出児童の情報を取得する
-  // const fetcSubmittedChildren = async () => {
-  //   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1//`, {
-  //     method: "GET",
-  //     headers: {
-  //       Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //     },
-  //   });
-  //   const data = await res.json();
-  // };
 
   // １つのassignment_slotを選んだ時の情報を取得
   const AssignmentHandleClick = async (id: number) => {
@@ -505,9 +494,20 @@ export default function MeetingSlotPage() {
                       >
                         {matrix[time][date]?.child_name ? (
                           <>
-                            <Typography variant="body1">
-                              {matrix[time][date].child_name}
-                            </Typography>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Typography variant="body1">
+                                {matrix[time][date].child_name}
+                              </Typography>
+                              {!matrix[time][date].submitted && (
+                                <Chip
+                                  variant="outlined"
+                                  label="未提出"
+                                  color="warning"
+                                  size="small"
+                                />
+                              )}
+                            </Box>
+
                             <Chip
                               label="確定"
                               color="primary"
