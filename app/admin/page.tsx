@@ -37,10 +37,6 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import Chip from "@mui/material/Chip";
-import dayjs from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import AssignmentState from "@/app/assignment_stats/page";
 
 type Teacher = {
@@ -112,110 +108,9 @@ export default function Admin() {
   const [showPassword, setShowPassword] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [message, setMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
-  const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
-  const [currentSchedules, setCurrentSchedules] = useState<null | number>();
-  const [isAssigning, setIsAssigning] = useState(false);
-
-  // 今年度のschedule_idを取得する
-  const fetchCurrentSchedule = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    const data = await res.json();
-    setCurrentSchedules(data.id);
-    return data.id;
-  };
-
-  // 割り当てボタンを押した時、schedulesにAPIを送る
-  const handleClick = async () => {
-    setIsAssigning(true);
-    const schedule = currentSchedules;
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      },
-    );
-    const data = await res.json();
-
-    if (res.ok === true && data.unassigned_children.length === 0) {
-      setAlertOpen(true);
-      setAlertSeverity("success");
-      setAlertMessage("全員の割り当てが成功しました");
-    } else if (res.ok === true && data.unassigned_children.length > 0) {
-      setAlertOpen(true);
-      setAlertSeverity("error");
-      setAlertMessage("割り当て失敗した児童がいます");
-    } else {
-      setMessage(data.error);
-    }
-    setIsAssigning(false);
-  };
-
-  // 提出締切日の変更の関数
-  const updateEditDeadLine = async () => {
-    const token = localStorage.getItem("token");
-    const schedule = currentSchedules;
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        // フロントで設定した締切日（editDeadLine）をRailsに送る
-        body: JSON.stringify({ deadline_at: editDeadLine }),
-      },
-    );
-    // 更新された締め切り日が返ってくる
-    const data = await res.json();
-    if (res.ok) {
-      setAlertOpen(true);
-      setAlertSeverity("success");
-      setAlertMessage("変更しました");
-      setEditDeadLine(data.deadline_at);
-    } else {
-      setAlertOpen(true);
-      setAlertSeverity("error");
-      setAlertMessage("変更に失敗しました");
-    }
-  };
-
-  // 締め切り日の変更を表示する
-  const fetchEditDeadLine = async (scheduleId: number) => {
-    const token = localStorage.getItem("token");
-    const schedule = scheduleId;
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    const data = await res.json();
-    setEditDeadLine(data.deadline_at);
-  };
-
   // 教師名の絞り込み
   const filteredTeachers = useMemo(() => {
     return teachers.filter(
@@ -324,12 +219,6 @@ export default function Admin() {
         console.log(data);
         setClassRooms(data);
       });
-    // fetchCurrentScheduleで今年度のscheduleIdを取得してからfetchEditDeadLineを実行
-    const loadSchedule = async () => {
-      const scheduleId = await fetchCurrentSchedule();
-      await fetchEditDeadLine(scheduleId);
-    };
-    loadSchedule();
   }, [router]);
 
   const filteredParents = useMemo(() => {
@@ -1396,43 +1285,12 @@ export default function Admin() {
                   minHeight: "calc(100vh - 264px)",
                   maxHeight: "calc(100vh - 400px)",
                   overflow: "auto",
-                  maxWidth: 500,
                   flexDirection: "column",
                 }}
               >
-                <Box sx={{ mb: 3 }}>
-                  <p>{message}</p>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleClick}
-                    disabled={isAssigning}
-                    sx={{ minWidth: 160 }}
-                  >
-                    {isAssigning ? "割り当て中" : "割り当てを実行する"}
-                  </Button>
-                  <Typography variant="h6">割り当て管理</Typography>
-                  {/* DatePickerの動作に必要な設定（dayjsを使うと指定） */}
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    {/* 締切日入力用のカレンダー */}
-                    <DatePicker
-                      //今どんな値を選んでいるか
-                      value={editDeadLine !== null ? dayjs(editDeadLine) : null}
-                      // カレンダーをクリックして変化したら処理される
-                      onChange={(newValue) =>
-                        // nullじゃなければ、選ばれた日付を文字列(.format)に変換してstateを更新する
-                        setEditDeadLine(
-                          newValue !== null
-                            ? newValue.format("YYYY-MM-DD")
-                            : null,
-                        )
-                      }
-                    />
-                  </LocalizationProvider>
-                  {/* 保存ボタンを押すと編集更新の関数が呼ばれる */}
-                  <Button onClick={updateEditDeadLine}>保存する</Button>
+                <Box>
+                  <AssignmentState />
                 </Box>
-                <AssignmentState />
               </Box>
             )}
 
