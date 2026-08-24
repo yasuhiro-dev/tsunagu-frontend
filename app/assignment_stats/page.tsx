@@ -1,64 +1,137 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 import { BarChart } from "@mui/x-charts/BarChart";
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <Box
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </Box>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-const chartSetting = {
-  xAxis: [
-    {
-      label: "進捗状況",
-    },
-  ],
-  height: 500,
-  margin: { left: 0 },
-};
+import Button from "@mui/material/Button";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 export default function AssignmentState() {
   const [classRates, setClassRates] = useState();
   const [allRates, setAllRates] = useState();
-  const [value, setValue] = useState(0);
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [currentSchedules, setCurrentSchedules] = useState<null | number>();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
+  //棒グラフの見た目
+  const chartSetting = {
+    height: 400,
+    margin: { left: 0 },
+  };
+  //円グラフの見た目
   const settings = {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 400,
     value: allRates,
+    // valueはオブジェクトで受け取るため分割代入
+    text: ({ value }: { value: null | number }) => `${value}%`,
   };
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+  // 今年度のschedule_idを取得する
+  const fetchCurrentSchedule = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setCurrentSchedules(data.id);
+    return data.id;
+  };
+
+  // 割り当てボタンを押した時、schedulesにAPIを送る
+  const handleClick = async () => {
+    setIsAssigning(true);
+    const schedule = currentSchedules;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+    const data = await res.json();
+
+    if (res.ok === true && data.unassigned_children.length === 0) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("全員の割り当てが成功しました");
+    } else if (res.ok === true && data.unassigned_children.length > 0) {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("割り当て失敗した児童がいます");
+    } else {
+      setAlertMessage(data.error);
+    }
+    setIsAssigning(false);
+  };
+
+  // 締め切り日の変更を表示する
+  const fetchEditDeadLine = async (scheduleId: number) => {
+    const token = localStorage.getItem("token");
+    const schedule = scheduleId;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = await res.json();
+    setEditDeadLine(data.deadline_at);
+  };
+
+  // 提出締切日の変更の関数
+  const updateEditDeadLine = async () => {
+    const token = localStorage.getItem("token");
+    const schedule = currentSchedules;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        // フロントで設定した締切日（editDeadLine）をRailsに送る
+        body: JSON.stringify({ deadline_at: editDeadLine }),
+      },
+    );
+    // 更新された締め切り日が返ってくる
+    const data = await res.json();
+    if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("変更しました");
+      setEditDeadLine(data.deadline_at);
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("変更に失敗しました");
+    }
   };
 
   useEffect(() => {
@@ -74,7 +147,13 @@ export default function AssignmentState() {
       setClassRates(data.class_rates);
       setAllRates(data.all_rates);
     };
-    fetchAssignmentStats();
+    // fetchCurrentScheduleで今年度のscheduleIdを取得してからfetchEditDeadLineを実行
+    const loadSchedule = async () => {
+      const scheduleId = await fetchCurrentSchedule();
+      await fetchEditDeadLine(scheduleId);
+      fetchAssignmentStats();
+    };
+    loadSchedule();
   }, []);
 
   return (
@@ -82,51 +161,108 @@ export default function AssignmentState() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        p: 3,
-        flexGrow: 1,
-        margin: "auto",
-        width: 400,
+        p: 2,
       }}
     >
-      <Typography variant="h5">割合</Typography>
+      <AlertSnackbar
+        open={alertOpen}
+        severity={alertSeverity}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box>
+          <Box sx={{ display: "flex", gap: 10 }}>
+            {/* 締め切りカレンダー（保護者の都合の悪い日） */}
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                締切日の設定
+              </Typography>
+              {/* DatePickerの動作に必要な設定（dayjsを使うと指定） */}
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                {/* 締切日入力用のカレンダー */}
+                <DatePicker
+                  //今どんな値を選んでいるか
+                  value={editDeadLine !== null ? dayjs(editDeadLine) : null}
+                  // カレンダーをクリックして変化したら処理される
+                  onChange={(newValue) =>
+                    // nullじゃなければ、選ばれた日付を文字列(.format)に変換してstateを更新する
+                    setEditDeadLine(
+                      newValue !== null ? newValue.format("YYYY-MM-DD") : null,
+                    )
+                  }
+                />
+              </LocalizationProvider>
+            </Box>
+            {/* 全体割り当て進捗状況 */}
+            <Box sx={{ width: 300 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                全体割り当て率
+              </Typography>
+              <Gauge
+                {...settings}
+                cornerRadius="50%"
+                sx={(theme) => ({
+                  [`& .${gaugeClasses.valueText}`]: {
+                    fontSize: 40,
+                  },
+                  [`& .${gaugeClasses.valueArc}`]: {
+                    fill: "#52b202",
+                  },
+                  [`& .${gaugeClasses.referenceArc}`]: {
+                    fill: theme.palette.text.disabled,
+                  },
+                })}
+              />
+            </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs value={value} onChange={handleChange}>
-          <Tab label="全学年の割合" {...a11yProps(0)} />
-          <Tab label="学年ごとの割合" {...a11yProps(1)} />
-        </Tabs>
+            {/* 学年割り当て進捗状況 */}
+            <Box sx={{ width: 350 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                学年別割り当て率
+              </Typography>
+              {classRates && (
+                <BarChart
+                  dataset={classRates}
+                  // 棒グラフの縦の読みの所
+                  yAxis={[
+                    { scaleType: "band", dataKey: "class_name", width: 80 },
+                  ]}
+                  series={[
+                    { dataKey: "rate", valueFormatter: (value) => `${value}%` },
+                  ]}
+                  layout="horizontal"
+                  {...chartSetting}
+                />
+              )}
+            </Box>
+          </Box>
+        </Box>
+
+        {/* ボタン操作群 */}
+        <Box sx={{ display: "flex", gap: 20 }}>
+          {/* 保存ボタンを押すと編集更新の関数が呼ばれる */}
+          <Button
+            onClick={updateEditDeadLine}
+            variant="contained"
+            color="primary"
+            disabled={isAssigning}
+            sx={{ minWidth: 160 }}
+          >
+            締切日を更新する
+          </Button>
+          {/*割り当て完了ボタン */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleClick}
+            disabled={isAssigning}
+            sx={{ minWidth: 160 }}
+          >
+            {isAssigning ? "割り当て中" : "割り当てを実行する"}
+          </Button>
+        </Box>
       </Box>
-      <CustomTabPanel value={value} index={0}>
-        <Typography variant="h5">全体割当率</Typography>
-        <Gauge
-          {...settings}
-          cornerRadius="50%"
-          sx={(theme) => ({
-            [`& .${gaugeClasses.valueText}`]: {
-              fontSize: 40,
-            },
-            [`& .${gaugeClasses.valueArc}`]: {
-              fill: "#52b202",
-            },
-            [`& .${gaugeClasses.referenceArc}`]: {
-              fill: theme.palette.text.disabled,
-            },
-          })}
-        />
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        <Typography variant="h5">学年別進捗</Typography>
-        {classRates && (
-          <BarChart
-            dataset={classRates}
-            yAxis={[{ scaleType: "band", dataKey: "class_name" }]}
-            series={[{ dataKey: "rate", label: "割り当て進捗状況" }]}
-            layout="horizontal"
-            {...chartSetting}
-          />
-        )}
-      </CustomTabPanel>
     </Paper>
   );
 }
