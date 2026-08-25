@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import { Providers } from "./providers";
 import { M_PLUS_Rounded_1c } from "next/font/google";
 
@@ -24,7 +25,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           <Navbar />
-          {children}
+          <main style={{ flex: 1 }}>{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>
