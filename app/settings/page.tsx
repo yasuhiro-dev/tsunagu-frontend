@@ -1,5 +1,5 @@
 "use client";
-
+import { getRole } from "@/utils/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@mui/material/Button";
@@ -11,10 +11,9 @@ import CustomGoogleIcon from "../components/GoogleIcon";
 
 export default function SettingPage() {
   const [connected, setConnected] = useState(false);
-
+  const [role, setRole] = useState<string | null>(null);
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -22,12 +21,17 @@ export default function SettingPage() {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
       })
+
       .then((data) => {
+        // google_access_tokenがtrueで返る
         setConnected(data.connected);
+        // トークンからroleを取り出す
+        setRole(getRole());
       });
   }, []);
 
-  const handleClick = async () => {
+  // google認証をする
+  async function handleClick() {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/connect`,
       {
@@ -38,11 +42,15 @@ export default function SettingPage() {
       },
     );
     const data = await res.json();
+    // railsで設定した、google認証ページへ遷移する
     window.location.href = data.url;
-  };
+  }
   const router = useRouter();
   const handleBackToSchedule = () => {
     router.push("/my_schedule");
+  };
+  const handleBackToMeetingSlot = () => {
+    router.push("/meeting_slots");
   };
 
   return (
@@ -96,13 +104,24 @@ export default function SettingPage() {
               size="small"
               color="success"
             />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleBackToSchedule}
-            >
-              面談決定画面に戻る
-            </Button>
+            {role === "teacher" ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleBackToMeetingSlot}
+              >
+                面談スケジュール画面に戻る
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleBackToSchedule}
+              >
+                面談決定画面に戻る
+              </Button>
+            )}
+
             <Button variant="outlined" color="primary" onClick={handleClick}>
               他のアカウントで連携をする
             </Button>
