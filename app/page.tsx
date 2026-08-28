@@ -22,6 +22,7 @@ import CallMergeIcon from "@mui/icons-material/CallMerge";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import BalanceIcon from "@mui/icons-material/Balance";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type RedirectMap = {
   teacher: string;
@@ -136,95 +137,144 @@ export default function Home() {
       description: "条件に合う枠がなかった家庭は、教師が調整します",
     },
   ];
+  // モバイルの時（widthが600px以下の場合trueを返す）
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   return (
     <>
       {/* ヒーロー */}
-      <Box sx={{ display: "flex", p: 4 }}>
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="subtitle1"
-            sx={{ color: "text.secondary", mb: 1 }}
-          >
-            学校向け 面談日程調整サービス
-          </Typography>
-
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h3">
-              兄弟の面談を、
-              <br />
-              自動で連続配置。
-            </Typography>
-          </Box>
-
-          <Box sx={{ mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          p: 4,
+          flexDirection: "column",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
+          {/* ヒーロー見出し */}
+          <Box sx={{ flex: 1 }}>
             <Typography
-              variant="h6"
+              variant="subtitle1"
               sx={{
-                fontSize: "1.125rem",
-                lineHeight: 1.8,
                 color: "text.secondary",
+                mb: 1,
+                fontSize: { xs: "9px", sm: "12px", md: "16px" },
               }}
             >
-              兄弟も、特別支援学級も、保護者の都合も。
-              <br />
-              すべて考慮した面談表が、自動で出来上がります。
+              学校向け 面談日程調整サービス
             </Typography>
-          </Box>
 
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              sx={{ minWidth: 120 }}
-              variant="contained"
-              onClick={() => handleSubmit("aoki@example.com", "password")}
-            >
-              教師デモ
-            </Button>
-            <Button
-              sx={{ minWidth: 120 }}
-              variant="contained"
-              onClick={() => handleSubmit("parent@example.com", "password")}
-            >
-              保護者(提出済み)デモ
-            </Button>
-            <Button
-              sx={{ minWidth: 120 }}
-              variant="contained"
-              onClick={() =>
-                handleSubmit("parent-nonsubmit@example.com", "password")
-              }
-            >
-              保護者(提出前)デモ
-            </Button>
-            <Button
-              sx={{ minWidth: 120 }}
-              variant="contained"
-              onClick={() => handleSubmit("admin@example.com", "password")}
-            >
-              管理者デモ
-            </Button>
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="h3"
+                sx={{ fontSize: { xs: "28px", sm: "36px", md: "48px" } }}
+              >
+                兄弟の面談を、
+                <br />
+                自動で連続配置。
+              </Typography>
+            </Box>
+
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontSize: { xs: "10px", sm: "13.5px", md: "18px" },
+                  lineHeight: 1.8,
+                  color: "text.secondary",
+                }}
+              >
+                兄弟も、特別支援学級も、保護者の都合も。
+                <br />
+                すべて考慮した面談表が、自動で出来上がります。
+              </Typography>
+            </Box>
+          </Box>
+          {/* 兄弟連続画像 */}
+          <Box
+            sx={{
+              flex: 1,
+              m: 2,
+            }}
+          >
+            <Image
+              src="/images/meeting-slot-siblings.png"
+              alt="兄弟連続割り当て"
+              width={600}
+              height={200}
+              style={{ width: "100%", height: "auto", borderRadius: 8 }}
+            />
           </Box>
         </Box>
-        <Box sx={{ flex: 1 }}>
-          <Image
-            src="/images/meeting-slot-siblings.png"
-            alt="兄弟連続割り当て"
-            width={600}
-            height={200}
-          />
+        {/* デモボタン */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
+          <Button
+            sx={{ minWidth: 120 }}
+            variant="contained"
+            onClick={() => handleSubmit("aoki@example.com", "password")}
+          >
+            教師デモ
+          </Button>
+          <Button
+            sx={{ minWidth: 120 }}
+            variant="contained"
+            onClick={() => handleSubmit("parent@example.com", "password")}
+          >
+            保護者(提出済み)デモ
+          </Button>
+          <Button
+            sx={{ minWidth: 120 }}
+            variant="contained"
+            onClick={() =>
+              handleSubmit("parent-nonsubmit@example.com", "password")
+            }
+          >
+            保護者(提出前)デモ
+          </Button>
+          <Button
+            sx={{ minWidth: 120 }}
+            variant="contained"
+            onClick={() => handleSubmit("admin@example.com", "password")}
+          >
+            管理者デモ
+          </Button>
         </Box>
       </Box>
       {/* before-after */}
       <Box component="section" sx={{ p: 4 }}>
-        <Typography variant="h4" sx={{ mb: 3 }}>
+        <Typography
+          variant="h4"
+          sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+        >
           なぜ一般的な予約システムではダメなのか
         </Typography>
-        <Box sx={{ display: "flex", gap: 6, maxWidth: 1000 }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 6,
+            maxWidth: 1000,
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
           {/* 左：一般的な予約システム */}
           <Box
             sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <Typography variant="h5" sx={{ mb: 1 }}>
+            <Typography
+              variant="h5"
+              sx={{ mb: 1, fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+            >
               一般的な予約システム
             </Typography>
             {generalProblems.map((problem) => (
@@ -238,8 +288,19 @@ export default function Home() {
                   {problem.icon}
                 </Box>
                 <Box>
-                  <Typography variant="subtitle1">{problem.title}</Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                  >
+                    {problem.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      fontSize: { xs: "8px", sm: "11px", md: "14px" },
+                    }}
+                  >
                     {problem.description}
                   </Typography>
                 </Box>
@@ -249,21 +310,39 @@ export default function Home() {
           <Box
             sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <Typography variant="h5" sx={{ mb: 1 }}>
+            <Typography
+              variant="h5"
+              sx={{ mb: 1, fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+            >
               Tsunaguなら
             </Typography>
             {tsunaguApp.map((tsunagu) => (
               <Box
                 key={tsunagu.title}
-                sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                }}
               >
                 <CheckCircleIcon sx={{ color: "primary.main" }} />
                 <Box sx={{ color: "primary.main", display: "flex" }}>
                   {tsunagu.icon}
                 </Box>
                 <Box>
-                  <Typography variant="subtitle1">{tsunagu.title}</Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                  >
+                    {tsunagu.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                      fontSize: { xs: "8px", sm: "11px", md: "14px" },
+                    }}
+                  >
                     {tsunagu.description}
                   </Typography>
                 </Box>
@@ -276,13 +355,17 @@ export default function Home() {
       {/*デモ導線 */}
 
       <Box component="section" sx={{ p: 4 }}>
-        <Typography variant="h4">
+        <Typography
+          variant="h4"
+          sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+        >
           立場に応じて実際の操作を体験できます
         </Typography>
         {/* 一番外の枠 */}
         <Box
           sx={{
             display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
             gap: 6,
             minHeight: 200,
             mt: 2,
@@ -293,6 +376,7 @@ export default function Home() {
             sx={{
               flex: 1,
               display: "flex",
+              flexDirection: { xs: "column", sm: "column", md: "row" },
               p: 2,
             }}
           >
@@ -318,10 +402,23 @@ export default function Home() {
                 gap: 3,
               }}
             >
-              <Typography variant="h5">教師として体験</Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+              >
+                教師として体験
+              </Typography>
               {teacherExperience.map((teacherExperience) => (
-                <Typography key={teacherExperience}>
-                  <CheckIcon sx={{ color: "blue", fontSize: "small" }} />
+                <Typography
+                  key={teacherExperience}
+                  sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                >
+                  <CheckIcon
+                    sx={{
+                      color: "blue",
+                      fontSize: { xs: "9px", sm: "12px", md: "16px" },
+                    }}
+                  />
                   {teacherExperience}
                 </Typography>
               ))}
@@ -351,7 +448,13 @@ export default function Home() {
               flexDirection: "column",
             }}
           >
-            <Box sx={{ display: "flex", p: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                p: 2,
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+              }}
+            >
               <Box sx={{ flex: 2, mr: 3 }}>
                 <video
                   src="/videos/unavailability-demo.mp4"
@@ -375,10 +478,23 @@ export default function Home() {
                   gap: 3,
                 }}
               >
-                <Typography variant="h5">保護者として体験</Typography>
+                <Typography
+                  variant="h5"
+                  sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+                >
+                  保護者として体験
+                </Typography>
                 {parentExperience.map((parentExperience) => (
-                  <Typography key={parentExperience}>
-                    <CheckIcon sx={{ color: "blue", fontSize: "small" }} />
+                  <Typography
+                    key={parentExperience}
+                    sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                  >
+                    <CheckIcon
+                      sx={{
+                        fontSize: { xs: "9px", sm: "12px", md: "16px" },
+                        color: "blue",
+                      }}
+                    />
                     {parentExperience}
                   </Typography>
                 ))}
@@ -417,12 +533,16 @@ export default function Home() {
           mx: "auto",
         }}
       >
-        <Typography variant="h5" sx={{ mb: 3 }}>
+        <Typography
+          variant="h5"
+          sx={{ mb: 3, fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+        >
           管理者として体験
         </Typography>
         <Typography
           variant="body2"
           sx={{
+            fontSize: { xs: "8px", sm: "10.5px", md: "14px" },
             color: "text.secondary",
             mb: 2,
           }}
@@ -442,24 +562,39 @@ export default function Home() {
       {/* 割り当てロジック */}
       <Box sx={{ p: 4, display: "flex", flexDirection: "column", gap: 2 }}>
         <Box>
-          <Typography variant="h4">Tsunagu割り当てロジック</Typography>
+          <Typography
+            variant="h4"
+            sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+          >
+            Tsunagu割り当てロジック
+          </Typography>
         </Box>
 
-        <Box sx={{ display: "flex" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
           {steps.map((step, index) => {
             const isLast = index === steps.length - 1;
             return (
               // ロジックの大外
               <Box
                 key={step.title}
-                sx={{ display: "flex", alignItems: "center", mt: 2 }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mt: 2,
+                  flexDirection: { xs: "column", sm: "column", md: "row" },
+                }}
               >
                 {/* 「アイコンの円」「タイトル」「説明文」を囲んでいる */}
                 <Box
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
                     gap: 2,
+                    flexDirection: "column",
                     alignItems: "center",
                     textAlign: "center",
                     width: 250,
@@ -484,7 +619,8 @@ export default function Home() {
                     {step.description}
                   </Typography>
                 </Box>
-                {!isLast && <span>→</span>}
+
+                {!isLast && (isMobile ? <span>↓</span> : <span>→</span>)}
               </Box>
             );
           })}
@@ -493,30 +629,54 @@ export default function Home() {
 
       {/* プレビュー */}
       <Box sx={{ display: "flex", p: 4, flexDirection: "column" }}>
-        <Typography variant="h4">出力プレビュー</Typography>
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+        <Typography
+          variant="h4"
+          sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+        >
+          出力プレビュー
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            mt: 2,
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
           <Box sx={{ flex: 1, minHeight: 150 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <PictureAsPdfIcon sx={{ color: "red" }} />
-              <Typography variant="h5">面談表PDF</Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+              >
+                面談表PDF
+              </Typography>
             </Box>
             <Image
               src="/images/meeting-slots.png"
               alt="面談表"
               width={600}
               height={200}
+              style={{ width: "100%", height: "auto", borderRadius: 8 }}
             />
           </Box>
           <Box sx={{ flex: 1, minHeight: 150 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <MailIcon sx={{ color: "blue" }} />
-              <Typography variant="h5">保護者への通知メール</Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+              >
+                保護者への通知メール
+              </Typography>
             </Box>
             <Image
               src="/images/gmail-response.png"
               alt="面談表"
               width={600}
               height={200}
+              style={{ width: "100%", height: "auto", borderRadius: 8 }}
             />
           </Box>
         </Box>
@@ -524,15 +684,20 @@ export default function Home() {
 
       {/* なぜTsunaguを作ったのか */}
       <Box component="section" sx={{ p: 4 }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>
+        <Typography
+          variant="h4"
+          sx={{ mb: 2, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+        >
           なぜTsunaguを作ったのか
         </Typography>
         <Typography
+          variant="body2"
           sx={{
             maxWidth: 700,
             lineHeight: 1.8,
             color: "text.secondary",
             mb: 3,
+            fontSize: { xs: "8px", sm: "11px", md: "14px" },
           }}
         >
           教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。

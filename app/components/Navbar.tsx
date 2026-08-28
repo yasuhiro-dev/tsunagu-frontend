@@ -21,6 +21,104 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
+import Drawer from "@mui/material/Drawer";
+import MenuIcon from "@mui/icons-material/Menu";
+import IconButton from "@mui/material/IconButton";
+
+// 教師のNavbar
+function TeacherNavLinks({ isMobile }: { isMobile: boolean }) {
+  return (
+    <>
+      <Button
+        component={Link}
+        href="/child_list"
+        variant="outlined"
+        color="inherit"
+        startIcon={<ChildCareIcon />}
+        sx={{
+          borderRadius: 3,
+          "&:hover": {
+            backgroundColor: "rgba(193, 149, 149, 0.1)",
+          },
+          fontSize: isMobile ? "12px" : "16px",
+        }}
+      >
+        児童一覧
+      </Button>
+      <Button
+        component={Link}
+        color="inherit"
+        variant="outlined"
+        href="/meeting_slots"
+        startIcon={<EventNoteIcon />}
+        sx={{
+          borderRadius: 3,
+          "&:hover": {
+            backgroundColor: "rgba(193, 149, 149, 0.1)",
+          },
+          fontSize: isMobile ? "12px" : "16px",
+        }}
+      >
+        面談表
+      </Button>
+      <Button
+        component={Link}
+        color="inherit"
+        variant="outlined"
+        href="/teacher_unavailabilities"
+        startIcon={<EventBusyIcon />}
+        sx={{
+          borderRadius: 3,
+          "&:hover": {
+            backgroundColor: "rgba(193, 149, 149, 0.1)",
+          },
+          fontSize: isMobile ? "12px" : "16px",
+        }}
+      >
+        都合の悪い日時
+      </Button>
+    </>
+  );
+}
+// 保護者のNavbar
+function ParentNavLinks({ isMobile }: { isMobile: boolean }) {
+  return (
+    <>
+      <Button
+        sx={{
+          borderRadius: 3,
+          fontSize: isMobile ? "12px" : "16px",
+          "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+          },
+        }}
+        variant="outlined"
+        component={Link}
+        startIcon={<EventAvailableIcon />}
+        href="/my_schedule"
+        color="inherit"
+      >
+        面談の決定日
+      </Button>
+      <Button
+        sx={{
+          borderRadius: 3,
+          fontSize: isMobile ? "12px" : "16px",
+          "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+          },
+        }}
+        variant="outlined"
+        component={Link}
+        href="/family_unavailabilities"
+        startIcon={<EventBusyIcon />}
+        color="inherit"
+      >
+        都合の悪い日時
+      </Button>
+    </>
+  );
+}
 
 export default function Navbar() {
   const router = useRouter();
@@ -28,6 +126,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [name, setName] = useState<string | null>(null);
+  const [mobileOpenMenu, setMobileOpenMenu] = useState(false);
   const [logoutMessageOpen, setLogoutMessageOpen] = useState(false);
   // 要素からMenuを下ろす
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -48,6 +147,10 @@ export default function Navbar() {
     setRole(getRole());
     setName(getName());
   }, []);
+  // モバイル対応
+  const handleClickHanbergerMenu = () => {
+    setMobileOpenMenu(true);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -78,95 +181,35 @@ export default function Navbar() {
               <Typography variant="h6">Tsunagu</Typography>
             </Button>
           </Box>
-          <Box
-            sx={{ flex: 1, display: "flex", justifyContent: "center", gap: 4 }}
-          >
-            {/* 教師でログイン */}
-            {mounted && role === "teacher" && (
-              <>
-                <Button
-                  component={Link}
-                  href="/child_list"
-                  variant="outlined"
-                  color="inherit"
-                  startIcon={<ChildCareIcon />}
-                  sx={{
-                    borderRadius: 3,
-                    "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
-                    fontSize: isMobile ? "12px" : "16px",
-                  }}
-                >
-                  児童一覧
-                </Button>
-                <Button
-                  component={Link}
-                  color="inherit"
-                  variant="outlined"
-                  href="/meeting_slots"
-                  startIcon={<EventNoteIcon />}
-                  sx={{
-                    borderRadius: 3,
-                    "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
-                    fontSize: isMobile ? "12px" : "16px",
-                  }}
-                >
-                  面談表
-                </Button>
-                <Button
-                  component={Link}
-                  color="inherit"
-                  variant="outlined"
-                  href="/teacher_unavailabilities"
-                  startIcon={<EventBusyIcon />}
-                  sx={{
-                    borderRadius: 3,
-                    "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
-                    fontSize: isMobile ? "12px" : "16px",
-                  }}
-                >
-                  都合の悪い日時
-                </Button>
-              </>
-            )}
-
-            {/* 保護者でログイン */}
-            {mounted && role === "parent" && (
-              <>
-                <Button
-                  sx={{
-                    borderRadius: 3,
-                    fontSize: isMobile ? "12px" : "16px",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                  variant="outlined"
-                  component={Link}
-                  startIcon={<EventAvailableIcon />}
-                  href="/my_schedule"
-                  color="inherit"
-                >
-                  面談の決定日
-                </Button>
-                <Button
-                  sx={{
-                    borderRadius: 3,
-                    fontSize: isMobile ? "12px" : "16px",
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                  variant="outlined"
-                  component={Link}
-                  href="/family_unavailabilities"
-                  startIcon={<EventBusyIcon />}
-                  color="inherit"
-                >
-                  都合の悪い日時
-                </Button>
-              </>
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            {/* ハンバーガーメニュー */}
+            <Drawer
+              anchor="left"
+              open={mobileOpenMenu}
+              onClose={() => setMobileOpenMenu(false)}
+            >
+              {mounted && role === "teacher" && (
+                <TeacherNavLinks isMobile={isMobile} />
+              )}
+              {mounted && role === "parent" && (
+                <ParentNavLinks isMobile={isMobile} />
+              )}
+            </Drawer>
+            {mounted && role !== null && role !== "admin" && (
+              <IconButton onClick={handleClickHanbergerMenu}>
+                <MenuIcon />
+              </IconButton>
             )}
           </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              justifyContent: "center",
+              gap: 4,
+              display: { xs: "none", md: "flex" },
+            }}
+          ></Box>
 
           <Box
             sx={{
@@ -216,6 +259,7 @@ export default function Navbar() {
               </Box>
             )}
           </Box>
+
           {/* メニュータグ */}
           <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
             {role !== "admin" && (
