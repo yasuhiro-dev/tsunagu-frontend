@@ -30,9 +30,10 @@ import Checkbox from "@mui/material/Checkbox";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import PersonIcon from "@mui/icons-material/Person";
-import GroupIcon from "@mui/icons-material/Group";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PeopleIcon from "@mui/icons-material/People";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
@@ -559,14 +560,14 @@ export default function Admin() {
               教師一覧
             </Button>
             <Button
-              startIcon={<GroupIcon />}
+              startIcon={<PeopleIcon />}
               sx={sidebarButtonStyle(1)}
               onClick={() => setTab(1)}
             >
               保護者一覧
             </Button>
             <Button
-              startIcon={<PersonAddIcon />}
+              startIcon={<PersonAddAlt1Icon />}
               sx={sidebarButtonStyle(2)}
               onClick={() => setTab(2)}
             >
@@ -580,7 +581,7 @@ export default function Admin() {
               保護者登録
             </Button>
             <Button
-              // startIcon={<GroupAddIcon />}
+              startIcon={<AssignmentIcon />}
               sx={sidebarButtonStyle(4)}
               onClick={() => setTab(4)}
             >
