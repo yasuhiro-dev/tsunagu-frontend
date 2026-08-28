@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getRole, getName } from "@/utils/auth";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -20,35 +21,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import ChildCareIcon from "@mui/icons-material/ChildCare";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
-
-const decodeToken = (token: string) => {
-  const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-  return JSON.parse(decodeURIComponent(escape(atob(base64))));
-};
-
-const getRole = () => {
-  if (typeof window === "undefined") return null;
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  try {
-    const decoded = decodeToken(token);
-    return decoded.role;
-  } catch {
-    return null;
-  }
-};
-
-const getName = () => {
-  if (typeof window === "undefined") return null;
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  try {
-    const decoded = decodeToken(token);
-    return decoded.name;
-  } catch {
-    return null;
-  }
-};
 
 export default function Navbar() {
   const router = useRouter();
