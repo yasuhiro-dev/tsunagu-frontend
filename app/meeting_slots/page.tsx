@@ -15,6 +15,7 @@ import Drawer from "@mui/material/Drawer";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -49,6 +50,11 @@ export default function MeetingSlotPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [isDownload, setIsDownload] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
   const [unassignedChildren, setUnassignedChildren] = useState<
     {
       id: number;
@@ -68,7 +74,7 @@ export default function MeetingSlotPage() {
   // 編集先での面談入れ替え予定一覧（API送信用に変化したslotのみ保管）
   const [changeSlotsList, setChangeSlotsList] = useState<ChangeSlot[]>([]);
   // slot移動時の警告
-  const [alertOpen, setAlertOpen] = useState(false);
+  const [editAlertOpen, setEditAlertOpen] = useState(false);
   // キャンセル時の警告
   const [cancelAlertOpen, setCancelAlertOpen] = useState(false);
   // 編集モードか
@@ -121,7 +127,7 @@ export default function MeetingSlotPage() {
   // 変更案内時に「いいえ」を押した時の関数
   const handleCancelFinishAlert = () => {
     handleEditReset();
-    setAlertOpen(false);
+    setEditAlertOpen(false);
   };
 
   // 案内表示で「はい」を押した時の関数
@@ -163,7 +169,7 @@ export default function MeetingSlotPage() {
         to_slot_id: toSlotId,
       },
     ]);
-    setAlertOpen(false);
+    setEditAlertOpen(false);
     handleEditReset();
   };
 
@@ -175,7 +181,7 @@ export default function MeetingSlotPage() {
       setFromAssignmentId(null);
     } else {
       setToSlotId(cell?.id);
-      setAlertOpen(true);
+      setEditAlertOpen(true);
     }
   };
 
@@ -194,6 +200,15 @@ export default function MeetingSlotPage() {
     );
     const data = await res.json();
     setslots(data);
+    if (res.ok) {
+      setAlertOpen(true);
+      setAlertSeverity("success");
+      setAlertMessage("変更されました");
+    } else {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("変更できませんでした");
+    }
   };
 
   // １つのassignment_slotを選んだ時の情報を取得
@@ -313,6 +328,12 @@ export default function MeetingSlotPage() {
 
   return (
     <Container sx={{ mt: 4 }}>
+      <AlertSnackbar
+        open={alertOpen}
+        severity={alertSeverity}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       <Paper
         sx={{
           p: 3,
@@ -560,7 +581,7 @@ export default function MeetingSlotPage() {
               </Box>
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
-                <Dialog open={alertOpen} onClose={handleCancelFinishAlert}>
+                <Dialog open={editAlertOpen} onClose={handleCancelFinishAlert}>
                   <DialogTitle>{"変更してもよろしいですか"}</DialogTitle>
                   <DialogActions>
                     <Button

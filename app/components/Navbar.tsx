@@ -9,9 +9,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import EventBusyIcon from "@mui/icons-material/EventBusy";
-import Avatar from "@mui/material/Avatar";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -19,6 +17,9 @@ import Image from "next/image";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import ChildCareIcon from "@mui/icons-material/ChildCare";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
 
 const decodeToken = (token: string) => {
   const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
@@ -80,6 +81,7 @@ export default function Navbar() {
     localStorage.removeItem("token");
     setRole(null);
     setName(null);
+    setAnchorEl(null);
     setLogoutMessageOpen(true);
     setTimeout(() => {
       router.push("/login");
@@ -115,6 +117,7 @@ export default function Navbar() {
                   href="/child_list"
                   variant="outlined"
                   color="inherit"
+                  startIcon={<ChildCareIcon />}
                   sx={{
                     borderRadius: 3,
                     "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
@@ -128,6 +131,7 @@ export default function Navbar() {
                   color="inherit"
                   variant="outlined"
                   href="/meeting_slots"
+                  startIcon={<EventNoteIcon />}
                   sx={{
                     borderRadius: 3,
                     "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
@@ -141,6 +145,7 @@ export default function Navbar() {
                   color="inherit"
                   variant="outlined"
                   href="/teacher_unavailabilities"
+                  startIcon={<EventBusyIcon />}
                   sx={{
                     borderRadius: 3,
                     "&:hover": { backgroundColor: "rgba(193, 149, 149, 0.1)" },
@@ -165,7 +170,7 @@ export default function Navbar() {
                   }}
                   variant="outlined"
                   component={Link}
-                  startIcon={<CalendarMonthIcon />}
+                  startIcon={<EventAvailableIcon />}
                   href="/my_schedule"
                   color="inherit"
                 >
@@ -228,9 +233,6 @@ export default function Navbar() {
                   "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
                 }}
               >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: "#ffffff33" }}>
-                  {name?.charAt(0)}
-                </Avatar>
                 <Typography variant="body2" color="inherit">
                   {role === "teacher"
                     ? `${name} 先生`
