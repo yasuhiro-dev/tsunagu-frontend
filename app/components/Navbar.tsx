@@ -71,7 +71,7 @@ export default function Navbar() {
 
   useEffect(() => {
     // localStorageはクライアントでしか読めないため、マウント後に同期する
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setRole(getRole());
     setName(getName());
