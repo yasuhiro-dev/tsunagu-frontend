@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -70,7 +70,7 @@ type EditChild = {
   class_room_ids: number[];
 };
 
-export default function Admin() {
+function AdminContent() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
   const router = useRouter();
@@ -1536,5 +1536,12 @@ export default function Admin() {
         </Box>
       </Paper>
     </Container>
+  );
+}
+export default function Admin() {
+  return (
+    <Suspense fallback={<p>読み込み中...</p>}>
+      <AdminContent />
+    </Suspense>
   );
 }
