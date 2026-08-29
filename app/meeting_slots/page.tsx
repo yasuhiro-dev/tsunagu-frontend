@@ -16,6 +16,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -290,6 +291,9 @@ export default function MeetingSlotPage() {
       });
   }, [router]);
 
+  // モバイルの時（widthが600px以下の場合trueを返す）
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   // PDFをダウンロードする
   const handleDownLoadPDF = async () => {
     setIsDownload(true);
@@ -348,6 +352,7 @@ export default function MeetingSlotPage() {
           <Box
             sx={{
               display: "flex",
+              flexDirection: { xs: "column", sm: "column", md: "row" },
               justifyContent: "space-between",
               alignItem: "center",
               mb: 2,
@@ -391,7 +396,13 @@ export default function MeetingSlotPage() {
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+            }}
+          >
             <Box sx={{ width: "200px", flexShrink: 0 }}>
               <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
                 <Typography component="span">未割り当て児童</Typography>
@@ -425,9 +436,19 @@ export default function MeetingSlotPage() {
                 ))}
               </Box>
             </Box>
-            <Box sx={{ flex: 1 }}>
+            <Box
+              sx={
+                isMobile
+                  ? {
+                      flex: 1,
+                      overflowX: "auto",
+                      maxHeight: "400px",
+                    }
+                  : { flex: 1 }
+              }
+            >
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Box sx={{ width: "60px" }}></Box>
+                <Box sx={{ width: "60px", flexShrink: 0 }}></Box>
                 {allDates.map((date) => (
                   <Box
                     key={date}
@@ -620,10 +641,16 @@ export default function MeetingSlotPage() {
                   open={isOpen}
                   onClose={() => setIsOpen(false)}
                 >
-                  <Box sx={{ width: 700, p: 2 }}>
+                  <Box
+                    sx={
+                      isMobile
+                        ? { width: 300, p: 2, minWidth: 0, overflowX: "auto" }
+                        : { width: 700, p: 2 }
+                    }
+                  >
                     {/* validSlotsDataがnullじゃないなら実行する */}
                     {validSlotsData && (
-                      <Box>
+                      <Box sx={{ width: 668 }}>
                         {/* 特別支援の面談表があれば表示する */}
                         {validSlotsData.own_support_meeting_schedule.map(
                           (schedule, index) => {

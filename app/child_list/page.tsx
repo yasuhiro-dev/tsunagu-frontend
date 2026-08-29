@@ -106,7 +106,7 @@ export default function ChildList() {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Paper sx={{ p: 3, borderRadius: 2, maxHeight: 680 }}>
+      <Paper sx={{ p: 3, borderRadius: 2, maxHeight: 680, overflow: "auto" }}>
         <Box sx={{ p: 1 }}>
           <Box
             sx={{

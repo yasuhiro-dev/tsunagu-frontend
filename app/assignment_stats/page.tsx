@@ -12,8 +12,10 @@ import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AssignmentState() {
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [classRates, setClassRates] = useState();
   const [allRates, setAllRates] = useState();
   const [isAssigning, setIsAssigning] = useState(false);
@@ -24,18 +26,21 @@ export default function AssignmentState() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+
   //棒グラフの見た目
   const chartSetting = {
     height: 400,
+    width: isMobile ? 230 : 300,
     margin: { left: 0 },
   };
   //円グラフの見た目
   const settings = {
-    width: 250,
-    height: 400,
+    width: isMobile ? 200 : 250,
+    height: isMobile ? 200 : 400,
     value: allRates,
-    // valueはオブジェクトで受け取るため分割代入
-    text: ({ value }: { value: null | number }) => `${value}%`,
+    // valueはオブジェクトで受け取るため分割代入(少数を切り捨て)
+    text: ({ value }: { value: null | number }) =>
+      `${value !== null ? Math.floor(value) : 0}%`,
   };
 
   // 今年度のschedule_idを取得する
@@ -162,6 +167,7 @@ export default function AssignmentState() {
         display: "flex",
         flexDirection: "column",
         p: 2,
+        maxWidth: isMobile ? "265px" : "100",
       }}
     >
       <AlertSnackbar
@@ -172,7 +178,16 @@ export default function AssignmentState() {
       />
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <Box>
-          <Box sx={{ display: "flex", gap: 10 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 10,
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+              maxHeight: "calc(100vh - 400px)",
+              minHeight: "calc(100vh - 400px)",
+              overflow: "auto",
+            }}
+          >
             {/* 締め切りカレンダー（保護者の都合の悪い日） */}
             <Box>
               <Typography variant="h6" sx={{ mb: 2 }}>
@@ -207,7 +222,7 @@ export default function AssignmentState() {
                     fontSize: 40,
                   },
                   [`& .${gaugeClasses.valueArc}`]: {
-                    fill: "#52b202",
+                    fill: theme.palette.success.main,
                   },
                   [`& .${gaugeClasses.referenceArc}`]: {
                     fill: theme.palette.text.disabled,
@@ -217,30 +232,47 @@ export default function AssignmentState() {
             </Box>
 
             {/* 学年割り当て進捗状況 */}
-            <Box sx={{ width: 350 }}>
+            <Box>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 学年別割り当て率
               </Typography>
-              {classRates && (
-                <BarChart
-                  dataset={classRates}
-                  // 棒グラフの縦の読みの所
-                  yAxis={[
-                    { scaleType: "band", dataKey: "class_name", width: 80 },
-                  ]}
-                  series={[
-                    { dataKey: "rate", valueFormatter: (value) => `${value}%` },
-                  ]}
-                  layout="horizontal"
-                  {...chartSetting}
-                />
-              )}
+              <Box>
+                {classRates && (
+                  <BarChart
+                    dataset={classRates}
+                    // 棒グラフの縦の読みの所
+                    yAxis={[
+                      {
+                        scaleType: "band",
+                        dataKey: "class_name",
+                        width: isMobile ? 50 : 80,
+                      },
+                    ]}
+                    series={[
+                      {
+                        color: "#409563",
+                        dataKey: "rate",
+                        valueFormatter: (value) =>
+                          `${value !== null ? Math.floor(value) : 0}%`,
+                      },
+                    ]}
+                    layout="horizontal"
+                    {...chartSetting}
+                  />
+                )}
+              </Box>
             </Box>
           </Box>
         </Box>
 
         {/* ボタン操作群 */}
-        <Box sx={{ display: "flex", gap: 20 }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: isMobile ? 3 : 20,
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
           {/* 保存ボタンを押すと編集更新の関数が呼ばれる */}
           <Button
             onClick={updateEditDeadLine}

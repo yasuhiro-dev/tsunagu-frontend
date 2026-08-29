@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -32,13 +33,15 @@ import InputAdornment from "@mui/material/InputAdornment";
 import PersonIcon from "@mui/icons-material/Person";
 import PeopleIcon from "@mui/icons-material/People";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import Chip from "@mui/material/Chip";
 import AssignmentState from "@/app/assignment_stats/page";
+import { useSearchParams } from "next/navigation";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type Teacher = {
   name: string;
@@ -71,7 +74,6 @@ export default function Admin() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
   const router = useRouter();
-  const [tab, setTab] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -109,9 +111,20 @@ export default function Admin() {
   const [showPassword, setShowPassword] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+  // ハンバーガーバーの設定（モバイル）
+  //URLからクエリ部分だけを取り出す
+  const searchParams = useSearchParams();
+  // そのクエリの中からtabを取り出す
+  const tabParam = searchParams.get("tab");
+  // そのクエリから指定されたtabをstateする
+  const [tab, setTab] = useState(Number(tabParam) || 0);
+  useEffect(() => {
+    setTab(Number(tabParam) || 0);
+  }, [tabParam]);
   // 教師名の絞り込み
   const filteredTeachers = useMemo(() => {
     return teachers.filter(
@@ -538,7 +551,7 @@ export default function Admin() {
         <Typography variant="h4" sx={{ mb: 2 }}>
           ユーザー管理
         </Typography>
-
+        {/* サイドバー一覧 */}
         <Box sx={{ display: "flex" }}>
           <Box
             sx={{
@@ -546,10 +559,11 @@ export default function Admin() {
               backgroundColor: "#ffffff",
               borderRight: "1px solid ",
               borderColor: "divider",
-              display: "flex",
+
               flexDirection: "column",
               p: 1,
               gap: 0.5,
+              display: { xs: "none", md: "flex" },
             }}
           >
             <Button
@@ -609,9 +623,20 @@ export default function Admin() {
                       gap: 2,
                       mb: 3,
                       justifyContent: "space-between",
+                      flexDirection: { xs: "column", sm: "column", md: "row" },
                     }}
                   >
-                    <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        flexDirection: {
+                          xs: "column",
+                          sm: "column",
+                          md: "row",
+                        },
+                      }}
+                    >
                       <TextField
                         slotProps={{
                           input: {
@@ -628,6 +653,7 @@ export default function Admin() {
                         onChange={(e) => setTeacherSerchText(e.target.value)}
                       />
                     </Box>
+                    {/* 一括削除 */}
                     <Box>
                       <Button
                         variant="contained"
@@ -647,6 +673,7 @@ export default function Admin() {
                     maxHeight: "calc(100vh - 400px)",
                     minHeight: "calc(100vh - 400px)",
                     overflow: "auto",
+                    maxWidth: isMobile ? "265px" : "100",
                   }}
                 >
                   <Table>
@@ -675,8 +702,12 @@ export default function Admin() {
                               onChange={() => teacherHandleCheck(teacher.id)}
                             />
                           </TableCell>
-                          <TableCell>{teacher.name}</TableCell>
-                          <TableCell>{teacher.email_address}</TableCell>
+                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                            {teacher.name}
+                          </TableCell>
+                          <TableCell sx={{ whiteSpace: "nowrap" }}>
+                            {teacher.email_address}
+                          </TableCell>
                           <TableCell>
                             {(teacher.classname ?? "")
                               .split(",")
@@ -690,7 +721,7 @@ export default function Admin() {
                                 />
                               ))}
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ whiteSpace: "nowrap" }}>
                             <IconButton
                               sx={{
                                 color: "text.secondary",
@@ -762,10 +793,21 @@ export default function Admin() {
                       gap: 2,
                       mb: 3,
                       justifyContent: "space-between",
+                      flexDirection: { xs: "column", sm: "column", md: "row" },
                     }}
                   >
                     {/* 児童名の検索 */}
-                    <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        flexDirection: {
+                          xs: "column",
+                          sm: "column",
+                          md: "row",
+                        },
+                      }}
+                    >
                       <TextField
                         placeholder="名前を検索..."
                         size="small"
@@ -825,11 +867,13 @@ export default function Admin() {
                     </Box>
                   </Box>
                 </Box>
+
                 <TableContainer
                   sx={{
                     maxHeight: "calc(100vh - 400px)",
                     minHeight: "calc(100vh - 400px)",
                     overflow: "auto",
+                    maxWidth: isMobile ? "265px" : "100",
                   }}
                 >
                   <Table>
@@ -1000,7 +1044,13 @@ export default function Admin() {
                 }}
               >
                 <Typography variant="h6">教師登録</Typography>
-                <Box sx={{ display: "flex", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    flexDirection: { xs: "column", sm: "column", md: "row" },
+                  }}
+                >
                   <TextField
                     fullWidth
                     label="教師の名前"
@@ -1028,7 +1078,13 @@ export default function Admin() {
                     </Select>
                   </FormControl>
                 </Box>
-                <Box sx={{ display: "flex", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    flexDirection: { xs: "column", sm: "column", md: "row" },
+                  }}
+                >
                   <TextField
                     fullWidth
                     label="メールアドレス"
@@ -1096,7 +1152,13 @@ export default function Admin() {
                   保護者登録
                 </Typography>
 
-                <Box sx={{ display: "flex", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    flexDirection: { xs: "column", sm: "column", md: "row" },
+                  }}
+                >
                   <TextField
                     fullWidth
                     label="保護者名"
@@ -1110,7 +1172,13 @@ export default function Admin() {
                     onChange={(e) => setNameKana(e.target.value)}
                   />
                 </Box>
-                <Box sx={{ display: "flex", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    flexDirection: { xs: "column", sm: "column", md: "row" },
+                  }}
+                >
                   <TextField
                     fullWidth
                     label="メールアドレス"
@@ -1156,7 +1224,17 @@ export default function Admin() {
                       gap: 1,
                     }}
                   >
-                    <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        flexDirection: {
+                          xs: "column",
+                          sm: "column",
+                          md: "row",
+                        },
+                      }}
+                    >
                       <TextField
                         fullWidth
                         label="児童名"
@@ -1206,7 +1284,17 @@ export default function Admin() {
                       </FormControl>
                     </Box>
 
-                    <Box sx={{ display: "flex", gap: 2 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        flexDirection: {
+                          xs: "column",
+                          sm: "column",
+                          md: "row",
+                        },
+                      }}
+                    >
                       <Button
                         variant="outlined"
                         sx={{
@@ -1306,6 +1394,7 @@ export default function Admin() {
                 sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
               >
                 <TextField
+                  sx={{ mt: 2 }}
                   label="名前"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
@@ -1352,9 +1441,26 @@ export default function Admin() {
             >
               <DialogTitle>保護者の編集</DialogTitle>
               <DialogContent
-                sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+                sx={
+                  isMobile
+                    ? {
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                        overflow: "auto",
+                        maxHeight: 300,
+                        mt: 1,
+                      }
+                    : {
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                        mt: 1,
+                      }
+                }
               >
                 <TextField
+                  sx={{ mt: 2 }}
                   label="保護者名"
                   value={editParentName}
                   onChange={(e) => setEditParentName(e.target.value)}

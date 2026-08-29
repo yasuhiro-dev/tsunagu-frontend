@@ -24,12 +24,92 @@ import EventBusyIcon from "@mui/icons-material/EventBusy";
 import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import PersonIcon from "@mui/icons-material/Person";
+import PeopleIcon from "@mui/icons-material/People";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 
-// 教師のNavbar
-function TeacherNavLinks({ isMobile }: { isMobile: boolean }) {
+type MenuItemType = {
+  label: string;
+  href: string;
+  icon?: React.ReactNode;
+};
+
+// サイドバーのList化(モバイル版)
+const teacherMenuItems = [
+  { label: "児童一覧", href: "/child_list", icon: <ChildCareIcon /> },
+  {
+    label: "面談表",
+    href: "/meeting_slots",
+    icon: <EventNoteIcon />,
+  },
+  {
+    label: "都合の悪い日時",
+    href: "/teacher_unavailabilities",
+    icon: <EventBusyIcon />,
+  },
+];
+const parentMenuItems = [
+  { label: "面談の決定日", href: "/my_schedule", icon: <EventAvailableIcon /> },
+  {
+    label: "都合の悪い日時",
+    href: "/family_unavailabilities",
+    icon: <EventBusyIcon />,
+  },
+];
+const adminMenuItems = [
+  { label: "教師一覧", href: "/admin?tab=0", icon: <PersonIcon /> },
+  { label: "保護者一覧", href: "/admin?tab=1", icon: <PeopleIcon /> },
+  {
+    label: "教師登録",
+    href: "/admin?tab=2",
+    icon: <PersonAddAlt1Icon />,
+  },
+  { label: "保護者登録", href: "/admin?tab=3", icon: <GroupAddIcon /> },
+  { label: "割り当て管理", href: "/admin?tab=4", icon: <AssignmentIcon /> },
+];
+
+function MobileNavList({
+  items,
+  onItemClick,
+}: {
+  items: MenuItemType[];
+  onItemClick?: () => void;
+}) {
+  return (
+    <List sx={{ width: 250 }}>
+      {items.map((item) => (
+        <ListItemButton
+          onClick={onItemClick}
+          component={Link}
+          href={item.href}
+          key={item.href}
+        >
+          <ListItemIcon>{item.icon}</ListItemIcon>
+          <ListItemText>{item.label}</ListItemText>
+        </ListItemButton>
+      ))}
+    </List>
+  );
+}
+
+// 教師のNavbar（PC版）
+function TeacherNavLinks({
+  isMobile,
+  onItemClick,
+}: {
+  isMobile: boolean;
+  onItemClick?: () => void;
+}) {
   return (
     <>
       <Button
+        onClick={onItemClick}
         component={Link}
         href="/child_list"
         variant="outlined"
@@ -46,6 +126,7 @@ function TeacherNavLinks({ isMobile }: { isMobile: boolean }) {
         児童一覧
       </Button>
       <Button
+        onClick={onItemClick}
         component={Link}
         color="inherit"
         variant="outlined"
@@ -62,6 +143,7 @@ function TeacherNavLinks({ isMobile }: { isMobile: boolean }) {
         面談表
       </Button>
       <Button
+        onClick={onItemClick}
         component={Link}
         color="inherit"
         variant="outlined"
@@ -81,7 +163,13 @@ function TeacherNavLinks({ isMobile }: { isMobile: boolean }) {
   );
 }
 // 保護者のNavbar
-function ParentNavLinks({ isMobile }: { isMobile: boolean }) {
+function ParentNavLinks({
+  isMobile,
+  onItemClick,
+}: {
+  isMobile: boolean;
+  onItemClick?: () => void;
+}) {
   return (
     <>
       <Button
@@ -92,6 +180,7 @@ function ParentNavLinks({ isMobile }: { isMobile: boolean }) {
             backgroundColor: "rgba(255, 255, 255, 0.1)",
           },
         }}
+        onClick={onItemClick}
         variant="outlined"
         component={Link}
         startIcon={<EventAvailableIcon />}
@@ -108,6 +197,7 @@ function ParentNavLinks({ isMobile }: { isMobile: boolean }) {
             backgroundColor: "rgba(255, 255, 255, 0.1)",
           },
         }}
+        onClick={onItemClick}
         variant="outlined"
         component={Link}
         href="/family_unavailabilities"
@@ -124,6 +214,7 @@ export default function Navbar() {
   const router = useRouter();
   const [role, setRole] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  // 画面の大きさを常に監視して、変化があるたびに新しい値を返す（true/false）
   const isMobile = useMediaQuery("(max-width:600px)");
   const [name, setName] = useState<string | null>(null);
   const [mobileOpenMenu, setMobileOpenMenu] = useState(false);
@@ -189,13 +280,25 @@ export default function Navbar() {
               onClose={() => setMobileOpenMenu(false)}
             >
               {mounted && role === "teacher" && (
-                <TeacherNavLinks isMobile={isMobile} />
+                <MobileNavList
+                  items={teacherMenuItems}
+                  onItemClick={() => setMobileOpenMenu(false)}
+                />
               )}
               {mounted && role === "parent" && (
-                <ParentNavLinks isMobile={isMobile} />
+                <MobileNavList
+                  items={parentMenuItems}
+                  onItemClick={() => setMobileOpenMenu(false)}
+                />
+              )}
+              {mounted && role === "admin" && (
+                <MobileNavList
+                  items={adminMenuItems}
+                  onItemClick={() => setMobileOpenMenu(false)}
+                />
               )}
             </Drawer>
-            {mounted && role !== null && role !== "admin" && (
+            {mounted && role !== null && (
               <IconButton onClick={handleClickHanbergerMenu}>
                 <MenuIcon />
               </IconButton>
@@ -209,7 +312,13 @@ export default function Navbar() {
               gap: 4,
               display: { xs: "none", md: "flex" },
             }}
-          ></Box>
+          >
+            {role === "teacher" ? (
+              <TeacherNavLinks isMobile={isMobile} />
+            ) : role === "parent" ? (
+              <ParentNavLinks isMobile={isMobile} />
+            ) : null}
+          </Box>
 
           <Box
             sx={{
@@ -248,7 +357,11 @@ export default function Navbar() {
                   "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
                 }}
               >
-                <Typography variant="body2" color="inherit">
+                <Typography
+                  variant="body2"
+                  color="inherit"
+                  sx={{ fontSize: { xs: "8px", sm: "10.5px", md: "14px" } }}
+                >
                   {role === "teacher"
                     ? `${name} 先生`
                     : role === "admin"
