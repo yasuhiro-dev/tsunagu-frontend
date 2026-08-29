@@ -264,7 +264,13 @@ export default function FamilyUnavailability() {
         onClose={() => setAlertOpen(false)}
       />
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
           <Typography variant="h6" sx={{ mb: 3 }}>
             面談に参加できない日時のボタンを押してください
           </Typography>
