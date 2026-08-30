@@ -328,7 +328,7 @@ export default function MeetingSlotPage() {
   slots.forEach((s) => {
     // 表示用の文字列（⚪︎月⚪︎日）
     const key = formatDate(s.start_at);
-    // 日付が重複しないように保存
+    // 表示用の文字列(key)が未登録の場合のみ、比較用のDateオブジェクトを保存する
     if (!dateMap.has(key)) dateMap.set(key, new Date(s.start_at));
   });
   // 日付部分(09-30と10-01)の大小関係を比較して並び替える
@@ -674,13 +674,21 @@ export default function MeetingSlotPage() {
                               ),
                             ].sort();
                             // 日付を並べて見出しの役割
+                            const scheduleDateMap = new Map();
+                            schedule.slots.forEach((s) => {
+                              // 表示用の文字列（⚪︎月⚪︎日）
+                              const key = formatDate(s.start_at);
+                              // 表示用の文字列(key)が未登録の場合のみ、比較用のDateオブジェクトを保存する
+                              if (!scheduleDateMap.has(key))
+                                scheduleDateMap.set(key, new Date(s.start_at));
+                            });
+                            // 表示は文字列のまま、並び替えはDateオブジェクトの大小で行う
                             const scheduleDates = [
-                              ...new Set(
-                                schedule.slots.map((s) =>
-                                  formatDate(s.start_at),
-                                ),
-                              ),
-                            ].sort();
+                              ...scheduleDateMap.keys(),
+                            ].sort(
+                              (a, b) =>
+                                scheduleDateMap.get(a) - scheduleDateMap.get(b),
+                            );
                             return (
                               <Box key={index} sx={{ p: 2 }}>
                                 <Box sx={{ p: 2 }}>
@@ -791,13 +799,22 @@ export default function MeetingSlotPage() {
                                     ),
                                   ].sort();
                                   // 日付を並べて見出しの役割
+                                  const siblingsScheduleDateMap = new Map();
+                                  schedule.slots.forEach((s) => {
+                                    const key = formatDate(s.start_at);
+                                    if (!siblingsScheduleDateMap.has(key))
+                                      siblingsScheduleDateMap.set(
+                                        key,
+                                        new Date(s.start_at),
+                                      );
+                                  });
                                   const siblingsScheduleDates = [
-                                    ...new Set(
-                                      schedule.slots.map((s) =>
-                                        formatDate(s.start_at),
-                                      ),
-                                    ),
-                                  ].sort();
+                                    ...siblingsScheduleDateMap.keys(),
+                                  ].sort(
+                                    (a, b) =>
+                                      siblingsScheduleDateMap.get(a) -
+                                      siblingsScheduleDateMap.get(b),
+                                  );
                                   // 内側の配列のreturn
                                   return (
                                     <Box key={index} sx={{ p: 2 }}>

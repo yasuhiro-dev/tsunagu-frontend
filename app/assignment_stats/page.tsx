@@ -16,8 +16,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function AssignmentState() {
   const isMobile = useMediaQuery("(max-width:600px)");
-  const [classRates, setClassRates] = useState();
-  const [allRates, setAllRates] = useState();
+  const [classRates, setClassRates] = useState([]);
+  const [allRates, setAllRates] = useState<number>(0);
   const [isAssigning, setIsAssigning] = useState(false);
   const [currentSchedules, setCurrentSchedules] = useState<null | number>();
   const [alertOpen, setAlertOpen] = useState(false);
@@ -76,6 +76,8 @@ export default function AssignmentState() {
       },
     );
     const data = await res.json();
+    setClassRates(data.class_rates);
+    setAllRates(data.all_rates);
 
     if (res.ok === true && data.unassigned_children.length === 0) {
       setAlertOpen(true);
