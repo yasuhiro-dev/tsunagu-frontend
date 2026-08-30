@@ -76,8 +76,6 @@ export default function AssignmentState() {
       },
     );
     const data = await res.json();
-    setClassRates(data.class_rates);
-    setAllRates(data.all_rates);
 
     if (res.ok === true && data.unassigned_children.length === 0) {
       setAlertOpen(true);
@@ -90,6 +88,17 @@ export default function AssignmentState() {
     } else {
       setAlertMessage(data.error);
     }
+
+    // 割り当て結果を反映した後、最新の統計情報を改めて取得する
+    const statsRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignment_stats`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      },
+    );
+    const stateData = await statsRes.json();
+    setClassRates(stateData.class_rates);
+    setAllRates(stateData.all_rates);
     setIsAssigning(false);
   };
 
