@@ -320,12 +320,21 @@ export default function MeetingSlotPage() {
   const matrix = buildMatrix(isEditMode ? editingSlots : slots);
 
   // 全slotの面談表（メイン）
+  // 時刻一覧（"15:00"のような文字列同士の比較でも順序が崩れないためそのままsort）
   const allTimes = [
     ...new Set(slots.map((s) => formatTime(s.start_at))),
   ].sort();
-  const allDates = [
-    ...new Set(slots.map((s) => formatDate(s.start_at))),
-  ].sort();
+  const dateMap = new Map();
+  slots.forEach((s) => {
+    // 表示用の文字列（⚪︎月⚪︎日）
+    const key = formatDate(s.start_at);
+    // 日付が重複しないように保存
+    if (!dateMap.has(key)) dateMap.set(key, new Date(s.start_at));
+  });
+  // 日付部分(09-30と10-01)の大小関係を比較して並び替える
+  const allDates = [...dateMap.keys()].sort(
+    (a, b) => dateMap.get(a) - dateMap.get(b),
+  );
 
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
