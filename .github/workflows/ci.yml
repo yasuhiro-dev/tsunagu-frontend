@@ -18,7 +18,18 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-
+      # # package-lock.jsonの通りに依存パッケージをインストール
       - run: npm ci
 
+      # 書き方のルール違反がないか
       - run: npm run lint
+
+      # 型が合っているか
+      - name: Type check (build)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3000
+
+      # 脆弱性がないか
+      - name: Check for high severity vulnerabilities
+        run: npm audit --audit-level=high
