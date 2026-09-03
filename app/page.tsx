@@ -643,7 +643,14 @@ export default function Home() {
             flexDirection: { xs: "column", sm: "column", md: "row" },
           }}
         >
-          <Box sx={{ flex: 1, minHeight: 150 }}>
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 150,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <PictureAsPdfIcon sx={{ color: "red" }} />
               <Typography
@@ -653,15 +660,24 @@ export default function Home() {
                 面談表PDF
               </Typography>
             </Box>
-            <Image
-              src="/images/meeting-slots.png"
-              alt="面談表"
-              width={600}
-              height={200}
-              style={{ width: "100%", height: "auto", borderRadius: 8 }}
-            />
+            <Box sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}>
+              <Image
+                src="/images/meeting-slots.png"
+                alt="面談表"
+                fill
+                style={{ objectFit: "contain", borderRadius: 8 }}
+              />
+            </Box>
           </Box>
-          <Box sx={{ flex: 1, minHeight: 150 }}>
+
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 150,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <MailIcon sx={{ color: "blue" }} />
               <Typography
@@ -671,13 +687,14 @@ export default function Home() {
                 保護者への通知メール
               </Typography>
             </Box>
-            <Image
-              src="/images/gmail-response.png"
-              alt="面談表"
-              width={600}
-              height={200}
-              style={{ width: "100%", height: "auto", borderRadius: 8 }}
-            />
+            <Box sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}>
+              <Image
+                src="/images/gmail-response.png"
+                alt="通知メール"
+                fill
+                style={{ objectFit: "contain", borderRadius: 8 }}
+              />
+            </Box>
           </Box>
         </Box>
       </Box>
