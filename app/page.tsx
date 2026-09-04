@@ -62,13 +62,13 @@ export default function Home() {
     },
     {
       icon: <PersonOffIcon />,
-      title: "先生の都合しか見えない",
-      description: "保護者側の都合は考慮外",
+      title: "保護者の都合の悪い日を伝えられない",
+      description: "空き枠から選ぶ以外に方法がない",
     },
     {
       icon: <GroupsIcon />,
       title: "複数の先生との調整が大変",
-      description: "担任＋特別支援の先生で対応",
+      description: "支援学級の児童は通常学級にも在籍するため面談が2回必要",
     },
     {
       icon: <DirectionsRunIcon />,
@@ -90,7 +90,7 @@ export default function Home() {
     {
       icon: <AssignmentTurnedInIcon />,
       title: " 複数の先生の面談も自動調整",
-      description: "担任＋特別支援の先生、両方をまとめて割り当てを確保",
+      description: "2人の担任・2回の面談も、まとめて時間を確保",
     },
     {
       icon: <BalanceIcon />,
@@ -100,7 +100,7 @@ export default function Home() {
   ];
   const teacherExperience = [
     "割り当て結果の確認",
-    "兄弟・特別支援も考慮した手動調整手動調整",
+    "兄弟・特別支援も考慮した手動調整",
     "児童一覧・未提出者の確認",
     "面談表の印刷",
   ];
@@ -140,6 +140,13 @@ export default function Home() {
   // モバイルの時（widthが600px以下の場合trueを返す）
   const isMobile = useMediaQuery("(max-width:600px)");
 
+  const fontSizes = {
+    subheading: { xs: "14px", sm: "18px", md: "24px" }, //タイトル
+    caption: { xs: "14px", sm: "14px", md: "16px" }, // サブタイトル・チェック項目文など
+    body: { xs: "13px", sm: "13px", md: "14px" }, // 比較表の説明文など
+    lead: { xs: "15px", sm: "15px", md: "14px" }, // 「なぜ作ったのか」本文
+  };
+
   return (
     <>
       {/* ヒーロー */}
@@ -163,7 +170,7 @@ export default function Home() {
               sx={{
                 color: "text.secondary",
                 mb: 1,
-                fontSize: { xs: "9px", sm: "12px", md: "16px" },
+                fontSize: fontSizes.caption,
               }}
             >
               学校向け 面談日程調整サービス
@@ -174,9 +181,9 @@ export default function Home() {
                 variant="h3"
                 sx={{ fontSize: { xs: "28px", sm: "36px", md: "48px" } }}
               >
-                兄弟の面談を、
+                保護者が学校へ行く日を、
                 <br />
-                自動で連続配置。
+                1日にまとめます。
               </Typography>
             </Box>
 
@@ -184,17 +191,29 @@ export default function Home() {
               <Typography
                 variant="h6"
                 sx={{
-                  fontSize: { xs: "10px", sm: "13.5px", md: "18px" },
+                  fontSize: { xs: "15px", sm: "15px", md: "18px" },
                   lineHeight: 1.8,
                   color: "text.secondary",
                 }}
               >
-                兄弟も、特別支援学級も、保護者の都合も。
+                兄弟も支援学級も保護者の都合も。
                 <br />
-                すべて考慮した面談表が、自動で出来上がります。
+                条件を満たす面談表を、先生の代わりに自動で組みます。
               </Typography>
+              <Box sx={{ mt: 4 }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}
+                >
+                  全校13クラス・224家庭／児童261人を、約10秒で
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  手作業なら、条件を照らし合わせながら数時間かかる作業です
+                </Typography>
+              </Box>
             </Box>
           </Box>
+
           {/* 兄弟連続画像 */}
           <Box
             sx={{
@@ -273,7 +292,7 @@ export default function Home() {
           >
             <Typography
               variant="h5"
-              sx={{ mb: 1, fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+              sx={{ mb: 1, fontSize: fontSizes.subheading }}
             >
               一般的な予約システム
             </Typography>
@@ -290,7 +309,7 @@ export default function Home() {
                 <Box>
                   <Typography
                     variant="subtitle1"
-                    sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                    sx={{ fontSize: fontSizes.caption }}
                   >
                     {problem.title}
                   </Typography>
@@ -298,7 +317,7 @@ export default function Home() {
                     variant="body2"
                     sx={{
                       color: "text.secondary",
-                      fontSize: { xs: "8px", sm: "11px", md: "14px" },
+                      fontSize: fontSizes.body,
                     }}
                   >
                     {problem.description}
@@ -312,7 +331,7 @@ export default function Home() {
           >
             <Typography
               variant="h5"
-              sx={{ mb: 1, fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+              sx={{ mb: 1, fontSize: fontSizes.subheading }}
             >
               Tsunaguなら
             </Typography>
@@ -332,7 +351,7 @@ export default function Home() {
                 <Box>
                   <Typography
                     variant="subtitle1"
-                    sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                    sx={{ fontSize: fontSizes.caption }}
                   >
                     {tsunagu.title}
                   </Typography>
@@ -340,7 +359,7 @@ export default function Home() {
                     variant="body2"
                     sx={{
                       color: "text.secondary",
-                      fontSize: { xs: "8px", sm: "11px", md: "14px" },
+                      fontSize: fontSizes.body,
                     }}
                   >
                     {tsunagu.description}
@@ -402,21 +421,18 @@ export default function Home() {
                 gap: 3,
               }}
             >
-              <Typography
-                variant="h5"
-                sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
-              >
+              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
                 教師として体験
               </Typography>
               {teacherExperience.map((teacherExperience) => (
                 <Typography
                   key={teacherExperience}
-                  sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                  sx={{ fontSize: fontSizes.caption }}
                 >
                   <CheckIcon
                     sx={{
                       color: "blue",
-                      fontSize: { xs: "9px", sm: "12px", md: "16px" },
+                      fontSize: { xs: "14px", sm: "14px", md: "16px" },
                     }}
                   />
                   {teacherExperience}
@@ -480,18 +496,18 @@ export default function Home() {
               >
                 <Typography
                   variant="h5"
-                  sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
+                  sx={{ fontSize: fontSizes.subheading }}
                 >
                   保護者として体験
                 </Typography>
                 {parentExperience.map((parentExperience) => (
                   <Typography
                     key={parentExperience}
-                    sx={{ fontSize: { xs: "9px", sm: "12px", md: "16px" } }}
+                    sx={{ fontSize: fontSizes.caption }}
                   >
                     <CheckIcon
                       sx={{
-                        fontSize: { xs: "9px", sm: "12px", md: "16px" },
+                        fontSize: fontSizes.caption,
                         color: "blue",
                       }}
                     />
@@ -533,16 +549,13 @@ export default function Home() {
           mx: "auto",
         }}
       >
-        <Typography
-          variant="h5"
-          sx={{ mb: 3, fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
-        >
+        <Typography variant="h5" sx={{ mb: 3, fontSize: fontSizes.subheading }}>
           管理者として体験
         </Typography>
         <Typography
           variant="body2"
           sx={{
-            fontSize: { xs: "8px", sm: "10.5px", md: "14px" },
+            fontSize: fontSizes.body,
             color: "text.secondary",
             mb: 2,
           }}
@@ -646,17 +659,14 @@ export default function Home() {
           <Box
             sx={{
               flex: 1,
-              minHeight: 150,
+              minHeight: 550,
               display: "flex",
               flexDirection: "column",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <PictureAsPdfIcon sx={{ color: "red" }} />
-              <Typography
-                variant="h5"
-                sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
-              >
+              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
                 面談表PDF
               </Typography>
             </Box>
@@ -673,17 +683,14 @@ export default function Home() {
           <Box
             sx={{
               flex: 1,
-              minHeight: 150,
+              minHeight: 550,
               display: "flex",
               flexDirection: "column",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <MailIcon sx={{ color: "blue" }} />
-              <Typography
-                variant="h5"
-                sx={{ fontSize: { xs: "13.5px", sm: "18px", md: "24px" } }}
-              >
+              <MailIcon sx={{ color: "blue", ml: 15 }} />
+              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
                 保護者への通知メール
               </Typography>
             </Box>
@@ -714,7 +721,7 @@ export default function Home() {
             lineHeight: 1.8,
             color: "text.secondary",
             mb: 3,
-            fontSize: { xs: "8px", sm: "11px", md: "14px" },
+            fontSize: fontSizes.caption,
           }}
         >
           教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。
@@ -725,7 +732,7 @@ export default function Home() {
           そこで、学校現場の運用に合わせた面談日程調整システム「Tsunagu」を開発しました。
         </Typography>
         <Image
-          src="/images/teacher-picture.jpg"
+          src="/images/teacher-picture.png"
           alt="調整に追われる時間から、子どもと向き合う時間へ"
           width={1200}
           height={800}
