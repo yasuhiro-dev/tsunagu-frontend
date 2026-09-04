@@ -13,6 +13,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import "dayjs/locale/ja";
 
 export default function AssignmentState() {
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -205,7 +206,10 @@ export default function AssignmentState() {
                 締切日の設定
               </Typography>
               {/* DatePickerの動作に必要な設定（dayjsを使うと指定） */}
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider
+                dateAdapter={AdapterDayjs}
+                adapterLocale="ja"
+              >
                 {/* 締切日入力用のカレンダー */}
                 <DatePicker
                   //今どんな値を選んでいるか
@@ -256,7 +260,7 @@ export default function AssignmentState() {
                       {
                         scaleType: "band",
                         dataKey: "class_name",
-                        width: isMobile ? 50 : 80,
+                        width: isMobile ? 60 : 80,
                       },
                     ]}
                     series={[

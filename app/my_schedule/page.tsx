@@ -16,6 +16,8 @@ import AlertSnackbar from "@/app/components/AlertSnackbar";
 
 type Assignment = {
   id: number;
+  child_id: number;
+  room_type: string;
   child_name: string;
   class_name: string;
   start_at: string;
@@ -148,6 +150,15 @@ export default function MySchedulePage() {
                   variant="outlined"
                 />
               </Box>
+              {a.room_type === "support" && (
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", mb: 2 }}
+                >
+                  ※特別支援学級に在籍するお子さまは、通常学級と支援学級で2回の面談枠があります
+                </Typography>
+              )}
               <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
                 {a.child_name}（{a.class_name}）
               </Typography>
