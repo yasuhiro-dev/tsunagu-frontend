@@ -88,7 +88,6 @@ export default function FamilyUnavailability() {
       );
       setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
-      console.log("POST送信", slotId);
       await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
         {
@@ -136,7 +135,6 @@ export default function FamilyUnavailability() {
       },
     );
     const data = await res.json();
-    console.log("締切日", data);
     setDeadLine(data.deadline_at);
   };
 
