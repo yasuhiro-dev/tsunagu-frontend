@@ -230,7 +230,6 @@ function AdminContent() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/class_rooms`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setClassRooms(data);
       });
   }, [router]);
@@ -323,7 +322,6 @@ function AdminContent() {
               const room = classRooms.find(
                 (r) => r.id === Number(child.classRoomId),
               );
-              console.log("room", room);
               return room?.classname ?? "";
             })
             .join("、"),
