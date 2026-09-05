@@ -99,8 +99,8 @@ export default function Home() {
     },
   ];
   const teacherExperience = [
-    "割り当て結果の確認",
     "兄弟・特別支援も考慮した手動調整",
+    "割り当て結果の確認",
     "児童一覧・未提出者の確認",
     "面談表の印刷",
   ];
@@ -108,6 +108,12 @@ export default function Home() {
     "面談不可日時の登録",
     "面談予定をGoogleカレンダーに追加",
     "決定した面談日時の確認",
+  ];
+  const adminExperience = [
+    "面談の一括自動割り当て",
+    "教師・保護者情報の登録・編集",
+    "提出締切日の設定",
+    "割り当て率の参照",
   ];
   const steps = [
     {
@@ -187,7 +193,7 @@ export default function Home() {
               </Typography>
             </Box>
 
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
               <Typography
                 variant="h6"
                 sx={{
@@ -200,7 +206,7 @@ export default function Home() {
                 <br />
                 条件を満たす面談表を、先生の代わりに自動で組みます。
               </Typography>
-              <Box sx={{ mt: 4 }}>
+              <Box sx={{ mt: 3 }}>
                 <Typography
                   variant="h5"
                   sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}
@@ -219,6 +225,7 @@ export default function Home() {
             sx={{
               flex: 1,
               m: 2,
+              maxHeight: 350,
             }}
           >
             <Image
@@ -231,7 +238,7 @@ export default function Home() {
           </Box>
         </Box>
         {/* デモボタン */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Box>
             <Typography
               variant="subtitle2"
@@ -413,9 +420,8 @@ export default function Home() {
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", sm: "column", md: "row" },
+            flexDirection: "column",
             gap: 6,
-            minHeight: 200,
             mt: 2,
           }}
         >
@@ -437,17 +443,18 @@ export default function Home() {
                 playsInline
                 style={{
                   width: "100%",
+                  maxWidth: 1000,
                   borderRadius: 8,
-                  height: 350,
+                  height: "auto",
                 }}
               />
             </Box>
             <Box
               sx={{
-                flex: 1,
                 display: "flex",
                 flexDirection: "column",
                 gap: 3,
+                justifyContent: "center",
               }}
             >
               <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
@@ -472,8 +479,6 @@ export default function Home() {
               <Box
                 sx={{
                   display: "flex",
-                  alignItems: "flex-end",
-                  flex: 1,
                 }}
               >
                 <Button
@@ -500,7 +505,7 @@ export default function Home() {
                 flexDirection: { xs: "column", sm: "column", md: "row" },
               }}
             >
-              <Box sx={{ flex: 2, mr: 3 }}>
+              <Box sx={{ flex: 2 }}>
                 <video
                   src="/videos/unavailability-demo.mp4"
                   autoPlay
@@ -509,18 +514,19 @@ export default function Home() {
                   playsInline
                   style={{
                     width: "100%",
+                    maxWidth: 1000,
                     borderRadius: 8,
-                    height: 350,
+                    height: "auto",
                   }}
                 />
               </Box>
 
               <Box
                 sx={{
-                  flex: 1,
                   display: "flex",
                   flexDirection: "column",
                   gap: 3,
+                  justifyContent: "center",
                 }}
               >
                 <Typography
@@ -547,8 +553,6 @@ export default function Home() {
                 <Box
                   sx={{
                     display: "flex",
-                    alignItems: "flex-end",
-                    flex: 1,
                   }}
                 >
                   <Button
@@ -562,43 +566,80 @@ export default function Home() {
                 </Box>
               </Box>
             </Box>
-
-            {/* ボタンの処理 */}
           </Box>
         </Box>
-      </Box>
-
-      <Box
-        sx={{
-          textAlign: "center",
-          p: 3,
-          bgcolor: "grey.50",
-          borderRadius: 2,
-          maxWidth: 700,
-          mx: "auto",
-        }}
-      >
-        <Typography variant="h5" sx={{ mb: 3, fontSize: fontSizes.subheading }}>
-          管理者として体験
-        </Typography>
-        <Typography
-          variant="body2"
+        {/* 管理者側の枠 */}
+        <Box
           sx={{
-            fontSize: fontSizes.body,
-            color: "text.secondary",
-            mb: 2,
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          教師・保護者情報の登録・編集 ／ 面談の一括自動割り当て ／
-          提出締切日の設定 ／ 割り当て率の参照
-        </Typography>
-        <Button
-          onClick={() => handleSubmit("admin@example.com", "password")}
-          variant="outlined"
-          size="small"
-        >
-          管理者として体験する
-        </Button>
+          <Box
+            sx={{
+              display: "flex",
+              p: 2,
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+            }}
+          >
+            <Box sx={{ flex: 2 }}>
+              <video
+                src="/videos/assignment-demo.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  width: "100%",
+                  maxWidth: 1000,
+                  borderRadius: 8,
+                  height: "auto",
+                }}
+              />
+            </Box>
+
+            <Box
+              sx={{
+                justifyContent: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
+            >
+              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
+                管理者として体験
+              </Typography>
+              {adminExperience.map((adminExperience) => (
+                <Typography
+                  key={adminExperience}
+                  sx={{ fontSize: fontSizes.caption }}
+                >
+                  <CheckIcon
+                    sx={{
+                      fontSize: fontSizes.caption,
+                      color: "blue",
+                    }}
+                  />
+                  {adminExperience}
+                </Typography>
+              ))}
+
+              <Box
+                sx={{
+                  display: "flex",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={() => handleSubmit("admin@example.com", "password")}
+                >
+                  管理者として体験する
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
       </Box>
 
       {/* 割り当てロジック */}
