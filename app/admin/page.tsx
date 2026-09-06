@@ -42,6 +42,7 @@ import Chip from "@mui/material/Chip";
 import AssignmentState from "@/app/assignment_stats/page";
 import { useSearchParams } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 type Teacher = {
   name: string;
@@ -150,14 +151,12 @@ function AdminContent() {
   };
 
   const handleBulkDeleteParents = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/bulk_destroy`,
       {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ ids: selectedParentIds }),
       },
@@ -176,14 +175,12 @@ function AdminContent() {
   };
 
   const handleBulkDeleteTeachers = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/bulk_destroy`,
       {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ ids: selectedTeacherIds }),
       },
@@ -207,11 +204,7 @@ function AdminContent() {
       router.push("/login");
       return;
     }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/users`, {})
       .then((res) => {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
@@ -227,7 +220,7 @@ function AdminContent() {
         setLoading(false);
       });
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/class_rooms`)
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/class_rooms`)
       .then((res) => res.json())
       .then((data) => {
         setClassRooms(data);
@@ -280,14 +273,12 @@ function AdminContent() {
   if (error) return <p>{error}</p>;
 
   const handleSubmitParent = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           user: {
@@ -341,14 +332,12 @@ function AdminContent() {
 
   // 教師登録のAPI
   const handleSubmit = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           user: {
@@ -391,12 +380,10 @@ function AdminContent() {
   };
 
   const handleDeleteTeacher = async (id: number) => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/${id}`,
       {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       },
     );
     if (res.ok) {
@@ -412,12 +399,10 @@ function AdminContent() {
   };
 
   const handleDeleteParent = async (id: number) => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${id}`,
       {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       },
     );
     if (res.ok) {
@@ -434,14 +419,12 @@ function AdminContent() {
 
   // 教師の編集画面
   const handleUpdate = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/${editTarget?.id}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: editName,
@@ -479,14 +462,12 @@ function AdminContent() {
     }
   };
   const handleUpdateParent = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${editTargetParent?.id}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: editParentName,
@@ -965,14 +946,9 @@ function AdminContent() {
                                     "&:hover": { color: "primary.main" },
                                   }}
                                   onClick={async () => {
-                                    const token = localStorage.getItem("token");
-                                    const res = await fetch(
+                                    const res = await fetchWithAuth(
                                       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${parent.id}`,
-                                      {
-                                        headers: {
-                                          Authorization: `Bearer ${token}`,
-                                        },
-                                      },
+                                      {},
                                     );
                                     const data = await res.json();
                                     setEditTargetParent(parent);

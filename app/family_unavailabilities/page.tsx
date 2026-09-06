@@ -10,6 +10,7 @@ import Container from "@mui/material/Container";
 import { MeetingSlot, formatDate, groupByDate } from "@/utils/dateUtils";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -33,19 +34,17 @@ export default function FamilyUnavailability() {
 
   // １日全選択の関数（保護者）
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
-    const token = localStorage.getItem("token");
     const newIds = dateSlots
       .filter((slot) => !unavailableSlots.includes(slot.id))
       .filter((slot) => !blockedSlotIds.includes(slot.id))
       .map((slot) => slot.id);
     for (const slotId of newIds) {
-      await fetch(
+      await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ meeting_slot_id: slotId }),
         },
@@ -56,18 +55,14 @@ export default function FamilyUnavailability() {
 
   // １日全削除の関数（保護者）
   const handleClearAll = async (dateSlots: MeetingSlot[]) => {
-    const token = localStorage.getItem("token");
     const removeIds = dateSlots
       .filter((slot) => unavailableSlots.includes(slot.id))
       .map((slot) => slot.id);
     for (const slotId of removeIds) {
-      await fetch(
+      await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
     }
@@ -77,24 +72,21 @@ export default function FamilyUnavailability() {
   //１コマ分選択/選択解除の関数
 
   const handleClick = async (slotId: number) => {
-    const token = localStorage.getItem("token");
     if (unavailableSlots.includes(slotId)) {
-      await fetch(
+      await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
         },
       );
       setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
-      await fetch(
+      await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ meeting_slot_id: slotId }),
         },
@@ -105,14 +97,12 @@ export default function FamilyUnavailability() {
 
   // 今年度のschedule_idを取得する
   const fetchCurrentSchedule = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
       },
     );
@@ -122,15 +112,13 @@ export default function FamilyUnavailability() {
 
   // 保護者の面談不可日程締め切り日の表示
   const fetchDeadline = async (scheduleId: number) => {
-    const token = localStorage.getItem("token");
     const schedule = scheduleId;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
       },
     );
@@ -140,15 +128,10 @@ export default function FamilyUnavailability() {
 
   // 教師の面談不可の日程を取得
   const fetchBlockedSlots = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots/blocked_slots`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       },
     );
     const data = await res.json();
@@ -157,14 +140,11 @@ export default function FamilyUnavailability() {
 
   // 保護者の面談不可日程の提出
   const handleSubmit = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
       {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         // 保護者が選んだ面談不可日程をbodyにつける
@@ -191,11 +171,7 @@ export default function FamilyUnavailability() {
       router.push("/login");
       return;
     }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/all_meeting_slots`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/all_meeting_slots`)
       .then((res) => {
         // falseの場合エラーメッセージがthrow→catchへ
         if (!res.ok) throw new Error("エラーが発生しました");
@@ -212,11 +188,9 @@ export default function FamilyUnavailability() {
         setLoading(false);
       });
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+    )
       .then((res) => {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
@@ -231,9 +205,9 @@ export default function FamilyUnavailability() {
       });
 
     const familyId = decodeToken(token).family_id;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/families/${familyId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/families/${familyId}`,
+    )
       .then((res) => res.json())
       .then((data) => {
         setSubmitted(data.submitted);
@@ -247,8 +221,11 @@ export default function FamilyUnavailability() {
     loadingSchedule();
   }, [router]);
 
+  if (error)
+    return (
+      <p>データの読み込みに失敗しました。時間をおいて再度お試しください。</p>
+    );
   if (loading) return <p>読み込み中...</p>;
-  if (error) return <p>{error}</p>;
 
   const now = new Date();
   const deadLineDate = deadLine !== null ? new Date(deadLine) : null;

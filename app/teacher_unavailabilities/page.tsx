@@ -10,6 +10,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { MeetingSlot, groupByDate } from "@/utils/dateUtils";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
@@ -61,14 +62,11 @@ export default function MeetingSlotPage() {
 
   // 面談不可日程の提出の関数（教師）
   const teacherHandleSubmit = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots/bulk_update`,
       {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         // 教師が選んだ面談不可日程をbodyにつける
@@ -97,11 +95,7 @@ export default function MeetingSlotPage() {
       return;
     }
     // 面談表を取得するfetch
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {})
       // エラーが発生したら、catchへ
 
       .then((res) => {
