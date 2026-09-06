@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Chip from "@mui/material/Chip";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -21,6 +22,7 @@ import Pagination from "@mui/material/Pagination";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 type Child = {
   id: number;
@@ -32,6 +34,7 @@ type Child = {
 };
 
 export default function ChildList() {
+  const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [filter, setFilter] = useState("all");
@@ -80,13 +83,14 @@ export default function ChildList() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     const fetchChildren = async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
+      const res = await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/child_list`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
       );
       const data = await res.json();
       setChildren(data);

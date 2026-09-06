@@ -13,6 +13,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 type Assignment = {
   id: number;
@@ -57,9 +58,7 @@ export default function MySchedulePage() {
       router.push("/login");
       return;
     }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`)
       .then((res) => {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
@@ -76,26 +75,20 @@ export default function MySchedulePage() {
 
   // googleカレンダー連携のAPI
   const handleClick = async (assignmentId: number) => {
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
       },
     );
     // トークンがあるかないかを確認する
     const data = await res.json();
     // トークンがあるならば、google_calernder_controllerへAPIを送る
     if (data.connected == true) {
-      const res = await fetch(
+      const res = await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_calendar/${assignmentId}`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
         },
       );
       // 登録されたかされていないかメッセージが返る
@@ -113,7 +106,10 @@ export default function MySchedulePage() {
     }
   };
 
-  if (error) return <p>エラー</p>;
+  if (error)
+    return (
+      <p>データの読み込みに失敗しました。時間をおいて再度お試しください。</p>
+    );
   if (loading) return <p>読み込み中...</p>;
 
   return (

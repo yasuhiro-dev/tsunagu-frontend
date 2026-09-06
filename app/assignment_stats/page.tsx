@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -14,8 +15,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "dayjs/locale/ja";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function AssignmentState() {
+  const router = useRouter();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [classRates, setClassRates] = useState([]);
   const [allRates, setAllRates] = useState<number>(0);
@@ -46,14 +49,12 @@ export default function AssignmentState() {
 
   // 今年度のschedule_idを取得する
   const fetchCurrentSchedule = async () => {
-    const token = localStorage.getItem("token");
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
       },
     );
@@ -66,13 +67,12 @@ export default function AssignmentState() {
   const handleClick = async () => {
     setIsAssigning(true);
     const schedule = currentSchedules;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       },
     );
@@ -91,11 +91,8 @@ export default function AssignmentState() {
     }
 
     // 割り当て結果を反映した後、最新の統計情報を改めて取得する
-    const statsRes = await fetch(
+    const statsRes = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignment_stats`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      },
     );
     const stateData = await statsRes.json();
     setClassRates(stateData.class_rates);
@@ -105,15 +102,13 @@ export default function AssignmentState() {
 
   // 締め切り日の変更を表示する
   const fetchEditDeadLine = async (scheduleId: number) => {
-    const token = localStorage.getItem("token");
     const schedule = scheduleId;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
       },
     );
@@ -123,15 +118,13 @@ export default function AssignmentState() {
 
   // 提出締切日の変更の関数
   const updateEditDeadLine = async () => {
-    const token = localStorage.getItem("token");
     const schedule = currentSchedules;
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         // フロントで設定した締切日（editDeadLine）をRailsに送る
         body: JSON.stringify({ deadline_at: editDeadLine }),
@@ -152,13 +145,14 @@ export default function AssignmentState() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
     const fetchAssignmentStats = async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
+      const res = await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignment_stats`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
       );
       const data = await res.json();
       setClassRates(data.class_rates);

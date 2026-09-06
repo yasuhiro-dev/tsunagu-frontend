@@ -8,15 +8,15 @@ import Card from "@mui/material/Card";
 import Chip from "@mui/material/Chip";
 import Typography from "@mui/material/Typography";
 import CustomGoogleIcon from "../components/GoogleIcon";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function SettingPage() {
   const [connected, setConnected] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`,
+    )
       .then((res) => {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
@@ -32,13 +32,10 @@ export default function SettingPage() {
 
   // google認証をする
   async function handleClick() {
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/connect`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
       },
     );
     const data = await res.json();

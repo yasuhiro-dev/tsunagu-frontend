@@ -17,6 +17,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -188,13 +189,12 @@ export default function MeetingSlotPage() {
 
   // 面談slot編集・編集完了
   const handleReassign = async () => {
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ assignments: changeSlotsList }),
       },
@@ -214,13 +214,12 @@ export default function MeetingSlotPage() {
 
   // １つのassignment_slotを選んだ時の情報を取得
   const AssignmentHandleClick = async (id: number) => {
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       },
     );
@@ -243,11 +242,8 @@ export default function MeetingSlotPage() {
       return;
     }
     // indexメソッドを呼ぶ
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     })
       .then((res) => {
         if (!res.ok) throw new Error("データ取得に失敗しました");
@@ -256,12 +252,12 @@ export default function MeetingSlotPage() {
       .then((data) => {
         // 空で返ってくる場合は、createメソッドへリクエスト
         if (data.length === 0) {
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
+          fetchWithAuth(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
+            {
+              method: "POST",
             },
-          })
+          )
             .then((res) => {
               return res.json();
             })
@@ -281,10 +277,12 @@ export default function MeetingSlotPage() {
       });
 
     // 未割り当て児童を取得する（children_controller）
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
+      {
+        method: "GET",
+      },
+    )
       .then((res) => res.json())
       .then((data) => {
         setUnassignedChildren(data);
@@ -297,13 +295,10 @@ export default function MeetingSlotPage() {
   // PDFをダウンロードする
   const handleDownLoadPDF = async () => {
     setIsDownload(true);
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/teacher_exports`,
       {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
       },
     );
     const blob = await res.blob();
@@ -336,8 +331,11 @@ export default function MeetingSlotPage() {
     (a, b) => dateMap.get(a) - dateMap.get(b),
   );
 
+  if (error)
+    return (
+      <p>データの読み込みに失敗しました。時間をおいて再度お試しください。</p>
+    );
   if (loading) return <p>読み込み中...</p>;
-  if (error) return <p>{error}</p>;
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -581,26 +579,15 @@ export default function MeetingSlotPage() {
                               dateLabel={date}
                               timeLabel={time}
                               onAdded={() => {
-                                const token = localStorage.getItem("token");
                                 // １つ目：meeting_slotを再取得
-                                fetch(
+                                fetchWithAuth(
                                   `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
-                                  {
-                                    headers: {
-                                      Authorization: `Bearer ${token}`,
-                                    },
-                                  },
                                 )
                                   .then((res) => res.json())
                                   .then((data) => setslots(data));
                                 // 2つ目：children/unassignedを再取得
-                                fetch(
+                                fetchWithAuth(
                                   `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
-                                  {
-                                    headers: {
-                                      Authorization: `Bearer ${token}`,
-                                    },
-                                  },
                                 )
                                   .then((res) => res.json())
                                   .then((data) => setUnassignedChildren(data));
