@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -23,6 +24,7 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import BalanceIcon from "@mui/icons-material/Balance";
 import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import AlertSnackbar from "@/app/components/AlertSnackbar";
 
 type RedirectMap = {
   teacher: string;
@@ -31,7 +33,16 @@ type RedirectMap = {
 };
 
 export default function LandingPage() {
-  const handleSubmit = async (loginEmail: string, loginPassword: string) => {
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success",
+  );
+  const handleSubmit = async (
+    loginEmail: string,
+    loginPassword: string,
+    redirectOverride?: string,
+  ) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,9 +59,12 @@ export default function LandingPage() {
         parent: "/family_unavailabilities",
         admin: "/admin",
       };
-      window.location.href = redirectMap[data.role] ?? "/";
+      // redirectOverride（my_scheduleへの遷移）がなければroleを見て指定されたURLへ遷移
+      window.location.href = redirectOverride ?? redirectMap[data.role] ?? "/";
     } else {
-      alert("デモログインに失敗しました");
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("デモログインに失敗しました");
     }
   };
 
@@ -99,21 +113,22 @@ export default function LandingPage() {
     },
   ];
   const teacherExperience = [
-    "兄弟・特別支援も考慮した手動調整",
-    "割り当て結果の確認",
     "児童一覧・未提出者の確認",
-    "面談表の印刷",
+    "未割当児童の一覧確認",
+    "個別の手動割り当て",
+    "面談不可日時の登録",
+    "面談表のPDF出力",
   ];
   const parentExperience = [
     "面談不可日時の登録",
+    "確定した面談日時の確認",
     "面談予定をGoogleカレンダーに追加",
-    "決定した面談日時の確認",
   ];
   const adminExperience = [
-    "面談の一括自動割り当て",
     "教師・保護者情報の登録・編集",
+    "面談の一括自動割り当て",
     "提出締切日の設定",
-    "割り当て率の参照",
+    "クラス別の割り当て状況の可視化",
   ];
   const steps = [
     {
@@ -155,6 +170,12 @@ export default function LandingPage() {
 
   return (
     <>
+      <AlertSnackbar
+        open={alertOpen}
+        severity={alertSeverity}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       {/* ヒーロー */}
       <Box
         sx={{
@@ -289,7 +310,9 @@ export default function LandingPage() {
               <Button
                 sx={{ minWidth: 220 }}
                 variant="contained"
-                onClick={() => handleSubmit("parent@example.com", "password")}
+                onClick={() =>
+                  handleSubmit("parent@example.com", "password", "/my_schedule")
+                }
               >
                 確定した日程を見る
               </Button>
@@ -426,15 +449,20 @@ export default function LandingPage() {
           }}
         >
           {/* 教師側の枠 */}
+
           <Box
             sx={{
               flex: 1,
               display: "flex",
               flexDirection: { xs: "column", sm: "column", md: "row" },
               p: 2,
+              maxWidth: 1200,
+              width: "100%",
+              mx: "auto",
+              gap: { xs: 3, md: 6 },
             }}
           >
-            <Box sx={{ flex: 2, mr: 3 }}>
+            <Box sx={{ flex: 2 }}>
               <video
                 src="/videos/meeting-slot-demo1.mp4"
                 autoPlay
@@ -451,6 +479,7 @@ export default function LandingPage() {
             </Box>
             <Box
               sx={{
+                flex: 1,
                 display: "flex",
                 flexDirection: "column",
                 gap: 3,
@@ -468,7 +497,7 @@ export default function LandingPage() {
                   <CheckIcon
                     sx={{
                       color: "blue",
-                      fontSize: { xs: "14px", sm: "14px", md: "16px" },
+                      fontSize: fontSizes.caption,
                     }}
                   />
                   {teacherExperience}
@@ -490,99 +519,94 @@ export default function LandingPage() {
               </Box>
             </Box>
           </Box>
+
           {/* 保護者側の枠 */}
+
           <Box
             sx={{
               flex: 1,
               display: "flex",
-              flexDirection: "column",
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+              p: 2,
+              maxWidth: 1200,
+              width: "100%",
+              mx: "auto",
+              gap: { xs: 3, md: 6 },
             }}
           >
+            <Box sx={{ flex: 2 }}>
+              <video
+                src="/videos/unavailability-demo.mp4"
+                poster="/images/unavailability-poster.jpg"
+                preload="none"
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  width: "100%",
+                  maxWidth: 1000,
+                  borderRadius: 8,
+                  height: "auto",
+                }}
+              />
+            </Box>
+
             <Box
               sx={{
+                flex: 1,
                 display: "flex",
-                p: 2,
-                flexDirection: { xs: "column", sm: "column", md: "row" },
+                flexDirection: "column",
+                gap: 3,
+                justifyContent: "center",
               }}
             >
-              <Box sx={{ flex: 2 }}>
-                <video
-                  src="/videos/unavailability-demo.mp4"
-                  poster="/images/unavailability-poster.jpg"
-                  preload="none"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  style={{
-                    width: "100%",
-                    maxWidth: 1000,
-                    borderRadius: 8,
-                    height: "auto",
-                  }}
-                />
-              </Box>
+              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
+                保護者として体験
+              </Typography>
+              {parentExperience.map((parentExperience) => (
+                <Typography
+                  key={parentExperience}
+                  sx={{ fontSize: fontSizes.caption }}
+                >
+                  <CheckIcon
+                    sx={{
+                      fontSize: fontSizes.caption,
+                      color: "blue",
+                    }}
+                  />
+                  {parentExperience}
+                </Typography>
+              ))}
 
+              {/* ボタンの処理 */}
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
-                  gap: 3,
-                  justifyContent: "center",
                 }}
               >
-                <Typography
-                  variant="h5"
-                  sx={{ fontSize: fontSizes.subheading }}
+                <Button
+                  variant="contained"
+                  onClick={() => handleSubmit("parent@example.com", "password")}
                 >
-                  保護者として体験
-                </Typography>
-                {parentExperience.map((parentExperience) => (
-                  <Typography
-                    key={parentExperience}
-                    sx={{ fontSize: fontSizes.caption }}
-                  >
-                    <CheckIcon
-                      sx={{
-                        fontSize: fontSizes.caption,
-                        color: "blue",
-                      }}
-                    />
-                    {parentExperience}
-                  </Typography>
-                ))}
-
-                <Box
-                  sx={{
-                    display: "flex",
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    onClick={() =>
-                      handleSubmit("parent@example.com", "password")
-                    }
-                  >
-                    保護者として体験する
-                  </Button>
-                </Box>
+                  保護者として体験する
+                </Button>
               </Box>
             </Box>
           </Box>
-        </Box>
-        {/* 管理者側の枠 */}
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+
+          {/* 管理者側の枠 */}
+
           <Box
             sx={{
+              flex: 1,
               display: "flex",
-              p: 2,
               flexDirection: { xs: "column", sm: "column", md: "row" },
+              p: 2,
+              maxWidth: 1200,
+              width: "100%",
+              mx: "auto",
+              gap: { xs: 3, md: 6 },
             }}
           >
             <Box sx={{ flex: 2 }}>
@@ -605,6 +629,7 @@ export default function LandingPage() {
 
             <Box
               sx={{
+                flex: 1,
                 justifyContent: "center",
                 display: "flex",
                 flexDirection: "column",
