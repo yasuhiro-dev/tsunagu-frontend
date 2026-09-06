@@ -206,7 +206,7 @@ export default function LandingPage() {
             <Box sx={{ mb: 3 }}>
               <Typography
                 variant="h3"
-                sx={{ fontSize: { xs: "28px", sm: "36px", md: "48px" } }}
+                sx={{ fontSize: { xs: "26px", sm: "36px", md: "48px" } }}
               >
                 保護者が学校へ行く日を、
                 <br />
@@ -788,7 +788,7 @@ export default function LandingPage() {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <MailIcon sx={{ color: "blue", ml: 15 }} />
+              <MailIcon sx={{ color: "blue", ml: isMobile ? 0 : 15 }} />
               <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
                 保護者への通知メール
               </Typography>

@@ -363,12 +363,15 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: { xs: "column", sm: "column", md: "row" },
               justifyContent: "space-between",
-              alignItem: "center",
+              alignItems: "center",
               mb: 2,
             }}
           >
             <Typography variant="h5" gutterBottom>
               面談スケジュール
+            </Typography>
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              ※「未提出」の児童も、都合の悪い日時が申告されていないため通常通り割り当てられます
             </Typography>
             <Box
               className="no-print"
@@ -445,6 +448,7 @@ export default function MeetingSlotPage() {
                 ))}
               </Box>
             </Box>
+
             <Box
               sx={
                 isMobile
