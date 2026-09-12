@@ -92,7 +92,6 @@ export default function UnavailabilityCard({
                 }}
               >
                 <ToggleButtonGroup
-                  color={isAvailable(slot) ? "primary" : "error"}
                   disabled={isDisabled(slot)}
                   value={isAvailable(slot) ? "yes" : "no"} //参加できる枠に含まれているか
                   exclusive //どちらか１つ
@@ -129,7 +128,7 @@ export default function UnavailabilityCard({
                             opacity: isDisabled(slot) ? 0.2 : 1,
                             width: 50,
                             "&.Mui-selected": {
-                              backgroundColor: "error.main",
+                              backgroundColor: "error.light",
                               color: "common.white",
                               "&:hover": { backgroundColor: "error.dark" },
                             },
