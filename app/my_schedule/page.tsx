@@ -164,6 +164,7 @@ export default function MySchedulePage() {
       );
     }
   };
+  // steperで使う関数
   const getCurrentStep = () => {
     // 提出かつ割り当て完了の場合
     if (assignment.length > 0) {
@@ -197,11 +198,11 @@ export default function MySchedulePage() {
       <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
         面談日程決定のお知らせ
       </Typography>
-
+      {/* 面談決定までの過程を表示 */}
       <Stepper activeStep={getCurrentStep()}>
         {steps.map((label, index) => {
           return (
-            <Step key={`${label}-${index}`}>
+            <Step key={index}>
               <StepLabel
                 error={
                   index === 0 && assignment.length > 0 && submitted === false
