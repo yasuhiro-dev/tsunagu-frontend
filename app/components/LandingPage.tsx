@@ -260,72 +260,48 @@ export default function LandingPage() {
         </Box>
         {/* デモボタン */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "text.secondary", mb: 1 }}
+          {/* 教師・管理者 */}
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+            }}
+          >
+            <Button
+              sx={{ minWidth: 220 }}
+              variant="contained"
+              onClick={() => handleSubmit("aoki@example.com", "password")}
             >
-              学校側デモ
-            </Typography>
-            {/* 教師・管理者 */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "column", md: "row" },
-              }}
+              教師デモ
+            </Button>
+            <Button
+              sx={{ minWidth: 220 }}
+              variant="contained"
+              onClick={() => handleSubmit("admin@example.com", "password")}
             >
-              <Button
-                sx={{ minWidth: 220 }}
-                variant="contained"
-                onClick={() => handleSubmit("aoki@example.com", "password")}
-              >
-                教師デモ
-              </Button>
-              <Button
-                sx={{ minWidth: 220 }}
-                variant="contained"
-                onClick={() => handleSubmit("admin@example.com", "password")}
-              >
-                管理者デモ
-              </Button>
-            </Box>
+              管理者デモ
+            </Button>
           </Box>
 
           {/* 保護者 */}
-          <Box>
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "text.secondary", mb: 1 }}
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+            }}
+          >
+            <Button
+              sx={{ minWidth: 220 }}
+              variant="contained"
+              onClick={() =>
+                handleSubmit("parent-nonsubmit@example.com", "password")
+              }
             >
-              保護者デモ
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexDirection: { xs: "column", sm: "column", md: "row" },
-              }}
-            >
-              <Button
-                sx={{ minWidth: 220 }}
-                variant="contained"
-                onClick={() =>
-                  handleSubmit("parent@example.com", "password", "/my_schedule")
-                }
-              >
-                確定した日程を見る
-              </Button>
-              <Button
-                sx={{ minWidth: 220 }}
-                variant="contained"
-                onClick={() =>
-                  handleSubmit("parent-nonsubmit@example.com", "password")
-                }
-              >
-                都合の悪い日を設定する
-              </Button>
-            </Box>
+              都合の悪い日を設定する
+            </Button>
           </Box>
         </Box>
       </Box>

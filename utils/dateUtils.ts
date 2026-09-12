@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
+
 export type MeetingSlot = {
   id: number;
   start_at: string;
@@ -8,6 +10,7 @@ export type MeetingSlot = {
   assignment_id: number | null;
   submitted: boolean | null;
 };
+
 // 日付を日本版で読みやすくした形
 export const formatDate = (utcString: string) => {
   return new Date(utcString).toLocaleString("ja-JP", {
@@ -42,4 +45,48 @@ export const groupByDate = (slots: MeetingSlot[]) => {
     },
     {} as Record<string, MeetingSlot[]>,
   );
+};
+
+// 今年度のschedule_idを取得する
+export const fetchCurrentSchedule = async () => {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  const data = await res.json();
+  return data.id;
+};
+
+// 保護者の面談不可日程締め切り日の表示
+export const fetchDeadline = async (scheduleId: number) => {
+  const schedule = scheduleId;
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+  const data = await res.json();
+  return data.deadline_at;
+};
+// 保護者が提出しているか
+export const fetchFamilySubmitted = async (familyId: number) => {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/families/${familyId}`,
+  );
+  const data = await res.json();
+  return data.submitted;
+};
+// トークンを取得する関数
+export const decodeToken = (token: string) => {
+  const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(decodeURIComponent(escape(atob(base64))));
 };
