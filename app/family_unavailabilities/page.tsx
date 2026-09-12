@@ -11,36 +11,38 @@ import { MeetingSlot, formatDate, groupByDate } from "@/utils/dateUtils";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import {
+  fetchCurrentSchedule,
+  fetchDeadline,
+  fetchFamilySubmitted,
+  decodeToken,
+} from "@/utils/dateUtils";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
   const [slots, setSlots] = useState<MeetingSlot[]>([]);
-  const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
   const [blockedSlotIds, setBlockedSlotIds] = useState<number[]>([]);
-  const decodeToken = (token: string) => {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(decodeURIComponent(escape(atob(base64))));
-  };
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
 
-  // １日全選択の関数（保護者）
+  // １日分を全て「参加できる」にする関数（保護者）
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
     const newIds = dateSlots
-      .filter((slot) => !unavailableSlots.includes(slot.id))
+      .filter((slot) => !availableSlots.includes(slot.id))
       .filter((slot) => !blockedSlotIds.includes(slot.id))
       .map((slot) => slot.id);
     for (const slotId of newIds) {
       await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
         {
           method: "POST",
           headers: {
@@ -50,39 +52,39 @@ export default function FamilyUnavailability() {
         },
       );
     }
-    setUnavailableSlots((prev) => [...prev, ...newIds]);
+    setAvailableSlots((prev) => [...prev, ...newIds]);
   };
 
-  // １日全削除の関数（保護者）
+  // １日分を全て「参加できない」にする関数（保護者）
   const handleClearAll = async (dateSlots: MeetingSlot[]) => {
     const removeIds = dateSlots
-      .filter((slot) => unavailableSlots.includes(slot.id))
+      .filter((slot) => availableSlots.includes(slot.id))
       .map((slot) => slot.id);
     for (const slotId of removeIds) {
       await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities/${slotId}`,
         {
           method: "DELETE",
         },
       );
     }
-    setUnavailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
+    setAvailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
   };
 
   //１コマ分選択/選択解除の関数
 
   const handleClick = async (slotId: number) => {
-    if (unavailableSlots.includes(slotId)) {
+    if (availableSlots.includes(slotId)) {
       await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities/${slotId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities/${slotId}`,
         {
           method: "DELETE",
         },
       );
-      setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
+      setAvailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
       await fetchWithAuth(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
         {
           method: "POST",
           headers: {
@@ -91,39 +93,8 @@ export default function FamilyUnavailability() {
           body: JSON.stringify({ meeting_slot_id: slotId }),
         },
       );
-      setUnavailableSlots((prev) => [...prev, slotId]);
+      setAvailableSlots((prev) => [...prev, slotId]);
     }
-  };
-
-  // 今年度のschedule_idを取得する
-  const fetchCurrentSchedule = async () => {
-    const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    const data = await res.json();
-    return data.id;
-  };
-
-  // 保護者の面談不可日程締め切り日の表示
-  const fetchDeadline = async (scheduleId: number) => {
-    const schedule = scheduleId;
-    const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/${schedule}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    const data = await res.json();
-    setDeadLine(data.deadline_at);
   };
 
   // 教師の面談不可の日程を取得
@@ -138,17 +109,12 @@ export default function FamilyUnavailability() {
     setBlockedSlotIds(data.map((slot: MeetingSlot) => slot.id));
   };
 
-  // 保護者の面談不可日程の提出
+  // 保護者の参加できる日時の提出
   const handleSubmit = async () => {
     const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
       {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // 保護者が選んだ面談不可日程をbodyにつける
-        body: JSON.stringify({ meeting_slot_ids: unavailableSlots }),
       },
     );
     const data = await res.json();
@@ -157,7 +123,7 @@ export default function FamilyUnavailability() {
       setAlertSeverity("success");
       setAlertMessage("提出しました");
 
-      setUnavailableSlots(data.map((slot: MeetingSlot) => slot.id));
+      setSubmitted(true);
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
@@ -189,14 +155,14 @@ export default function FamilyUnavailability() {
       });
 
     fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_unavailabilities`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
     )
       .then((res) => {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
       })
       .then((data) => {
-        setUnavailableSlots(data);
+        setAvailableSlots(data);
         setLoading(false);
       })
       .catch((e) => {
@@ -205,17 +171,14 @@ export default function FamilyUnavailability() {
       });
 
     const familyId = decodeToken(token).family_id;
-    fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/families/${familyId}`,
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setSubmitted(data.submitted);
-      });
+    fetchFamilySubmitted(familyId).then((submitted) => {
+      setSubmitted(submitted);
+    });
     // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
     const loadingSchedule = async () => {
       const scheduleId = await fetchCurrentSchedule();
-      await fetchDeadline(scheduleId);
+      const deadline = await fetchDeadline(scheduleId); // 締切日を受け取る
+      setDeadLine(deadline); //締切日を再描写する
       await fetchBlockedSlots();
     };
     loadingSchedule();
@@ -229,6 +192,15 @@ export default function FamilyUnavailability() {
 
   const now = new Date();
   const deadLineDate = deadLine !== null ? new Date(deadLine) : null;
+
+  const isPastDeadline = deadLineDate !== null && now > deadLineDate;
+
+  let headingText = "面談に参加できる日時のボタンを押してください";
+  if (submitted === true) {
+    headingText = "提出済みのため変更できません";
+  } else if (isPastDeadline) {
+    headingText = "回答期間は終了しました";
+  }
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -247,7 +219,7 @@ export default function FamilyUnavailability() {
           }}
         >
           <Typography variant="h6" sx={{ mb: 3 }}>
-            面談に参加できない日時のボタンを押してください
+            {headingText}
           </Typography>
           <Typography variant="body1" sx={{ mb: 2 }}>
             {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
@@ -267,11 +239,9 @@ export default function FamilyUnavailability() {
               key={date}
               date={date}
               dateSlots={dateSlots}
-              isUnavailable={(slot) => unavailableSlots.includes(slot.id)}
+              isAvailable={(slot) => availableSlots.includes(slot.id)}
               isDisabled={(slot) =>
-                submitted ||
-                (deadLineDate !== null && now > deadLineDate) ||
-                blockedSlotIds.includes(slot.id)
+                submitted || isPastDeadline || blockedSlotIds.includes(slot.id)
               }
               onClickSlot={handleClick}
               onSelectAll={handleSelectAll}
@@ -286,13 +256,18 @@ export default function FamilyUnavailability() {
             sx={{ mt: 3 }}
             variant="contained"
             disabled={
-              submitted || (deadLineDate !== null && now > deadLineDate)
+              submitted || isPastDeadline || availableSlots.length === 0
             }
             onClick={handleSubmit}
           >
             {submitted ? "提出が完了しました" : "上記の内容で提出する"}
           </Button>
         </Box>
+        {!submitted && !isPastDeadline && availableSlots.length === 0 && (
+          <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
+            参加できる日時を1つ以上選ぶと提出できます
+          </Typography>
+        )}
       </Box>
     </Container>
   );

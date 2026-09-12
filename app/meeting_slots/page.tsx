@@ -392,7 +392,7 @@ export default function MeetingSlotPage() {
                 </Box>
               ) : (
                 <Box sx={{ display: "flex", gap: 2 }}>
-                  <Button onClick={handleStartEdit}>面談編集</Button>
+                  <Button onClick={handleStartEdit}>面談を入れ替える</Button>
                   <Button
                     variant="outlined"
                     color="primary"
@@ -444,6 +444,16 @@ export default function MeetingSlotPage() {
                     </Typography>
                   </Box>
                 ))}
+              </Box>
+              <Box>
+                {unassignedChildren.length === 0 && (
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    全員の割り当てが完了しています。
+                    条件が重なって配置できなかった児童は
+                    ここに表示され、右の面談表の空き枠へ
+                    +ボタンを押すと手動で割り当てられます。
+                  </Typography>
+                )}
               </Box>
             </Box>
 
@@ -559,12 +569,6 @@ export default function MeetingSlotPage() {
                                 />
                               )}
                             </Box>
-
-                            <Chip
-                              label="確定"
-                              color="primary"
-                              sx={{ borderRadius: "4px" }}
-                            />
                           </>
                         ) : (
                           <Box

@@ -17,7 +17,7 @@ export default function MeetingSlotPage() {
   const [error, setError] = useState("");
   const [submitted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [unavailableSlots, setUnavailableSlots] = useState<number[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<number[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -25,42 +25,47 @@ export default function MeetingSlotPage() {
     "success",
   );
 
-  // 面談日程不可設定（教師）
+  // 面談できる日時の設定（教師）
 
-  // １日全選択の関数
+  // 面談不可(blocked)以外の枠を、面談できる枠として扱う
+  const toAvailableIds = (data: MeetingSlot[]) =>
+    data.filter((slot) => slot.status !== "blocked").map((slot) => slot.id);
+
+  // １日分を全て「面談できる」にする関数
   const teacherHandleSelectAll = (dateSlots: MeetingSlot[]) => {
-    // （）の引数は全選択ボタンを押した時に渡される
+    // （）の引数は全て可能ボタンを押した時に渡される
     // 今回選択したものをnewIdsとする
     const newIds = dateSlots
-      .filter((slot) => !unavailableSlots.includes(slot.id)) //面談不可を選んでいないslotに絞る
+      .filter((slot) => !availableSlots.includes(slot.id)) //面談できるをまだ選んでいないslotに絞る
       .map((slot) => slot.id);
     // すでに選択しているもの(prev)を維持したまま、まだ選ばれていなかったものを新しく追加する処理
-    setUnavailableSlots((prev) => [...new Set([...prev, ...newIds])]);
+    setAvailableSlots((prev) => [...new Set([...prev, ...newIds])]);
   };
 
-  // １日全選択解除の関数
+  // １日分を全て「面談できない」にする関数
   const teacherHandleClearAll = (dateSlots: MeetingSlot[]) => {
-    // 今回選択解除したいものをremoveIdsとする
+    // 今回解除したいものをremoveIdsとする（予約済みの枠は面談不可にできないので残す）
     const removeIds = dateSlots
-      .filter((slot) => unavailableSlots.includes(slot.id)) //面談不可を選んでいるslotに絞る
+      .filter((slot) => availableSlots.includes(slot.id))
+      .filter((slot) => slot.status !== "reserved")
       .map((slot) => slot.id);
     // すでに選択しているもの(prev)の中から、今回解除したいもの(removeIds)を取り除く
-    setUnavailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
+    setAvailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
   };
 
   // １コマ分選択/選択解除の関数
   const teacherHandleClick = (slotId: number) => {
     //教師が１コマ選んだ引数が(slotId: number)に入る
-    if (unavailableSlots.includes(slotId)) {
+    if (availableSlots.includes(slotId)) {
       // すでに選択されている場合、解除する（＝すでに選択・今選択したものが一致している場合、外す）
-      setUnavailableSlots((prev) => prev.filter((id) => id !== slotId));
+      setAvailableSlots((prev) => prev.filter((id) => id !== slotId));
     } else {
       // 選択されていない場合、追加する
-      setUnavailableSlots((prev) => [...prev, slotId]);
+      setAvailableSlots((prev) => [...prev, slotId]);
     }
   };
 
-  // 面談不可日程の提出の関数（教師）
+  // 面談できる日時の提出の関数（教師）
   const teacherHandleSubmit = async () => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots/bulk_update`,
@@ -69,8 +74,8 @@ export default function MeetingSlotPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        // 教師が選んだ面談不可日程をbodyにつける
-        body: JSON.stringify({ meeting_slot_ids: unavailableSlots }),
+        // 教師が選んだ面談できる日時をbodyにつける（それ以外の枠は面談不可になる）
+        body: JSON.stringify({ meeting_slot_ids: availableSlots }),
       },
     );
     const data = await res.json();
@@ -79,7 +84,7 @@ export default function MeetingSlotPage() {
       setAlertSeverity("success");
       setAlertMessage("提出しました");
 
-      setUnavailableSlots(data.map((slot: MeetingSlot) => slot.id));
+      setAvailableSlots(toAvailableIds(data));
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
@@ -104,6 +109,7 @@ export default function MeetingSlotPage() {
       })
       .then((data) => {
         setslots(data);
+        setAvailableSlots(toAvailableIds(data));
         setLoading(false);
       })
       .catch((e) => {
@@ -124,8 +130,11 @@ export default function MeetingSlotPage() {
         onClose={() => setAlertOpen(false)}
       />
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 3 }}>
-          面談に参加できない日時のボタンを押してください
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          面談に対応できる日時のボタンを押してください
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
+          ※保護者の面談が決まっている枠は、面談不可にできません
         </Typography>
 
         <Box
@@ -140,10 +149,8 @@ export default function MeetingSlotPage() {
               key={date}
               date={date}
               dateSlots={dateSlots}
-              isUnavailable={(slot) =>
-                slot.status === "blocked" || unavailableSlots.includes(slot.id)
-              }
-              isDisabled={() => submitted}
+              isAvailable={(slot) => availableSlots.includes(slot.id)}
+              isDisabled={(slot) => submitted || slot.status === "reserved"}
               onClickSlot={teacherHandleClick}
               onSelectAll={teacherHandleSelectAll}
               onClearAll={teacherHandleClearAll}

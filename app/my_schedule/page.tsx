@@ -14,6 +14,15 @@ import Chip from "@mui/material/Chip";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import {
+  fetchDeadline,
+  fetchCurrentSchedule,
+  fetchFamilySubmitted,
+  decodeToken,
+} from "@/utils/dateUtils";
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
 
 type Assignment = {
   id: number;
@@ -48,6 +57,8 @@ export default function MySchedulePage() {
   const [error, setError] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [deadLine, setDeadLine] = useState<null | string>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -63,14 +74,26 @@ export default function MySchedulePage() {
         if (!res.ok) throw new Error("エラーが発生しました");
         return res.json();
       })
+
       .then((data) => {
         setAssignment(data);
         setLoading(false);
       })
+
       .catch((e) => {
         setError(e.message);
         setLoading(false);
       });
+    const loadingSchedule = async () => {
+      const scheduleId = await fetchCurrentSchedule();
+      const deadline = await fetchDeadline(scheduleId); // 締切日を受け取る
+      setDeadLine(deadline); //締切日を再描写する
+      const familyId = decodeToken(token).family_id;
+      fetchFamilySubmitted(familyId).then((submitted) => {
+        setSubmitted(submitted);
+      });
+    };
+    loadingSchedule();
   }, [router]);
 
   // googleカレンダー連携のAPI
@@ -105,6 +128,57 @@ export default function MySchedulePage() {
       }, 2000);
     }
   };
+  // ユーザーと学校の状況によって表示を変更
+  const getStatusMessage = () => {
+    // 締切日を過ぎている
+    const isPastDeadline = deadLine !== null && new Date(deadLine) < new Date();
+    if (assignment.length > 0 && submitted === true) {
+      return "ご提出いただいた内容をもとに、面談の日程が決定しました。";
+    }
+    if (assignment.length > 0 && submitted === false && isPastDeadline) {
+      return (
+        <>
+          回答期限を過ぎたため、学校側で日程を決定いたしました。
+          <br />
+          ご都合が悪い場合は、学校までご連絡ください。
+        </>
+      );
+    }
+    if (assignment.length > 0 && submitted === false && !isPastDeadline) {
+      return (
+        <>
+          学校の都合により、面談の日程が決定しました。
+          <br />
+          ご都合が悪い場合は、学校までご連絡ください。
+        </>
+      );
+    }
+    if (assignment.length === 0 && submitted === true) {
+      return "提出ありがとうございます。日程調整中です";
+    }
+    if (assignment.length === 0 && submitted === false) {
+      return (
+        "回答締め切り" +
+        (deadLine !== null ? formatDate(deadLine) : "") +
+        "です"
+      );
+    }
+  };
+  const getCurrentStep = () => {
+    // 提出かつ割り当て完了の場合
+    if (assignment.length > 0) {
+      return 2;
+    }
+    // 日程調節中（提出後）
+    if (submitted === true) {
+      return 1;
+    }
+    // 提出待ち　（提出前）
+    if (submitted === false) {
+      return 0;
+    }
+  };
+  const steps = ["提出待ち", "日程調節", "決定"];
 
   if (error)
     return (
@@ -123,6 +197,23 @@ export default function MySchedulePage() {
       <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
         面談日程決定のお知らせ
       </Typography>
+
+      <Stepper activeStep={getCurrentStep()}>
+        {steps.map((label, index) => {
+          return (
+            <Step key={`${label}-${index}`}>
+              <StepLabel
+                error={
+                  index === 0 && assignment.length > 0 && submitted === false
+                }
+              >
+                {label}
+              </StepLabel>
+            </Step>
+          );
+        })}
+      </Stepper>
+      <Typography sx={{ p: 2 }}>{getStatusMessage()}</Typography>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {assignment.map((a, i) => (
           <Card

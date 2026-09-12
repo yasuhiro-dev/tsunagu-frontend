@@ -162,15 +162,17 @@ function AdminContent() {
       },
     );
     if (res.ok) {
+      const data = await res.json();
       setAlertOpen(true);
       setAlertSeverity("success");
-      setAlertMessage("削除されました");
-      setParents(parents.filter((p) => !selectedParentIds.includes(p.id)));
-      setSelectedParentIds([]);
+      setAlertMessage(data.message);
+      setTeachers(teachers.filter((t) => !selectedTeacherIds.includes(t.id)));
+      setSelectedTeacherIds([]);
     } else {
+      const data = await res.json();
       setAlertOpen(true);
       setAlertSeverity("error");
-      setAlertMessage("削除されませんでした");
+      setAlertMessage(data.error);
     }
   };
 
@@ -186,15 +188,17 @@ function AdminContent() {
       },
     );
     if (res.ok) {
+      const data = await res.json();
       setAlertOpen(true);
       setAlertSeverity("success");
-      setAlertMessage("削除しました");
+      setAlertMessage(data.message);
       setTeachers(teachers.filter((t) => !selectedTeacherIds.includes(t.id)));
       setSelectedTeacherIds([]);
     } else {
+      const data = await res.json();
       setAlertOpen(true);
       setAlertSeverity("error");
-      setAlertMessage("削除されませんでした");
+      setAlertMessage(data.error);
     }
   };
 
@@ -578,7 +582,7 @@ function AdminContent() {
               sx={sidebarButtonStyle(4)}
               onClick={() => setTab(4)}
             >
-              割り当て管理
+              面談の一括割り当て
             </Button>
           </Box>
 
@@ -633,13 +637,32 @@ function AdminContent() {
                       />
                     </Box>
                     {/* 一括削除 */}
-                    <Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          width: 250,
+                          visibility:
+                            selectedTeacherIds.length === 0
+                              ? "visible"
+                              : "hidden",
+                        }}
+                      >
+                        削除する教師を選択してください
+                      </Typography>
+
                       <Button
                         variant="contained"
                         color="error"
                         startIcon={<DeleteIcon />}
                         disabled={selectedTeacherIds.length === 0}
                         onClick={handleBulkDeleteTeachers}
+                        sx={{ alignSelf: "flex-end" }}
                       >
                         一括削除
                       </Button>
@@ -773,6 +796,7 @@ function AdminContent() {
                       mb: 3,
                       justifyContent: "space-between",
                       flexDirection: { xs: "column", sm: "column", md: "row" },
+                      alignItems: "flex-start",
                     }}
                   >
                     {/* 児童名の検索 */}
@@ -833,13 +857,33 @@ function AdminContent() {
                     </Box>
 
                     {/* 一括削除 */}
-                    <Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          width: 280,
+                          visibility:
+                            selectedParentIds.length === 0
+                              ? "visible"
+                              : "hidden",
+                        }}
+                      >
+                        削除する保護者を選択してください
+                      </Typography>
+
                       <Button
                         variant="contained"
                         color="error"
+                        startIcon={<DeleteIcon />}
                         disabled={selectedParentIds.length === 0}
                         onClick={handleBulkDeleteParents}
-                        startIcon={<DeleteIcon />}
+                        sx={{ alignSelf: "flex-end" }}
                       >
                         一括削除
                       </Button>
