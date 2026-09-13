@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useMemo, Suspense } from "react";
@@ -33,13 +32,15 @@ import InputAdornment from "@mui/material/InputAdornment";
 import PersonIcon from "@mui/icons-material/Person";
 import PeopleIcon from "@mui/icons-material/People";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import Chip from "@mui/material/Chip";
-import AssignmentState from "@/app/assignment_stats/page";
+import DeadlineSetting from "@/app/assignment_stats/DeadlineSetting";
+import AssignmentExecution from "@/app/assignment_stats/AssignmentExecution";
 import { useSearchParams } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
@@ -111,6 +112,7 @@ function AdminContent() {
   const [teacherSerchText, setTeacherSerchText] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
+  const [scheduleId, setScheduleId] = useState<number | null>(null);
   const [alertMessage, setAlertMessage] = useState("");
   const isMobile = useMediaQuery("(max-width:600px)");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
@@ -124,6 +126,7 @@ function AdminContent() {
   // そのクエリから指定されたtabをstateする
   const [tab, setTab] = useState(Number(tabParam) || 0);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTab(Number(tabParam) || 0);
   }, [tabParam]);
   // 教師名の絞り込み
@@ -229,6 +232,11 @@ function AdminContent() {
       .then((data) => {
         setClassRooms(data);
       });
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/schedules/current`)
+      .then((res) => res.json())
+      .then((data) => {
+        setScheduleId(data.id);
+      });
   }, [router]);
 
   const filteredParents = useMemo(() => {
@@ -276,6 +284,7 @@ function AdminContent() {
   if (loading) return <p>読み込み中...</p>;
   if (error) return <p>{error}</p>;
 
+  // 保護者の新規登録
   const handleSubmitParent = async () => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents`,
@@ -382,7 +391,7 @@ function AdminContent() {
       setAlertMessage(data.errors?.join(",") ?? "登録されませんでした");
     }
   };
-
+  // 教師削除
   const handleDeleteTeacher = async (id: number) => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/teachers/${id}`,
@@ -398,10 +407,10 @@ function AdminContent() {
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
-      setAlertMessage("削除されませんでした");
+      setAlertMessage("デモアカウントのため削除されませんでした");
     }
   };
-
+  // 保護者削除
   const handleDeleteParent = async (id: number) => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/admin/parents/${id}`,
@@ -417,7 +426,7 @@ function AdminContent() {
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
-      setAlertMessage("削除できませんでした");
+      setAlertMessage("デモアカウントのため削除できません");
     }
   };
 
@@ -578,9 +587,16 @@ function AdminContent() {
               保護者登録
             </Button>
             <Button
-              startIcon={<AssignmentIcon />}
+              startIcon={<CalendarMonthIcon />}
               sx={sidebarButtonStyle(4)}
               onClick={() => setTab(4)}
+            >
+              締切日の設定
+            </Button>
+            <Button
+              startIcon={<AssignmentIcon />}
+              sx={sidebarButtonStyle(5)}
+              onClick={() => setTab(5)}
             >
               面談の一括割り当て
             </Button>
@@ -599,6 +615,9 @@ function AdminContent() {
                 >
                   <Box sx={{ mb: 3 }}>
                     <Typography variant="h6">教師一覧</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      登録されている教師の情報を確認・編集・削除できます。
+                    </Typography>
                   </Box>
                   <Box
                     sx={{
@@ -673,7 +692,7 @@ function AdminContent() {
                 <TableContainer
                   sx={{
                     maxHeight: "calc(100vh - 400px)",
-                    minHeight: "calc(100vh - 400px)",
+
                     overflow: "auto",
                     maxWidth: isMobile ? "265px" : "100",
                   }}
@@ -788,6 +807,9 @@ function AdminContent() {
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Box sx={{ mb: 3 }}>
                     <Typography variant="h6">保護者一覧</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      登録されている保護者の情報を確認・編集・削除できます。
+                    </Typography>
                   </Box>
                   <Box
                     sx={{
@@ -894,7 +916,7 @@ function AdminContent() {
                 <TableContainer
                   sx={{
                     maxHeight: "calc(100vh - 400px)",
-                    minHeight: "calc(100vh - 400px)",
+
                     overflow: "auto",
                     maxWidth: isMobile ? "265px" : "100",
                   }}
@@ -921,17 +943,15 @@ function AdminContent() {
                       {pageParents.map((parent, i) => {
                         const classArray =
                           parent.children_class.split(/[・、]/);
-                        const childList = classArray
-                          .slice(0, 2)
-                          .map((cls) => (
-                            <Chip
-                              key={cls}
-                              label={cls}
-                              size="small"
-                              variant="outlined"
-                              color="primary"
-                            />
-                          ));
+                        const childList = classArray.map((cls) => (
+                          <Chip
+                            key={cls}
+                            label={cls}
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                          />
+                        ));
 
                         return (
                           <TableRow key={i}>
@@ -957,8 +977,6 @@ function AdminContent() {
                                 }}
                               >
                                 {childList}
-                                {classArray.length > 2 &&
-                                  `+${classArray.length - 2}件`}
                               </Box>
                             </TableCell>
                             <TableCell>
@@ -1049,14 +1067,13 @@ function AdminContent() {
 
             {/* 教師登録画面 */}
             {tab === 2 && (
-              <Box
+              <Paper
                 sx={{
                   display: "flex",
                   flexDirection: "column",
                   gap: 2,
                   p: 3,
-                  minHeight: "calc(100vh - 264px)",
-                  maxHeight: "calc(100vh - 400px)",
+                  mx: "auto",
                   overflow: "auto",
                   maxWidth: 500,
                 }}
@@ -1147,21 +1164,20 @@ function AdminContent() {
                 >
                   登録
                 </Button>
-              </Box>
+              </Paper>
             )}
 
             {/* 保護者登録画面 */}
             {tab === 3 && (
-              <Box
+              <Paper
                 sx={{
                   display: "flex",
                   gap: 2,
                   p: 3,
-                  minHeight: "calc(100vh - 264px)",
-                  maxHeight: "calc(100vh - 400px)",
                   overflow: "auto",
                   maxWidth: 500,
                   flexDirection: "column",
+                  mx: "auto",
                 }}
               >
                 {/* 保護者登録 */}
@@ -1379,24 +1395,40 @@ function AdminContent() {
                 >
                   登録
                 </Button>
-              </Box>
+              </Paper>
             )}
 
-            {/* 割り当て管理 */}
+            {/* 締切日の設定 */}
             {tab === 4 && (
               <Box
                 sx={{
                   display: "flex",
                   gap: 2,
                   p: 3,
-                  minHeight: "calc(100vh - 264px)",
-                  maxHeight: "calc(100vh - 400px)",
+
                   overflow: "auto",
                   flexDirection: "column",
                 }}
               >
                 <Box>
-                  <AssignmentState />
+                  <DeadlineSetting scheduleId={scheduleId} />
+                </Box>
+              </Box>
+            )}
+            {/* 面談の一括割り当て */}
+            {tab === 5 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  p: 3,
+
+                  overflow: "auto",
+                  flexDirection: "column",
+                }}
+              >
+                <Box>
+                  <AssignmentExecution scheduleId={scheduleId} />
                 </Box>
               </Box>
             )}
