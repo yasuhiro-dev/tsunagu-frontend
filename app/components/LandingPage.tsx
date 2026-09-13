@@ -112,48 +112,129 @@ export default function LandingPage() {
       description: "配置できなかった家庭は、教師が調整する",
     },
   ];
-  const teacherExperience = [
-    "児童一覧・未提出者の確認",
-    "未割当児童の一覧確認",
-    "個別の手動割り当て",
-    "面談不可日時の登録",
-    "面談表のPDF出力",
+
+  // 3つの立場の説明
+  const roleDescriptions = [
+    {
+      image: "/images/admin.webp",
+      title: "管理者",
+      description: "学校全体の面談日程をつくる",
+      items: [
+        "教師・保護者情報の登録・編集",
+        "面談の一括自動割り当て",
+        "提出締切日の設定",
+        "クラス別の割り当て状況の可視化",
+      ],
+      color: "#e8f5ee",
+      circleColor: "success.main",
+    },
+    {
+      image: "/images/teacher.webp",
+      title: "教師",
+      description: "自分の予定を確認・調整する",
+      items: [
+        "児童一覧・未提出者の確認",
+        "未割当児童の一覧確認",
+        "個別の手動割り当て",
+        "面談不可日時の登録",
+        "面談表のPDF出力",
+      ],
+      color: "#d6e4f0",
+      circleColor: "primary.main",
+    },
+    {
+      image: "/images/parent.webp",
+      title: "保護者",
+      description: "都合を伝え、日程を確認する",
+      items: [
+        "参加できる日時を選んで提出",
+        "調整中の状況を確認",
+        "確定した面談日を確認",
+      ],
+      color: "#fbebec",
+      circleColor: "error.main",
+    },
   ];
-  const parentExperience = [
-    "面談不可日時の登録",
-    "確定した面談日時の確認",
-    "面談予定をGoogleカレンダーに追加",
+
+  // 学校の悩みの説明
+  const teacherProblems = [
+    {
+      title: "兄弟の調整",
+      image: "/images/problems/siblings.webp",
+      description: "兄弟が別々な日になると何度も来校する必要がある",
+      color: "#d6e4f0",
+    },
+    {
+      title: "支援学級との調整",
+      image: "/images/problems/support.webp",
+      description: "通常学級と支援学級の面談も連続にする必要がある",
+      color: "#d6e4f0",
+    },
+    {
+      title: "保護者の都合",
+      image: "/images/problems/parent.webp",
+      description: "仕事や家庭の都合で来られない時間がある",
+      color: "#d6e4f0",
+    },
+    {
+      title: "教師の都合",
+      image: "/images/problems/teacher.webp",
+      description: "出張が入っている日には実施できない",
+      color: "#d6e4f0",
+    },
   ];
-  const adminExperience = [
-    "教師・保護者情報の登録・編集",
-    "面談の一括自動割り当て",
-    "提出締切日の設定",
-    "クラス別の割り当て状況の可視化",
+
+  const roleExperience = [
+    {
+      image: "/images/admin.webp",
+      title: "管理者として体験する",
+      description: "自動割り当てや結果を確認できます",
+      mail: "admin@example.com",
+      color: "#e8f5ee",
+      button: "管理者デモを開始",
+    },
+    {
+      image: "/images/teacher.webp",
+      title: "教師として体験する",
+      description: "面談表や未提出者の確認、手動調節などを体験できます",
+      mail: "aoki@example.com",
+      color: "#d6e4f0",
+      button: "教師デモを開始",
+    },
+    {
+      image: "/images/parent.webp",
+      title: "保護者として体験する",
+      description: "都合を選んで提出し、面談日の確認までを体験できます",
+      mail: "parent-nonsubmit@example.com",
+      color: "#fbebec",
+      button: "保護者デモを開始",
+    },
   ];
+
   const steps = [
     {
-      icon: <PeopleIcon />,
+      image: "/images/tsunagu-logic/group.webp",
       title: "家庭をグループ化",
       description: "兄弟のいる児童はグループ化、いない児童は単独で処理します",
     },
     {
-      icon: <FavoriteIcon />,
+      image: "/images/tsunagu-logic/priority.webp",
       title: "優先順位を決定",
       description:
         "兄弟・特別支援・時間を考慮し、対応が難しい家庭ほど優先度を高くします",
     },
     {
-      icon: <ScheduleIcon />,
+      image: "/images/tsunagu-logic/filter.webp",
       title: "空き枠から条件に合う候補を探す",
       description: "時間・兄弟・特別支援の条件を順に確認します",
     },
     {
-      icon: <GroupIcon />,
+      image: "/images/tsunagu-logic/auto.webp",
       title: "優先度の高い順に自動配置",
       description: "絞り込んだ候補の中から、優先度の高い家庭から順に配置します",
     },
     {
-      icon: <EditIcon />,
+      image: "/images/tsunagu-logic/teacher-controll.webp",
       title: "配置できなかった家庭を確認",
       description: "条件に合う枠がなかった家庭は、教師が調整します",
     },
@@ -238,6 +319,17 @@ export default function LandingPage() {
                   手作業なら、条件を照らし合わせながら数時間かかる作業です
                 </Typography>
               </Box>
+              <Box>
+                <Button
+                  variant="contained"
+                  sx={{ minWidth: 300, minHeight: 50 }}
+                >
+                  デモを体験する(約３分)→
+                </Button>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  ログイン不要・デモデータでデモデータですぐに体験できます
+                </Typography>
+              </Box>
             </Box>
           </Box>
 
@@ -248,413 +340,121 @@ export default function LandingPage() {
               m: 2,
               maxHeight: 350,
             }}
-          >
-            <Image
-              src="/images/meeting-slot-siblings.webp"
-              alt="兄弟連続割り当て"
-              width={600}
-              height={200}
-              style={{ width: "100%", height: "auto", borderRadius: 8 }}
-            />
-          </Box>
-        </Box>
-        {/* デモボタン */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {/* 教師・管理者 */}
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-            }}
-          >
-            <Button
-              sx={{ minWidth: 220 }}
-              variant="contained"
-              onClick={() => handleSubmit("aoki@example.com", "password")}
-            >
-              教師デモ
-            </Button>
-            <Button
-              sx={{ minWidth: 220 }}
-              variant="contained"
-              onClick={() => handleSubmit("admin@example.com", "password")}
-            >
-              管理者デモ
-            </Button>
-          </Box>
-
-          {/* 保護者 */}
-
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-            }}
-          >
-            <Button
-              sx={{ minWidth: 220 }}
-              variant="contained"
-              onClick={() =>
-                handleSubmit("parent-nonsubmit@example.com", "password")
-              }
-            >
-              都合の悪い日を設定する
-            </Button>
-          </Box>
+          ></Box>
         </Box>
       </Box>
-      {/* before-after */}
-      <Box component="section" sx={{ p: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
-        >
-          なぜ一般的な予約システムではダメなのか
-        </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            gap: 6,
-            maxWidth: 1000,
-            flexDirection: { xs: "column", sm: "column", md: "row" },
-          }}
-        >
-          {/* 左：一般的な予約システム */}
-          <Box
-            sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ mb: 1, fontSize: fontSizes.subheading }}
+      <Typography>3つの立場で学校の面談を支えます</Typography>
+      <Typography>Tsunaguで使うのは、3つの立場です</Typography>
+      <Box sx={{ display: "flex" }}>
+        {roleDescriptions.map((role, index) => {
+          return (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                backgroundColor: role.color,
+              }}
             >
-              一般的な予約システム
-            </Typography>
-            {generalProblems.map((problem) => (
-              <Box
-                key={problem.title}
-                sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
-              >
-                <CloseIcon sx={{ color: "grey.500" }} />
+              <Image
+                src={role.image}
+                alt={role.title}
+                width={100}
+                height={100}
+              />
+              <Typography>{role.title}</Typography>
+              <Typography>{role.description}</Typography>
 
-                <Box sx={{ color: "grey.600", display: "flex" }}>
-                  {problem.icon}
-                </Box>
-                <Box>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontSize: fontSizes.caption }}
-                  >
-                    {problem.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "text.secondary",
-                      fontSize: fontSizes.body,
-                    }}
-                  >
-                    {problem.description}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
-          </Box>
-          <Box
-            sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ mb: 1, fontSize: fontSizes.subheading }}
-            >
-              Tsunaguなら
-            </Typography>
-            {tsunaguApp.map((tsunagu) => (
-              <Box
-                key={tsunagu.title}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                }}
-              >
-                <CheckCircleIcon sx={{ color: "primary.main" }} />
-                <Box sx={{ color: "primary.main", display: "flex" }}>
-                  {tsunagu.icon}
-                </Box>
-                <Box>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ fontSize: fontSizes.caption }}
-                  >
-                    {tsunagu.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "text.secondary",
-                      fontSize: fontSizes.body,
-                    }}
-                  >
-                    {tsunagu.description}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
-          </Box>
-        </Box>
+              {role.items.map((item, itemIndex) => (
+                <Typography key={itemIndex}>
+                  <CheckCircleIcon sx={{ color: role.circleColor }} />
+                  {item}
+                </Typography>
+              ))}
+            </Box>
+          );
+        })}
       </Box>
 
-      {/*デモ導線 */}
-
-      <Box component="section" sx={{ p: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
-        >
-          立場に応じて実際の操作を体験できます
-        </Typography>
-        {/* 一番外の枠 */}
+      {/* 学校現場の悩み */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          height: "auto",
+          alignItems: "center",
+        }}
+      >
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 6,
-            mt: 2,
+            textAlign: "center",
           }}
         >
-          {/* 教師側の枠 */}
+          <Typography>学校現場の悩み</Typography>
+          <Typography>面談調整は、条件が多くて大変です</Typography>
+        </Box>
 
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-              p: 2,
-              maxWidth: 1200,
-              width: "100%",
-              mx: "auto",
-              gap: { xs: 3, md: 6 },
-            }}
-          >
-            <Box sx={{ flex: 2 }}>
-              <video
-                src="/videos/meeting-slot-demo1.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{
-                  width: "100%",
-                  maxWidth: 1000,
-                  borderRadius: 8,
-                  height: "auto",
-                }}
-              />
-            </Box>
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                gap: 3,
-                justifyContent: "center",
-              }}
-            >
-              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
-                教師として体験
-              </Typography>
-              {teacherExperience.map((teacherExperience) => (
-                <Typography
-                  key={teacherExperience}
-                  sx={{ fontSize: fontSizes.caption }}
-                >
-                  <CheckIcon
-                    sx={{
-                      color: "blue",
-                      fontSize: fontSizes.caption,
-                    }}
-                  />
-                  {teacherExperience}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
+            p: 2,
+            alignItems: "center",
+          }}
+        >
+          {teacherProblems.map((problem, index) => {
+            return (
+              <Box key={index} sx={{ backgroundColor: problem.color }}>
+                <Typography sx={{ textAlign: "center" }}>
+                  {problem.title}
                 </Typography>
-              ))}
-
-              {/* ボタンの処理 */}
-              <Box
-                sx={{
-                  display: "flex",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  onClick={() => handleSubmit("aoki@example.com", "password")}
-                >
-                  教師として体験する
-                </Button>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* 保護者側の枠 */}
-
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-              p: 2,
-              maxWidth: 1200,
-              width: "100%",
-              mx: "auto",
-              gap: { xs: 3, md: 6 },
-            }}
-          >
-            <Box sx={{ flex: 2 }}>
-              <video
-                src="/videos/unavailability-demo.mp4"
-                poster="/images/unavailability-poster.jpg"
-                preload="none"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{
-                  width: "100%",
-                  maxWidth: 1000,
-                  borderRadius: 8,
-                  height: "auto",
-                }}
-              />
-            </Box>
-
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                gap: 3,
-                justifyContent: "center",
-              }}
-            >
-              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
-                保護者として体験
-              </Typography>
-              {parentExperience.map((parentExperience) => (
-                <Typography
-                  key={parentExperience}
-                  sx={{ fontSize: fontSizes.caption }}
-                >
-                  <CheckIcon
-                    sx={{
-                      fontSize: fontSizes.caption,
-                      color: "blue",
-                    }}
-                  />
-                  {parentExperience}
+                ;
+                <Image
+                  src={problem.image}
+                  alt={problem.title}
+                  width={100}
+                  height={100}
+                />
+                <Typography sx={{ textAlign: "center" }}>
+                  {problem.description}
                 </Typography>
-              ))}
-
-              {/* ボタンの処理 */}
-              <Box
-                sx={{
-                  display: "flex",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  onClick={() => handleSubmit("parent@example.com", "password")}
-                >
-                  保護者として体験する
-                </Button>
               </Box>
-            </Box>
-          </Box>
-
-          {/* 管理者側の枠 */}
-
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-              p: 2,
-              maxWidth: 1200,
-              width: "100%",
-              mx: "auto",
-              gap: { xs: 3, md: 6 },
-            }}
-          >
-            <Box sx={{ flex: 2 }}>
-              <video
-                src="/videos/assignment-demo.mp4"
-                poster="/images/assignment-poster.jpg"
-                preload="none"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{
-                  width: "100%",
-                  maxWidth: 1000,
-                  borderRadius: 8,
-                  height: "auto",
-                }}
-              />
-            </Box>
-
-            <Box
-              sx={{
-                flex: 1,
-                justifyContent: "center",
-                display: "flex",
-                flexDirection: "column",
-                gap: 3,
-              }}
-            >
-              <Typography variant="h5" sx={{ fontSize: fontSizes.subheading }}>
-                管理者として体験
-              </Typography>
-              {adminExperience.map((adminExperience) => (
-                <Typography
-                  key={adminExperience}
-                  sx={{ fontSize: fontSizes.caption }}
-                >
-                  <CheckIcon
-                    sx={{
-                      fontSize: fontSizes.caption,
-                      color: "blue",
-                    }}
-                  />
-                  {adminExperience}
-                </Typography>
-              ))}
-
-              <Box
-                sx={{
-                  display: "flex",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  onClick={() => handleSubmit("admin@example.com", "password")}
-                >
-                  管理者として体験する
-                </Button>
-              </Box>
-            </Box>
-          </Box>
+            );
+          })}
+        </Box>
+        <Box>
+          <Typography>
+            これらを１件ずつ調節するには、時間がかかります
+          </Typography>
         </Box>
       </Box>
 
-      {/* 割り当てロジック */}
-      <Box sx={{ p: 4, display: "flex", flexDirection: "column", gap: 2 }}>
+      {/* tsunaguの割り当てロジックフロー */}
+      <Box
+        sx={{
+          p: 4,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          backgroundColor: "#d6e4f0",
+        }}
+      >
         <Box>
           <Typography
             variant="h4"
             sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
           >
-            Tsunagu割り当てロジック
+            Tsunaguなら
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+          >
+            複数の条件を考慮して、面談日程を自動で組み立てます。
           </Typography>
         </Box>
 
@@ -691,16 +491,20 @@ export default function LandingPage() {
                   {/* アイコン１つだけを囲んでいる */}
                   <Box
                     sx={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: "50%",
-                      border: "1px dashed grey",
+                      width: 200,
+                      height: 200,
+
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    {step.icon}
+                    <Image
+                      src={step.image}
+                      alt={step.title}
+                      width={100}
+                      height={100}
+                    />
                   </Box>
                   <Typography variant="subtitle1">{step.title}</Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -712,6 +516,82 @@ export default function LandingPage() {
               </Box>
             );
           })}
+        </Box>
+      </Box>
+
+      {/* 実際のtsunaguの動画 */}
+
+      {/*デモ導線 */}
+
+      <Box component="section" sx={{ p: 4 }}>
+        <Typography
+          variant="h4"
+          sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+        >
+          デモでTsunaguを体験する
+        </Typography>
+        <Typography
+          variant="h4"
+          sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+        >
+          実際の画面で、それぞれの立場の操作を体験できます
+          デモデータをご用意しているので、すぐにお試しいただけます
+        </Typography>
+        {/* 一番外の枠 */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 6,
+            mt: 2,
+          }}
+        >
+          {/* 管理者側の枠 */}
+
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+              p: 2,
+              maxWidth: 1200,
+              width: "100%",
+              mx: "auto",
+              gap: { xs: 3, md: 6 },
+            }}
+          >
+            <Box
+              sx={{
+                flex: 1,
+                justifyContent: "center",
+                display: "flex",
+
+                gap: 3,
+              }}
+            >
+              {roleExperience.map((role, index) => (
+                <Box key={index} sx={{ backgroundColor: role.color, flex: 1 }}>
+                  <Image
+                    src={role.image}
+                    alt={role.title}
+                    width={100}
+                    height={100}
+                  />
+                  <Typography sx={{ fontSize: fontSizes.caption }}>
+                    {role.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: fontSizes.caption }}>
+                    {role.description}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSubmit(role.mail, "password")}
+                  >
+                    {role.button}
+                  </Button>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         </Box>
       </Box>
 
