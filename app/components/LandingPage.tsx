@@ -1,28 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Image from "next/image";
-import CloseIcon from "@mui/icons-material/Close";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CheckIcon from "@mui/icons-material/Check";
-import PeopleIcon from "@mui/icons-material/People";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import GroupIcon from "@mui/icons-material/Group";
-import EditIcon from "@mui/icons-material/Edit";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import MailIcon from "@mui/icons-material/Mail";
-import HandshakeIcon from "@mui/icons-material/Handshake";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
-import CallSplitIcon from "@mui/icons-material/CallSplit";
-import GroupsIcon from "@mui/icons-material/Groups";
-import CallMergeIcon from "@mui/icons-material/CallMerge";
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-import BalanceIcon from "@mui/icons-material/Balance";
-import DirectionsRunIcon from "@mui/icons-material/DirectionsRun";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 
@@ -33,6 +18,7 @@ type RedirectMap = {
 };
 
 export default function LandingPage() {
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
@@ -60,58 +46,19 @@ export default function LandingPage() {
         admin: "/admin",
       };
       // redirectOverride（my_scheduleへの遷移）がなければroleを見て指定されたURLへ遷移
-      window.location.href = redirectOverride ?? redirectMap[data.role] ?? "/";
+      setRedirectTo(redirectOverride ?? redirectMap[data.role] ?? "/");
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage("デモログインに失敗しました");
     }
   };
-
-  const generalProblems = [
-    {
-      icon: <CallSplitIcon />,
-      title: "兄弟の面談がバラバラの日に",
-      description: "個別予約で時間が揃わない",
-    },
-    {
-      icon: <PersonOffIcon />,
-      title: "保護者の都合の悪い日を伝えられない",
-      description: "空き枠から選ぶ以外に方法がない",
-    },
-    {
-      icon: <GroupsIcon />,
-      title: "複数の先生との調整が大変",
-      description: "支援学級の児童は通常学級にも在籍するため面談が2回必要",
-    },
-    {
-      icon: <DirectionsRunIcon />,
-      title: "早い者勝ちで不公平に",
-      description: "予約が早い家庭だけ有利",
-    },
-  ];
-  const tsunaguApp = [
-    {
-      icon: <CallMergeIcon />,
-      title: "兄弟をまとめて配置",
-      description: "自動で識別し、時間を連続で配置",
-    },
-    {
-      icon: <HandshakeIcon />,
-      title: "両方の都合を見て自動調整",
-      description: "保護者・先生、双方の予定を考慮",
-    },
-    {
-      icon: <AssignmentTurnedInIcon />,
-      title: "複数の先生の面談も自動調整",
-      description: "2人の担任・2回の面談も、まとめて時間を確保",
-    },
-    {
-      icon: <BalanceIcon />,
-      title: "兄弟・特別支援など、条件が多い家庭を優先する",
-      description: "配置できなかった家庭は、教師が調整する",
-    },
-  ];
+  // redirectToがセットされたら、実際に画面遷移を行う
+  useEffect(() => {
+    if (redirectTo) {
+      window.location.href = redirectTo;
+    }
+  }, [redirectTo]);
 
   // 3つの立場の説明
   const roleDescriptions = [
