@@ -76,10 +76,11 @@ export default function ChildList() {
 
   // 提出・割り当て状況
   const getStatus = (child: Child) => {
-    if (!child.submitted) return { label: "未提出", color: "error" as const };
+    if (!child.submitted)
+      return { label: "希望日時未提出", color: "error" as const };
     if (!child.assigned)
       return { label: "未割り当て", color: "warning" as const };
-    return { label: "完了", color: "success" as const };
+    return { label: "予約済み", color: "success" as const };
   };
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export default function ChildList() {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Paper sx={{ p: 3, borderRadius: 2, maxHeight: 680, overflow: "auto" }}>
+      <Paper sx={{ p: 2, borderRadius: 2, maxHeight: 650 }}>
         <Box sx={{ p: 1 }}>
           <Box
             sx={{
@@ -150,7 +151,7 @@ export default function ChildList() {
                       }}
                     >
                       <Chip
-                        label={child.submitted ? "提出済み" : "未提出"}
+                        label={child.submitted ? "提出済み" : "希望日時未提出"}
                         color={child.submitted ? "success" : "error"}
                       />
                       <Chip
@@ -165,7 +166,7 @@ export default function ChildList() {
           ) : (
             <Box sx={{ p: 2 }}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Box sx={{ mb: 2 }}>
+                <Box>
                   <Tabs
                     value={filter}
                     onChange={(_, v) => {
@@ -207,7 +208,7 @@ export default function ChildList() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <Typography>未提出</Typography>
+                          <Typography>希望日時未提出</Typography>
                           <Chip
                             variant="outlined"
                             color="error"
@@ -270,13 +271,7 @@ export default function ChildList() {
                 </Box>
               </Box>
 
-              <TableContainer
-                component={Paper}
-                sx={{
-                  height: "calc(100vh - 360px)",
-                  overflow: "auto",
-                }}
-              >
+              <TableContainer component={Paper}>
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>

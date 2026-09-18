@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -18,6 +18,7 @@ type RedirectMap = {
 };
 
 export default function LandingPage() {
+  const demoSectionRef = useRef<HTMLElement>(null);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -138,7 +139,9 @@ export default function LandingPage() {
       description: "自動割り当てや結果を確認できます",
       mail: "admin@example.com",
       color: "#e8f5ee",
+      font_color: "",
       button: "管理者デモを開始",
+      circleColor: "success.main",
     },
     {
       image: "/images/teacher.webp",
@@ -147,6 +150,7 @@ export default function LandingPage() {
       mail: "aoki@example.com",
       color: "#d6e4f0",
       button: "教師デモを開始",
+      circleColor: "primary.main",
     },
     {
       image: "/images/parent.webp",
@@ -155,6 +159,7 @@ export default function LandingPage() {
       mail: "parent-nonsubmit@example.com",
       color: "#fbebec",
       button: "保護者デモを開始",
+      circleColor: "error.main",
     },
   ];
 
@@ -253,28 +258,25 @@ export default function LandingPage() {
               >
                 兄弟も支援学級も保護者の都合も。
                 <br />
-                条件を満たす面談表を、先生の代わりに自動で組みます。
+                複数の条件を考慮して、面談日程を自動でする
+                <br />
+                学校向けのスケジューリングジステムです。
               </Typography>
+
               <Box sx={{ mt: 3 }}>
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "bold", color: "primary.main", mb: 1 }}
-                >
-                  全校13クラス・224家庭／児童261人を、約10秒で
-                </Typography>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  手作業なら、条件を照らし合わせながら数時間かかる作業です
-                </Typography>
-              </Box>
-              <Box>
                 <Button
+                  onClick={() =>
+                    demoSectionRef.current?.scrollIntoView({
+                      behavior: "smooth",
+                    })
+                  }
                   variant="contained"
                   sx={{ minWidth: 300, minHeight: 50 }}
                 >
                   デモを体験する(約３分)→
                 </Button>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  ログイン不要・デモデータでデモデータですぐに体験できます
+                  ログイン不要・デモデータですぐに体験できます
                 </Typography>
               </Box>
             </Box>
@@ -287,37 +289,57 @@ export default function LandingPage() {
               m: 2,
               maxHeight: 350,
             }}
-          ></Box>
+          >
+            画像
+          </Box>
         </Box>
       </Box>
-      <Typography>3つの立場で学校の面談を支えます</Typography>
-      <Typography>Tsunaguで使うのは、3つの立場です</Typography>
-      <Box sx={{ display: "flex" }}>
+      <Typography variant="h4">
+        教師の空き状況と保護者の希望から、管理者が児童の面談日をつくります。
+      </Typography>
+      {/* ３つの役割の説明をまとめる箱 */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "column", md: "row" },
+          p: 3,
+          justifyContent: "center",
+          gap: { xs: 3, md: 6 },
+        }}
+      >
         {roleDescriptions.map((role, index) => {
           return (
+            // １役割の説明が書かれている箱
             <Box
               key={index}
               sx={{
+                flex: 1,
                 display: "flex",
                 flexDirection: "column",
                 backgroundColor: role.color,
+                gap: 2,
+                alignItems: "center",
               }}
             >
+              <Typography variant="h5" sx={{ color: role.circleColor }}>
+                {role.title}
+              </Typography>
               <Image
                 src={role.image}
                 alt={role.title}
-                width={100}
-                height={100}
+                width={300}
+                height={300}
               />
-              <Typography>{role.title}</Typography>
-              <Typography>{role.description}</Typography>
 
-              {role.items.map((item, itemIndex) => (
-                <Typography key={itemIndex}>
-                  <CheckCircleIcon sx={{ color: role.circleColor }} />
-                  {item}
-                </Typography>
-              ))}
+              <Typography>{role.description}</Typography>
+              <Box sx={{ textAlign: "left" }}>
+                {role.items.map((item, itemIndex) => (
+                  <Typography key={itemIndex}>
+                    <CheckCircleIcon sx={{ color: role.circleColor }} />
+                    {item}
+                  </Typography>
+                ))}
+              </Box>
             </Box>
           );
         })}
@@ -330,18 +352,16 @@ export default function LandingPage() {
           flexDirection: "column",
           flex: 1,
           height: "auto",
-          alignItems: "center",
         }}
       >
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            textAlign: "center",
           }}
         >
-          <Typography>学校現場の悩み</Typography>
-          <Typography>面談調整は、条件が多くて大変です</Typography>
+          <Typography variant="h4">学校現場の悩み</Typography>
+          <Typography variant="h4">面談調整は、条件が多くて大変です</Typography>
         </Box>
 
         <Box
@@ -355,18 +375,28 @@ export default function LandingPage() {
         >
           {teacherProblems.map((problem, index) => {
             return (
-              <Box key={index} sx={{ backgroundColor: problem.color }}>
-                <Typography sx={{ textAlign: "center" }}>
+              <Box
+                key={index}
+                sx={{
+                  backgroundColor: problem.color,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  minHeight: 250,
+                  flex: 1,
+                }}
+              >
+                <Typography variant="h6" sx={{ textAlign: "center" }}>
                   {problem.title}
                 </Typography>
-                ;
+
                 <Image
                   src={problem.image}
                   alt={problem.title}
-                  width={100}
-                  height={100}
+                  width={300}
+                  height={300}
                 />
-                <Typography sx={{ textAlign: "center" }}>
+                <Typography sx={{ textAlign: "center", width: 200 }}>
                   {problem.description}
                 </Typography>
               </Box>
@@ -374,7 +404,7 @@ export default function LandingPage() {
           })}
         </Box>
         <Box>
-          <Typography>
+          <Typography variant="h4">
             これらを１件ずつ調節するには、時間がかかります
           </Typography>
         </Box>
@@ -419,8 +449,7 @@ export default function LandingPage() {
                 key={step.title}
                 sx={{
                   display: "flex",
-                  alignItems: "center",
-                  mt: 2,
+
                   flexDirection: { xs: "column", sm: "column", md: "row" },
                 }}
               >
@@ -432,6 +461,7 @@ export default function LandingPage() {
                     flexDirection: "column",
                     alignItems: "center",
                     textAlign: "center",
+                    flex: 1,
                     width: 250,
                   }}
                 >
@@ -440,7 +470,6 @@ export default function LandingPage() {
                     sx={{
                       width: 200,
                       height: 200,
-
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -449,8 +478,8 @@ export default function LandingPage() {
                     <Image
                       src={step.image}
                       alt={step.title}
-                      width={100}
-                      height={100}
+                      width={400}
+                      height={400}
                     />
                   </Box>
                   <Typography variant="subtitle1">{step.title}</Typography>
@@ -470,7 +499,7 @@ export default function LandingPage() {
 
       {/*デモ導線 */}
 
-      <Box component="section" sx={{ p: 4 }}>
+      <Box component="section" ref={demoSectionRef} sx={{ p: 3 }}>
         <Typography
           variant="h4"
           sx={{ mb: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
@@ -484,61 +513,55 @@ export default function LandingPage() {
           実際の画面で、それぞれの立場の操作を体験できます
           デモデータをご用意しているので、すぐにお試しいただけます
         </Typography>
-        {/* 一番外の枠 */}
+
+        {/* 管理者側の枠 */}
         <Box
           sx={{
             display: "flex",
-            gap: 6,
-            mt: 2,
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+            gap: { xs: 3, md: 6 },
           }}
         >
-          {/* 管理者側の枠 */}
-
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-              p: 2,
-              maxWidth: 1200,
-              width: "100%",
-              mx: "auto",
-              gap: { xs: 3, md: 6 },
-            }}
-          >
+          {roleExperience.map((role, index) => (
             <Box
+              key={index}
               sx={{
-                flex: 1,
-                justifyContent: "center",
                 display: "flex",
-
-                gap: 3,
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: role.color,
+                flex: 1,
               }}
             >
-              {roleExperience.map((role, index) => (
-                <Box key={index} sx={{ backgroundColor: role.color, flex: 1 }}>
-                  <Image
-                    src={role.image}
-                    alt={role.title}
-                    width={100}
-                    height={100}
-                  />
-                  <Typography sx={{ fontSize: fontSizes.caption }}>
-                    {role.title}
-                  </Typography>
-                  <Typography sx={{ fontSize: fontSizes.caption }}>
-                    {role.description}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleSubmit(role.mail, "password")}
-                  >
-                    {role.button}
-                  </Button>
-                </Box>
-              ))}
+              <Typography
+                variant="h5"
+                sx={{
+                  textAlign: "center",
+                  fontSize: fontSizes.caption,
+                  color: role.circleColor,
+                }}
+              >
+                {role.title}
+              </Typography>
+              <Image
+                src={role.image}
+                alt={role.title}
+                width={300}
+                height={300}
+              />
+
+              <Typography sx={{ fontSize: fontSizes.caption }}>
+                {role.description}
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => handleSubmit(role.mail, "password")}
+              >
+                {role.button}
+              </Button>
             </Box>
-          </Box>
+          ))}
         </Box>
       </Box>
 

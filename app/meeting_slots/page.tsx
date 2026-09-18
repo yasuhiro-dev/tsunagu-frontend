@@ -17,7 +17,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import Alert from "@mui/material/Alert";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import IconButton from "@mui/material/IconButton";
+import DescriptionIcon from "@mui/icons-material/Description";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -40,11 +44,6 @@ type MeetingSchedule = {
   class_room_name: string;
   slots: MeetingSlot[];
 };
-// 面談入れ替え予定一覧の型
-type ChangeSlot = {
-  from_assignment_id: number;
-  to_slot_id: number;
-};
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -54,6 +53,7 @@ export default function MeetingSlotPage() {
   const [isDownload, setIsDownload] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [highlightedSlotIds, setHighlightedSlotIds] = useState<number[]>([]);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -71,54 +71,14 @@ export default function MeetingSlotPage() {
   const [fromAssignmentId, setFromAssignmentId] = useState<number | null>(null);
   // 移動先のslot
   const [toSlotId, setToSlotId] = useState<null | number>(null);
-  // 編集先での面談入れ替え（面談表全体を表示）
-  const [editingSlots, setEditingSlots] = useState<MeetingSlot[]>([]);
-  // 編集先での面談入れ替え予定一覧（API送信用に変化したslotのみ保管）
-  const [changeSlotsList, setChangeSlotsList] = useState<ChangeSlot[]>([]);
   // slot移動時の警告
   const [editAlertOpen, setEditAlertOpen] = useState(false);
-  // キャンセル時の警告
-  const [cancelAlertOpen, setCancelAlertOpen] = useState(false);
-  // 編集モードか
-  const [isEditMode, setIsEditMode] = useState(false);
   // 面談不可日・兄弟の面談表・特別支援の面談表
   const [validSlotsData, setValidSlotsData] = useState<{
     unavailable_start_at: string[];
     siblings_meeting_schedule: MeetingSchedule[][];
     own_support_meeting_schedule: MeetingSchedule[];
   } | null>(null);
-
-  // 編集開始の関数
-  const handleStartEdit = () => {
-    setIsEditMode(true);
-    setEditingSlots(slots); //面談表の中身をコピー
-    setChangeSlotsList([]);
-  };
-
-  // 編集完了の関数
-  const handleFinishEdit = async () => {
-    await handleReassign();
-    setIsEditMode(false);
-  };
-
-  // キャンセルダイアログを呼ぶ
-  const handleCancelDialog = () => {
-    setCancelAlertOpen(true);
-  };
-  // キャンセル選択時で「はい」
-  const handleCancel = () => {
-    setIsEditMode(false);
-    setEditingSlots([]);
-    setChangeSlotsList([]);
-    setFromAssignmentId(null);
-    setToSlotId(null);
-    setCancelAlertOpen(false);
-  };
-
-  // キャンセル選択時で「いいえ」
-  const handleDismissCancel = () => {
-    setCancelAlertOpen(false);
-  };
 
   // 編集リセットボタンの関数
   const handleEditReset = () => {
@@ -132,49 +92,6 @@ export default function MeetingSlotPage() {
     setEditAlertOpen(false);
   };
 
-  // 案内表示で「はい」を押した時の関数
-  const handleApplyChange = () => {
-    if (fromAssignmentId === null || toSlotId === null) {
-      return; //もし中身がnullならここで終了する
-    }
-    // fromAssignmentIdとtoSlotIdに情報を持たせる（現時点では、番号のみしか持っていない）
-    const fromSlot = editingSlots.find(
-      (slot) => slot.assignment_id === fromAssignmentId,
-    );
-    const toSlot = editingSlots.find((slot) => slot.id === toSlotId);
-    // 画面上で再描写する時の関数
-    const newEditingSlots = editingSlots.map((slot) => {
-      if (slot.assignment_id === fromAssignmentId) {
-        return {
-          ...slot,
-          child_name: toSlot?.child_name ?? "",
-          assignment_id: toSlot?.assignment_id ?? null,
-        };
-      } else if (slot.id === toSlotId) {
-        return {
-          ...slot,
-          child_name: fromSlot?.child_name ?? "",
-          assignment_id: fromSlot?.assignment_id ?? null,
-        };
-      } else {
-        return slot;
-      }
-    });
-
-    // 編集した面談のデータ（再描写）
-    setEditingSlots(newEditingSlots);
-    // APIでRailsに送る面談のデータ（送る用）
-    setChangeSlotsList([
-      ...changeSlotsList,
-      {
-        from_assignment_id: fromAssignmentId,
-        to_slot_id: toSlotId,
-      },
-    ]);
-    setEditAlertOpen(false);
-    handleEditReset();
-  };
-
   // １回目の選択と２回目の選択で分岐
   const handleFromToSelect = (cell: MeetingSlot) => {
     if (fromAssignmentId === null) {
@@ -186,6 +103,12 @@ export default function MeetingSlotPage() {
       setEditAlertOpen(true);
     }
   };
+  //変更ダイアログに変更した児童名を表示する設定
+  const fromSlot =
+    slots.find(
+      (slot) => slot.assignment_id === fromAssignmentId, //移動元（空枠を選ばないように児童がいるassignment_id）
+    ) ?? null;
+  const toSlot = slots.find((slot) => slot.id === toSlotId) ?? null; //移動先（空枠も含まれるのでslot.id）
 
   // 面談slot編集・編集完了
   const handleReassign = async () => {
@@ -196,7 +119,14 @@ export default function MeetingSlotPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ assignments: changeSlotsList }),
+        body: JSON.stringify({
+          assignments: [
+            {
+              from_assignment_id: fromAssignmentId,
+              to_slot_id: toSlotId,
+            },
+          ],
+        }),
       },
     );
     const data = await res.json();
@@ -205,14 +135,33 @@ export default function MeetingSlotPage() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("変更されました");
+      // 移動先や移動元のidがない時には飛ばす、もしあるなら新しい値をstateに保存する
+      if (fromAssignmentId == null || toSlotId == null) {
+        return;
+      }
+
+      setHighlightedSlotIds([fromAssignmentId, toSlotId]);
+      setTimeout(() => {
+        setHighlightedSlotIds([]);
+      }, 3000);
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage("変更できませんでした");
     }
   };
+  // 本当に実行していいかを確認
+  const handleApplyChange = async () => {
+    if (fromAssignmentId === null || toSlotId === null) {
+      return; //もし中身がnullならここで終了する
+    }
+    await handleReassign();
 
-  // １つのassignment_slotを選んだ時の情報を取得
+    setEditAlertOpen(false);
+    handleEditReset();
+  };
+
+  // 関連する面談情報を取得
   const AssignmentHandleClick = async (id: number) => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`,
@@ -225,14 +174,7 @@ export default function MeetingSlotPage() {
     );
     const data = await res.json();
     setValidSlotsData(data);
-    if (
-      data.siblings_meeting_schedule.length > 0 ||
-      data.own_support_meeting_schedule.length > 0
-    ) {
-      setIsOpen(true);
-    } else {
-      setIsOpen(false);
-    }
+    setIsOpen(true);
   };
 
   useEffect(() => {
@@ -311,9 +253,6 @@ export default function MeetingSlotPage() {
     setIsDownload(false);
   };
 
-  // 編集中であればeditingSlotsを使う
-  const matrix = buildMatrix(isEditMode ? editingSlots : slots);
-
   // 全slotの面談表（メイン）
   // 時刻一覧（"15:00"のような文字列同士の比較でも順序が崩れないためそのままsort）
   const allTimes = [
@@ -336,6 +275,23 @@ export default function MeetingSlotPage() {
       <p>データの読み込みに失敗しました。時間をおいて再度お試しください。</p>
     );
   if (loading) return <p>読み込み中...</p>;
+  const matrix = buildMatrix(slots);
+
+  let unassignedSection;
+  if (unassignedChildren.length === 0) {
+    unassignedSection = (
+      <Typography>🎉 すべての児童の割り当てが完了しています。</Typography>
+    );
+  } else {
+    unassignedSection = (
+      <Typography>
+        ⚠️ 未割り当ての児童がいます
+        <br />
+        児童を割り当てるから手動で配置してください。
+      </Typography>
+    );
+  }
+  const isEditing = fromAssignmentId !== null;
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -349,10 +305,7 @@ export default function MeetingSlotPage() {
         sx={{
           p: 3,
           borderRadius: 2,
-          maxHeight: 680,
-          // 編集モードの枠線
-          border: isEditMode ? "1px solid" : "none",
-          borderColor: isEditMode ? "primary.main" : "none",
+          maxHeight: 800,
         }}
       >
         <Box sx={{ p: 1 }}>
@@ -368,42 +321,35 @@ export default function MeetingSlotPage() {
             <Typography variant="h5" gutterBottom>
               面談スケジュール
             </Typography>
+
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              ※「未提出」の児童も、都合の悪い日時が申告されていないため通常通り割り当てられます
+              ※「希望日時未提出」の児童も、都合の悪い日時が申告されていないため通常通り割り当てられます
+              <br />※
+              枠をクリックして、移動先の枠をクリックすると入れ替えられます
             </Typography>
+
             <Box
               className="no-print"
               sx={{ alignItems: "center", display: "flex", gap: 1 }}
             >
-              {isEditMode ? (
-                <Box sx={{ display: "flex", gap: 5 }}>
-                  <Box>
-                    <Button onClick={handleFinishEdit}>編集完了</Button>
-                  </Box>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button onClick={handleEditReset}>選択解除</Button>
-                    <Button
-                      sx={{ color: "grey.600" }}
-                      onClick={handleCancelDialog}
-                    >
-                      キャンセル
-                    </Button>
-                  </Box>
-                </Box>
-              ) : (
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Button onClick={handleStartEdit}>面談を入れ替える</Button>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={handleDownLoadPDF}
-                    disabled={isDownload}
-                  >
-                    {isDownload ? "ダウンロード中" : "PDFをダウンロード"}
-                  </Button>
-                </Box>
-              )}
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleDownLoadPDF}
+                  disabled={isDownload}
+                >
+                  {isDownload ? "ダウンロード中" : "PDFをダウンロード"}
+                </Button>
+              </Box>
             </Box>
+          </Box>
+          <Box sx={{ minHeight: "64px" }}>
+            {isEditing && (
+              <Alert severity="info" sx={{ my: 2 }}>
+                移動先の枠を選んでください（もう一度同じ枠を押すと取消）
+              </Alert>
+            )}
           </Box>
 
           <Box
@@ -448,10 +394,7 @@ export default function MeetingSlotPage() {
               <Box>
                 {unassignedChildren.length === 0 && (
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    全員の割り当てが完了しています。
-                    条件が重なって配置できなかった児童は
-                    ここに表示され、右の面談表の空き枠へ
-                    +ボタンを押すと手動で割り当てられます。
+                    {unassignedSection}
                   </Typography>
                 )}
               </Box>
@@ -513,101 +456,144 @@ export default function MeetingSlotPage() {
                         </Typography>
                       </>
                     </Box>
-                    {allDates.map((date) => (
-                      <Box
-                        key={date}
-                        onClick={() => {
-                          const id = matrix[time][date].assignment_id;
-                          if (isEditMode) {
-                            // 編集モードだと入れ替えが可能
-                            handleFromToSelect(matrix[time][date]);
-                          } else if (id === null) {
-                            // 空きマスは、何もしない（SlotAddPopoverが、独立して、動く）
-                          } else {
-                            // 通常モードだと、児童詳細の取得
-                            AssignmentHandleClick(id);
-                          }
-                        }}
-                        sx={{
-                          flex: 1,
-                          minWidth: "120px",
-                          cursor: "pointer", // マウスを乗せたとき、指マークになる
-                          "&:hover": {
-                            backgroundColor: "action.hover", //  ホバー時に、薄く色がつく
-                          },
-                          p: 1,
-                          minHeight: "80px",
-                          borderRadius: 1,
-                          // 選択中の枠線(編集中)
-                          border:
-                            matrix[time][date]?.assignment_id ===
-                              fromAssignmentId ||
-                            matrix[time][date]?.id === toSlotId
-                              ? "solid 2px "
-                              : "solid 1px ",
-                          borderColor:
-                            matrix[time][date]?.assignment_id ===
-                            fromAssignmentId
-                              ? "primary.main"
-                              : matrix[time][date]?.id === toSlotId
-                                ? "error.main"
-                                : "divider",
-                        }}
-                      >
-                        {matrix[time][date]?.child_name ? (
-                          <>
-                            <Box sx={{ display: "flex", gap: 1 }}>
+                    {allDates.map((date) => {
+                      const cell = matrix[time][date];
+                      const assignmentId = cell.assignment_id;
+                      return (
+                        <Box
+                          key={date}
+                          onClick={() => {
+                            handleFromToSelect(cell);
+                          }}
+                          sx={{
+                            flex: 1,
+                            minWidth: "120px",
+                            cursor: "pointer", // マウスを乗せたとき、指マークになる
+                            "&:hover": {
+                              backgroundColor: "action.hover", //  ホバー時に、薄く色がつく
+                            },
+
+                            minHeight: "80px",
+                            borderRadius: 1,
+                            backgroundColor: highlightedSlotIds.includes(
+                              cell.id,
+                            )
+                              ? "warning.light" // ハイライトの色
+                              : "transparent", // 通常時は透明
+                            // 選択中の枠線
+                            border:
+                              assignmentId === fromAssignmentId ||
+                              cell?.id === toSlotId
+                                ? "solid 2px "
+                                : "solid 1px ",
+                            borderColor:
+                              assignmentId === fromAssignmentId
+                                ? "primary.main"
+                                : cell?.id === toSlotId
+                                  ? "error.main"
+                                  : "divider",
+                          }}
+                        >
+                          {assignmentId && (
+                            <Box>
+                              <IconButton
+                                size="small"
+                                sx={{ fontSize: "14px" }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  AssignmentHandleClick(assignmentId);
+                                }}
+                              >
+                                <DescriptionIcon
+                                  sx={{ color: "primary.main" }}
+                                  fontSize="small"
+                                />
+                                <ChevronRightIcon
+                                  sx={{ color: "primary.main" }}
+                                  fontSize="small"
+                                />
+                              </IconButton>
+                            </Box>
+                          )}
+                          {cell?.child_name ? (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                gap: 1,
+                                flexDirection: "column",
+                              }}
+                            >
                               <Typography variant="body1">
-                                {matrix[time][date].child_name}
+                                {cell.child_name}
                               </Typography>
-                              {matrix[time][date].submitted === false && (
+                              {
                                 <Chip
                                   variant="outlined"
-                                  label="未提出"
+                                  label="希望日時未提出"
                                   color="warning"
                                   size="small"
+                                  sx={{
+                                    maxHeight: "15px",
+                                    fontSize: "caption",
+                                    visibility:
+                                      cell.submitted === false
+                                        ? "visible"
+                                        : "hidden",
+                                  }}
                                 />
-                              )}
+                              }
                             </Box>
-                          </>
-                        ) : (
-                          <Box
-                            sx={{
-                              textAlign: "center",
-                              minHeight: "30px",
-                            }}
-                          >
-                            {/* 空きに児童を追加する */}
-                            <SlotAddPopover
-                              slotId={matrix[time][date].id}
-                              dateLabel={date}
-                              timeLabel={time}
-                              onAdded={() => {
-                                // １つ目：meeting_slotを再取得
-                                fetchWithAuth(
-                                  `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
-                                )
-                                  .then((res) => res.json())
-                                  .then((data) => setslots(data));
-                                // 2つ目：children/unassignedを再取得
-                                fetchWithAuth(
-                                  `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
-                                )
-                                  .then((res) => res.json())
-                                  .then((data) => setUnassignedChildren(data));
+                          ) : (
+                            <Box
+                              sx={{
+                                textAlign: "center",
+                                minHeight: "30px",
                               }}
-                            ></SlotAddPopover>
-                          </Box>
-                        )}
-                      </Box>
-                    ))}
+                            >
+                              {/* 空きに児童を追加する */}
+                              <SlotAddPopover
+                                isEditing={isEditing}
+                                slotId={cell.id}
+                                onAdded={() => {
+                                  // １つ目：meeting_slotを再取得
+                                  fetchWithAuth(
+                                    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
+                                  )
+                                    .then((res) => res.json())
+                                    .then((data) => setslots(data));
+                                  // 2つ目：children/unassignedを再取得
+                                  fetchWithAuth(
+                                    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
+                                  )
+                                    .then((res) => res.json())
+                                    .then((data) =>
+                                      setUnassignedChildren(data),
+                                    );
+                                }}
+                              ></SlotAddPopover>
+                            </Box>
+                          )}
+                        </Box>
+                      );
+                    })}
                   </Box>
                 ))}
               </Box>
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
                 <Dialog open={editAlertOpen} onClose={handleCancelFinishAlert}>
-                  <DialogTitle>{"変更してもよろしいですか"}</DialogTitle>
+                  <DialogTitle>
+                    <Typography>{`${fromSlot?.child_name}さん（${formatDate(fromSlot?.start_at ?? "")} ${formatTime(fromSlot?.start_at ?? "")}）を`}</Typography>
+                    <br />{" "}
+                    {toSlot && (
+                      <Typography>
+                        {toSlot.child_name
+                          ? `${toSlot.child_name}さん(${formatDate(toSlot.start_at)} ${formatTime(toSlot.start_at)})へ`
+                          : `空き枠(${formatDate(toSlot.start_at)} ${formatTime(toSlot.start_at)})へ`}
+                      </Typography>
+                    )}
+                    <br /> <Typography>{`移動します。`}</Typography>
+                  </DialogTitle>
                   <DialogActions>
                     <Button
                       // 編集用の面談表を再描写
@@ -617,23 +603,6 @@ export default function MeetingSlotPage() {
                       はい
                     </Button>
                     <Button onClick={handleCancelFinishAlert}>いいえ</Button>
-                  </DialogActions>
-                </Dialog>
-              </Box>
-              {/* キャンセルを押した時の案内表示 */}
-              <Box>
-                <Dialog open={cancelAlertOpen} onClose={handleDismissCancel}>
-                  <DialogTitle>{"キャンセルしてもよろしいですか"}</DialogTitle>
-                  <DialogActions>
-                    <Button
-                      // 編集用の面談表を再描写
-                      onClick={handleCancel}
-                    >
-                      はい
-                    </Button>
-                    <Button onClick={handleDismissCancel} autoFocus>
-                      いいえ
-                    </Button>
                   </DialogActions>
                 </Dialog>
               </Box>
