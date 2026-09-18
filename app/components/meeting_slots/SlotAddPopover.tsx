@@ -2,68 +2,43 @@
 
 import UnassignedSelectDialog from "./UnassignedSelectDialog";
 import { useState } from "react";
-import {
-  IconButton,
-  Popover,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import PeopleIcon from "@mui/icons-material/People";
-import MenuList from "@mui/material/MenuList";
+import Box from "@mui/material/Box";
 
 type Props = {
   slotId: number;
-  dateLabel: string;
-  timeLabel: string;
   onAdded: () => void;
+  isEditing: boolean;
 };
 
-export default function SlotAddPopover({
-  slotId,
-  dateLabel,
-  timeLabel,
-  onAdded,
-}: Props) {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+export default function SlotAddPopover({ slotId, isEditing, onAdded }: Props) {
   const [openSelect, setOpenSelect] = useState(false);
-
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(e.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <>
-      <IconButton size="small" onClick={handleOpen}>
-        <AddIcon />
-      </IconButton>
-      <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          pointerEvents: isEditing ? "none" : "auto", //slotの移動中は未割り当て児童一覧を呼ばない
+          opacity: isEditing ? 0.4 : 1,
+        }}
+        onClick={() => {
+          if (isEditing) return;
+          setOpenSelect(true);
+        }}
       >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              setOpenSelect(true);
-              handleClose();
-            }}
-          >
-            <ListItemIcon>
-              <PeopleIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>
-              {dateLabel} {timeLabel} の枠に追加する児童を選択
-            </ListItemText>
-          </MenuItem>
-        </MenuList>
-      </Popover>
+        <Box sx={{ color: "primary.main" }}>
+          <AddIcon />
+        </Box>
+        <Box>
+          <Typography variant="caption" sx={{ color: "primary.main" }}>
+            児童を割り当てる
+          </Typography>
+        </Box>
+      </Box>
+
       <UnassignedSelectDialog
         open={openSelect}
         slotId={slotId}
