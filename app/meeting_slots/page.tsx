@@ -22,6 +22,7 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import IconButton from "@mui/material/IconButton";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import DemoGuide from "@/app/components/DemoGuide";
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -309,6 +310,7 @@ export default function MeetingSlotPage() {
         }}
       >
         <Box sx={{ p: 1 }}>
+          <DemoGuide role="teacher" />
           <Box
             sx={{
               display: "flex",

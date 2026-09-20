@@ -107,11 +107,11 @@ export default function UnavailabilityCard({
                     }
                   >
                     <span>
-                      <Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
                         <ToggleButton
                           sx={{
                             opacity: isDisabled(slot) ? 0.2 : 1,
-                            width: 50,
+                            width: 80,
                             "&.Mui-selected": {
                               backgroundColor: "primary.main",
                               color: "common.white",
@@ -120,13 +120,23 @@ export default function UnavailabilityCard({
                           }}
                           value="yes"
                         >
-                          ○
+                          <Box
+                            sx={{ display: "flex", flexDirection: "column" }}
+                          >
+                            <Typography component="span">○</Typography>
+                            <Typography
+                              sx={{ fontSize: "10px" }}
+                              component="span"
+                            >
+                              参加できる
+                            </Typography>
+                          </Box>
                         </ToggleButton>
 
                         <ToggleButton
                           sx={{
                             opacity: isDisabled(slot) ? 0.2 : 1,
-                            width: 50,
+                            width: 80,
                             "&.Mui-selected": {
                               backgroundColor: "error.light",
                               color: "common.white",
@@ -135,7 +145,17 @@ export default function UnavailabilityCard({
                           }}
                           value="no"
                         >
-                          ×
+                          <Box
+                            sx={{ display: "flex", flexDirection: "column" }}
+                          >
+                            <Typography component="span">×</Typography>
+                            <Typography
+                              sx={{ fontSize: "10px" }}
+                              component="span"
+                            >
+                              参加できない
+                            </Typography>
+                          </Box>
                         </ToggleButton>
                       </Box>
                     </span>
