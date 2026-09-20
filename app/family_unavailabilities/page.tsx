@@ -17,6 +17,7 @@ import {
   fetchFamilySubmitted,
   decodeToken,
 } from "@/utils/dateUtils";
+import DemoGuide from "@/app/components/DemoGuide";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -203,14 +204,15 @@ export default function FamilyUnavailability() {
   }
 
   return (
-    <Container sx={{ mt: 4 }}>
+    <Container sx={{ p: 3 }}>
       <AlertSnackbar
         open={alertOpen}
         severity={alertSeverity}
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      <Box sx={{ p: 3 }}>
+      <DemoGuide role="parent" />
+      <Box>
         <Box
           sx={{
             display: "flex",

@@ -44,6 +44,7 @@ import AssignmentExecution from "@/app/assignment_stats/AssignmentExecution";
 import { useSearchParams } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import DemoGuide from "@/app/components/DemoGuide";
 
 type Teacher = {
   name: string;
@@ -539,7 +540,9 @@ function AdminContent() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+
       <Paper sx={{ p: 3 }}>
+        <DemoGuide role="admin" />
         <Typography variant="h4" sx={{ mb: 2 }}>
           ユーザー管理
         </Typography>
@@ -559,53 +562,89 @@ function AdminContent() {
             }}
           >
             <Button
-              startIcon={<PersonIcon />}
+              startIcon={<AssignmentIcon />}
               sx={sidebarButtonStyle(0)}
               onClick={() => setTab(0)}
+            >
+              面談の一括割り当て
+            </Button>
+            <Button
+              startIcon={<CalendarMonthIcon />}
+              sx={sidebarButtonStyle(1)}
+              onClick={() => setTab(1)}
+            >
+              締切日の設定
+            </Button>
+            <Button
+              startIcon={<PersonIcon />}
+              sx={sidebarButtonStyle(2)}
+              onClick={() => setTab(2)}
             >
               教師一覧
             </Button>
             <Button
               startIcon={<PeopleIcon />}
-              sx={sidebarButtonStyle(1)}
-              onClick={() => setTab(1)}
+              sx={sidebarButtonStyle(3)}
+              onClick={() => setTab(3)}
             >
               保護者一覧
             </Button>
             <Button
               startIcon={<PersonAddAlt1Icon />}
-              sx={sidebarButtonStyle(2)}
-              onClick={() => setTab(2)}
+              sx={sidebarButtonStyle(4)}
+              onClick={() => setTab(4)}
             >
               教師登録
             </Button>
             <Button
               startIcon={<GroupAddIcon />}
-              sx={sidebarButtonStyle(3)}
-              onClick={() => setTab(3)}
-            >
-              保護者登録
-            </Button>
-            <Button
-              startIcon={<CalendarMonthIcon />}
-              sx={sidebarButtonStyle(4)}
-              onClick={() => setTab(4)}
-            >
-              締切日の設定
-            </Button>
-            <Button
-              startIcon={<AssignmentIcon />}
               sx={sidebarButtonStyle(5)}
               onClick={() => setTab(5)}
             >
-              面談の一括割り当て
+              保護者登録
             </Button>
           </Box>
+
+          {/* 面談の一括割り当て */}
+          {tab === 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                p: 3,
+
+                overflow: "auto",
+                flexDirection: "column",
+              }}
+            >
+              <Box>
+                <AssignmentExecution scheduleId={scheduleId} />
+              </Box>
+            </Box>
+          )}
+
+          {/* 締切日の設定 */}
+          {tab === 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                p: 3,
+
+                overflow: "auto",
+                flexDirection: "column",
+              }}
+            >
+              <Box>
+                <DeadlineSetting scheduleId={scheduleId} />
+              </Box>
+            </Box>
+          )}
 
           {/* 教師一覧画面 */}
 
           <Box sx={{ flexGrow: 1 }}>
-            {tab === 0 && (
+            {tab === 2 && (
               <Box sx={{ p: 3 }}>
                 <Box
                   sx={{
@@ -802,7 +841,7 @@ function AdminContent() {
             )}
 
             {/* 保護者一覧 */}
-            {tab === 1 && (
+            {tab === 3 && (
               <Box sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Box sx={{ mb: 3 }}>
@@ -1066,7 +1105,7 @@ function AdminContent() {
             )}
 
             {/* 教師登録画面 */}
-            {tab === 2 && (
+            {tab === 4 && (
               <Paper
                 sx={{
                   display: "flex",
@@ -1168,7 +1207,7 @@ function AdminContent() {
             )}
 
             {/* 保護者登録画面 */}
-            {tab === 3 && (
+            {tab === 5 && (
               <Paper
                 sx={{
                   display: "flex",
@@ -1396,41 +1435,6 @@ function AdminContent() {
                   登録
                 </Button>
               </Paper>
-            )}
-
-            {/* 締切日の設定 */}
-            {tab === 4 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  p: 3,
-
-                  overflow: "auto",
-                  flexDirection: "column",
-                }}
-              >
-                <Box>
-                  <DeadlineSetting scheduleId={scheduleId} />
-                </Box>
-              </Box>
-            )}
-            {/* 面談の一括割り当て */}
-            {tab === 5 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  p: 3,
-
-                  overflow: "auto",
-                  flexDirection: "column",
-                }}
-              >
-                <Box>
-                  <AssignmentExecution scheduleId={scheduleId} />
-                </Box>
-              </Box>
             )}
 
             {/* 教師編集画面 */}
