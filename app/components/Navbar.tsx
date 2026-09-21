@@ -33,6 +33,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import HomeIcon from "@mui/icons-material/Home";
 
 type MenuItemType = {
   label: string;
@@ -233,6 +234,7 @@ export default function Navbar() {
 
   useEffect(() => {
     // localStorageはクライアントでしか読めないため、マウント後に同期する
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setRole(getRole());
@@ -272,6 +274,7 @@ export default function Navbar() {
               <Typography variant="h6">Tsunagu</Typography>
             </Button>
           </Box>
+
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             {/* ハンバーガーメニュー */}
             <Drawer
@@ -329,6 +332,14 @@ export default function Navbar() {
               gap: 1,
             }}
           >
+            <Box sx={{ p: 1, display: "flex", alignItems: "center" }}>
+              <Button variant="contained" component={Link} href="/">
+                <Typography variant="body1">
+                  <HomeIcon />
+                  トップページ
+                </Typography>
+              </Button>
+            </Box>
             {mounted && role === null && (
               <Button
                 component={Link}

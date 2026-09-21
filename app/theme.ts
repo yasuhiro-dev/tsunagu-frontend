@@ -1,5 +1,12 @@
 import { createTheme } from "@mui/material/styles";
 
+// material/stylesに拡張する設定
+declare module "@mui/material/styles" {
+  // Paletteに guardian という色を追加
+  interface Palette {
+    guardian: Palette["primary"];
+  }
+}
 export const theme = createTheme({
   typography: {
     fontFamily: "var(--font-m-plus-rounded)",
@@ -10,6 +17,7 @@ export const theme = createTheme({
       fontWeight: 700,
     },
   },
+
   palette: {
     divider: "#e0e0e0",
     primary: {
@@ -29,6 +37,13 @@ export const theme = createTheme({
     warning: {
       main: "#c08b4a",
     },
+
+    // guardian: {
+    //   main: "#c87575",
+    //   light: "#e7a3a3",
+    //   dark: "#a95757",
+    // },
+
     background: {
       default: "#f0f5fa",
       paper: "#ffffff",
