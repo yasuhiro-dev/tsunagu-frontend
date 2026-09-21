@@ -1,40 +1,59 @@
 "use client";
 
-import { DemoRole, demoGuideContent } from "./demoGuideContent";
+import { DemoPage, demoPageContent } from "./demoGuideContent";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import Alert from "@mui/material/Alert";
-import AlertTitle from "@mui/material/AlertTitle";
+import Dialog from "@mui/material/Dialog";
+import Button from "@mui/material/Button";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 
-// 親コンポーネントからroleを受け取る時の型指定
-type Props = { role: DemoRole };
+// 親コンポーネントからpageを受け取る時の型指定
+type Props = { page: DemoPage };
 
-// 親から role を受け取る
-export default function DemoGuide({ role }: Props) {
-  // 受け取った role(教師・管理者・保護者) で、文言を取り出して content に入れる
-  const content = demoGuideContent[role];
-  const [openBanner, setOpenBanner] = useState(true);
+// 親から page を受け取る
+export default function DemoGuide({ page }: Props) {
+  // 受け取った pageで、文言を取り出して content に入れる
+  const content = demoPageContent[page];
+  // sessionStorage に「案内を見た」と記録するときのキー名
+  const storageKey = `demo-guide-seen:${page}`;
+  const [open, setOpen] = useState(false);
 
-  if (!openBanner) return null;
+  useEffect(() => {
+    if (!sessionStorage.getItem(storageKey)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOpen(true);
+    }
+  }, [storageKey]);
+
+  const handleClose = () => {
+    sessionStorage.setItem(storageKey, "1");
+    setOpen(false);
+  };
 
   return (
-    <Alert
-      sx={{ p: 1, mb: 3 }}
-      severity="info"
-      variant="outlined"
-      onClose={() => setOpenBanner(false)}
-    >
-      <AlertTitle variant="h5">{content.roleLabel}として体験中です</AlertTitle>
-      <Typography>{content.purpose}</Typography>
-      {content.steps.map((step) => (
-        <Typography sx={{ mb: 1 }} key={step}>
-          {step}
+    <Dialog sx={{ p: 1, mb: 3 }} onClose={handleClose} open={open}>
+      <DialogTitle variant="h5">
+        {content.roleLabel}として体験中します。
+      </DialogTitle>
+      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Typography>{content.purpose}</Typography>
+        {content.steps.map((step) => (
+          <Typography sx={{ mb: 1 }} key={step}>
+            {step}
+          </Typography>
+        ))}
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          {content.note}
         </Typography>
-      ))}
-      <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        {content.note}
-      </Typography>
-    </Alert>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="contained" onClick={handleClose}>
+          デモをはじめる
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

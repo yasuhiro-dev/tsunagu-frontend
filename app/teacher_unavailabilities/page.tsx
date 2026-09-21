@@ -11,6 +11,7 @@ import { MeetingSlot, groupByDate } from "@/utils/dateUtils";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import DemoGuide from "@/app/components/DemoGuide";
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
@@ -129,9 +130,10 @@ export default function MeetingSlotPage() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+      <DemoGuide page="teacher_unavailability" />
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" sx={{ mb: 1 }}>
-          面談に対応できる日時のボタンを押してください
+          面談に対応できない日時のボタンを押してください
         </Typography>
         <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
           ※保護者の面談が決まっている枠は、面談不可にできません

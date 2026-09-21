@@ -47,7 +47,7 @@ export default function LandingPage() {
       const data: { token: string; role: keyof RedirectMap } = await res.json();
       localStorage.setItem("token", data.token);
       const redirectMap: RedirectMap = {
-        teacher: "/meeting_slots",
+        teacher: "/teacher_unavailabilities",
         parent: "/family_unavailabilities",
         admin: "/admin",
       };

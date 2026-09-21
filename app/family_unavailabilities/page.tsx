@@ -211,7 +211,7 @@ export default function FamilyUnavailability() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      <DemoGuide role="parent" />
+      <DemoGuide page="family_availability" />
       <Box>
         <Box
           sx={{
