@@ -542,7 +542,7 @@ function AdminContent() {
       />
 
       <Paper sx={{ p: 3 }}>
-        <DemoGuide role="admin" />
+        <DemoGuide page="admin_assignment" />
         <Typography variant="h4" sx={{ mb: 2 }}>
           ユーザー管理
         </Typography>

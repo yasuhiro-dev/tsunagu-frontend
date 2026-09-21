@@ -20,6 +20,9 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import { stepIconClasses } from "@mui/material/StepIcon";
 import { stepLabelClasses } from "@mui/material/StepLabel";
+import DonutLargeIcon from "@mui/icons-material/DonutLarge";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 
 type Props = {
   scheduleId: number | null;
@@ -36,19 +39,18 @@ type UnassignedChild = {
 
 const steps = [
   {
-    label: "保護者が提出",
-    description: "締切日までに、保護者が面談希望日を提出します。",
+    label: "保護者・教師が日時を入力",
+    description: "教師は不在日、保護者は来校できる日時を入力します。",
     icon: <PersonIcon sx={{ fontSize: 40, color: "primary.main" }} />,
   },
   {
-    label: "割り当てを実行",
-    description:
-      "「割り当てを実行する」ボタンを押すと、自動で割り当てが行われます。",
+    label: "自動で割り当て",
+    description: "条件をもとに、面談日を自動で決めます。",
     icon: <SettingsIcon sx={{ fontSize: 40, color: "primary.main" }} />,
   },
   {
     label: "面談表に反映",
-    description: "各クラスの面談表に、割り当て結果が反映されます。",
+    description: "決まった日時が面談表に表示されます。",
     icon: (
       <AssignmentTurnedInIcon sx={{ fontSize: 40, color: "primary.main" }} />
     ),
@@ -151,6 +153,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         flexDirection: "column",
         p: 2,
         maxWidth: isMobile ? "265px" : "100",
+        backgroundColor: "#ecf1f4ff",
       }}
     >
       <AlertSnackbar
@@ -159,29 +162,24 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              overflow: "auto",
-              gap: 2,
-            }}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Paper sx={{ p: 2 }}>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}
+            >
               <Typography variant="h6">面談の一括割り当て</Typography>
               <Typography variant="body2">
                 保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、教師の空き枠に面談を自動で割り当てます。
               </Typography>
             </Box>
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", gap: 2 }}>
               {/* 割り当ての手順 */}
               <Box
                 sx={{
                   flex: 2,
                   minWidth: 0,
-                  backgroundColor: "#dee8efff",
+                  backgroundColor: "#ecf1f4ff",
                   p: 2,
                   borderRadius: 3,
                 }}
@@ -216,7 +214,9 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                       <Box sx={{ display: "flex", justifyContent: "center" }}>
                         {step.icon}
                       </Box>
-                      <Typography sx={{ maxWidth: 200, mx: "auto" }}>
+                      <Typography
+                        sx={{ maxWidth: 200, mx: "auto", minHeight: 70 }}
+                      >
                         {step.description}
                       </Typography>
                     </Step>
@@ -237,171 +237,170 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                 {/*割り当て完了ボタン */}
                 <Button
                   variant="contained"
+                  fullWidth
                   color="primary"
                   onClick={handleClick}
                   disabled={isAssigning}
-                  sx={{ minWidth: 300, minHeight: 100, fontSize: 15 }}
+                  sx={{
+                    height: 50,
+                  }}
                 >
-                  {isAssigning ? "割り当て中" : "▶　割り当てを実行する"}
+                  {isAssigning ? "割り当て中" : "▶ 割り当てを実行する"}
                 </Button>
                 <Typography>(約10秒ほどかかります)</Typography>
               </Box>
             </Box>
+          </Paper>
+        </Box>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          {/* 全体割り当て進捗状況 */}
+          <Paper sx={{ p: 2 }}>
+            <Box sx={{ width: 300 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                <DonutLargeIcon sx={{ color: "primary.main" }} />
+                全体割り当て率
+              </Typography>
 
-            <Box>
-              {/* グラフ群 */}
-              <Box sx={{ display: "flex", gap: 2, minWidth: 0 }}>
-                <Box sx={{ display: "flex", flex: 3 }}>
-                  {/* 全体割り当て進捗状況 */}
-                  <Box sx={{ width: 300 }}>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      全体割り当て率
-                    </Typography>
-
-                    {/* ここから、円グラフと3項目を横並びにする */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      {/* 円グラフ本体 */}
-                      <Gauge
-                        {...settings}
-                        cornerRadius="50%"
-                        sx={(theme) => ({
-                          [`& .${gaugeClasses.valueText}`]: { fontSize: 40 },
-                          [`& .${gaugeClasses.valueArc}`]: {
-                            fill: theme.palette.success.main,
-                          },
-                          [`& .${gaugeClasses.referenceArc}`]: {
-                            fill: theme.palette.text.disabled,
-                          },
-                        })}
-                      />
-                      {/* 3項目、円グラフの横に */}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 1,
-                        }}
-                      >
-                        {/* 割り当て済み */}
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Box
-                            sx={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
-                              backgroundColor: "success.main",
-                            }}
-                          />
-                          <Box>
-                            <Typography variant="body2">
-                              割り当て済み
-                            </Typography>
-                            <Typography variant="h6">
-                              {assignCount}件
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        {/* 未割り当て */}
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Box
-                            sx={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
-                              backgroundColor: "text.disabled",
-                            }}
-                          />
-                          <Box>
-                            <Typography variant="body2">未割り当て</Typography>
-                            <Typography variant="h6">
-                              {unAssignCount}件
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        {/* 対象児童数 */}
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Box
-                            sx={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
-                              backgroundColor: "text.disabled",
-                            }}
-                          />
-                          <Box>
-                            <Typography variant="body2">対象児童数</Typography>
-                            <Typography variant="h6">{totalCount}件</Typography>
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                  {/* 学年割り当て進捗状況 */}
-                  <Box>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      学年別割り当て率
-                    </Typography>
-                    <Box>
-                      {classRates && (
-                        <BarChart
-                          dataset={classRates}
-                          // 棒グラフの縦の読みの所
-                          yAxis={[
-                            {
-                              scaleType: "band",
-                              dataKey: "class_name",
-                              width: isMobile ? 60 : 80,
-                            },
-                          ]}
-                          series={[
-                            {
-                              color: "#409563",
-                              dataKey: "rate",
-                              valueFormatter: (value) =>
-                                `${value !== null ? Math.floor(value) : 0}%`,
-                            },
-                          ]}
-                          layout="horizontal"
-                          {...chartSetting}
-                        />
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
+              {/* ここから、円グラフと3項目を横並びにする */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                {/* 円グラフ本体 */}
+                <Gauge
+                  {...settings}
+                  cornerRadius="50%"
+                  sx={(theme) => ({
+                    [`& .${gaugeClasses.valueText}`]: { fontSize: 40 },
+                    [`& .${gaugeClasses.valueArc}`]: {
+                      fill: theme.palette.success.main,
+                    },
+                    [`& .${gaugeClasses.referenceArc}`]: {
+                      fill: theme.palette.text.disabled,
+                    },
+                  })}
+                />
+                {/* 3項目、円グラフの横に */}
                 <Box
                   sx={{
-                    mt: 2,
-                    p: 2,
-                    backgroundColor: "grey.100",
-                    borderRadius: 2,
-                    flex: 1,
-                    minWidth: 300,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
                   }}
                 >
-                  <Typography variant="subtitle2">未割り当ての児童</Typography>
-                  {unassignedChildren.length === 0 ? (
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      全員の割り当てが完了しています。
-                    </Typography>
-                  ) : (
-                    unassignedChildren.map((child, index) => (
-                      <Typography key={index} variant="body2">
-                        {child.name}（{child.class_rooms[0]?.classname}）
-                      </Typography>
-                    ))
-                  )}
+                  {/* 割り当て済み */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        backgroundColor: "success.main",
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="body2">割り当て済み</Typography>
+                      <Typography variant="h6">{assignCount}件</Typography>
+                    </Box>
+                  </Box>
+
+                  {/* 未割り当て */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        backgroundColor: "text.disabled",
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="body2">未割り当て</Typography>
+                      <Typography variant="h6">{unAssignCount}件</Typography>
+                    </Box>
+                  </Box>
+
+                  {/* 対象児童数 */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        backgroundColor: "text.disabled",
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="body2">対象児童数</Typography>
+                      <Typography variant="h6">{totalCount}件</Typography>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
+          </Paper>
+          {/* 学年割り当て進捗状況 */}
+          <Paper sx={{ p: 2 }}>
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                <BarChartIcon sx={{ color: "primary.main" }} />
+                学年別割り当て率
+              </Typography>
+              <Box>
+                {classRates && (
+                  <BarChart
+                    dataset={classRates}
+                    // 棒グラフの縦の読みの所
+                    yAxis={[
+                      {
+                        scaleType: "band",
+                        dataKey: "class_name",
+                        width: isMobile ? 60 : 80,
+                      },
+                    ]}
+                    series={[
+                      {
+                        color: "#409563",
+                        dataKey: "rate",
+                        valueFormatter: (value) =>
+                          `${value !== null ? Math.floor(value) : 0}%`,
+                      },
+                    ]}
+                    layout="horizontal"
+                    {...chartSetting}
+                  />
+                )}
+              </Box>
+            </Box>
+          </Paper>
+          {/* 未割り当て一覧 */}
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6">
+              <PersonSearchIcon sx={{ color: "primary.main" }} />
+              未割り当ての児童
+            </Typography>
+            <Box
+              sx={{
+                mt: 4,
+                p: 2,
+                backgroundColor: "grey.100",
+                borderRadius: 2,
+                flex: 1,
+                minWidth: 300,
+                maxHeight: 250,
+                overflowY: "scroll",
+              }}
+            >
+              {unassignedChildren.length === 0 ? (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  全員の割り当てが完了しています。
+                </Typography>
+              ) : (
+                unassignedChildren.map((child, index) => (
+                  <Typography key={index} variant="body2">
+                    {child.name}（{child.class_rooms[0]?.classname}）
+                  </Typography>
+                ))
+              )}
+            </Box>
+          </Paper>
         </Box>
       </Box>
     </Paper>

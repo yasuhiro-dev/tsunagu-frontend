@@ -23,6 +23,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import GroupsIcon from "@mui/icons-material/Groups";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 
 type Child = {
   id: number;
@@ -36,12 +38,14 @@ type Child = {
 export default function ChildList() {
   const router = useRouter();
   const [children, setChildren] = useState<Child[]>([]);
+  const [classNames, setClassNames] = useState<string[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const counts = {
     all: children.length,
+    submitted: children.filter((c) => c.submitted).length,
     unsubmitted: children.filter((c) => !c.submitted).length,
     waiting: children.filter((c) => c.submitted && !c.assigned).length,
     done: children.filter((c) => c.submitted && c.assigned).length,
@@ -94,7 +98,8 @@ export default function ChildList() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/child_list`,
       );
       const data = await res.json();
-      setChildren(data);
+      setChildren(data.children ?? []);
+      setClassNames(data.class_names ?? []);
     };
     fetchChildren();
   }, []);
@@ -111,7 +116,7 @@ export default function ChildList() {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Paper sx={{ p: 2, borderRadius: 2, maxHeight: 650 }}>
+      <Paper sx={{ p: 2, borderRadius: 2 }}>
         <Box sx={{ p: 1 }}>
           <Box
             sx={{
@@ -120,6 +125,44 @@ export default function ChildList() {
             }}
           >
             <Typography variant="h5">児童一覧</Typography>
+            {/* クラス名表示 */}
+            {classNames.length > 0 && (
+              <Typography variant="h6" sx={{ mt: 1 }}>
+                {classNames.join("・")}
+              </Typography>
+            )}
+            <Box
+              sx={{
+                display: "flex",
+                backgroundColor: "#d6e4f0",
+                gap: 2,
+                p: 2,
+                borderRadius: 3,
+              }}
+            >
+              <Box sx={{ display: "flex" }}>
+                <Typography variant="body1" color="text.secondary">
+                  <GroupsIcon
+                    sx={{ fontSize: 40, color: "primary.main", mr: 2 }}
+                  />
+                  提出：{counts.submitted}/{counts.all}人（未提出
+                  {counts.unsubmitted}人）
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="body1" color="text.secondary">
+                  <EventAvailableIcon
+                    sx={{ fontSize: 40, color: "primary.main", mr: 2 }}
+                  />
+                  割り当て：{counts.done}/{counts.submitted}人（未割り当て
+                  {counts.waiting}人）
+                </Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              ※デモ用に、多くの保護者は提出済みのデータを用意しています。
+            </Typography>
           </Box>
           {isMobile ? (
             <Box
@@ -240,7 +283,7 @@ export default function ChildList() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <Typography>予約済み</Typography>
+                          <Typography>割り当て済み</Typography>
                           <Chip
                             variant="outlined"
                             color="success"

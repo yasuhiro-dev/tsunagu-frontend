@@ -306,11 +306,10 @@ export default function MeetingSlotPage() {
         sx={{
           p: 3,
           borderRadius: 2,
-          maxHeight: 800,
         }}
       >
         <Box sx={{ p: 1 }}>
-          <DemoGuide role="teacher" />
+          <DemoGuide page="teacher_meeting_slots" />
           <Box
             sx={{
               display: "flex",

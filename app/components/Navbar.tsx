@@ -10,7 +10,6 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import LogoutIcon from "@mui/icons-material/Logout";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -34,6 +33,8 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import HomeIcon from "@mui/icons-material/Home";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 
 type MenuItemType = {
   label: string;
@@ -50,7 +51,7 @@ const teacherMenuItems = [
     icon: <EventNoteIcon />,
   },
   {
-    label: "都合の悪い日時",
+    label: "面談できない日時",
     href: "/teacher_unavailabilities",
     icon: <EventBusyIcon />,
   },
@@ -58,9 +59,9 @@ const teacherMenuItems = [
 const parentMenuItems = [
   { label: "面談の決定日", href: "/my_schedule", icon: <EventAvailableIcon /> },
   {
-    label: "都合の悪い日時",
+    label: "面談できる日時",
     href: "/family_unavailabilities",
-    icon: <EventBusyIcon />,
+    icon: <EditCalendarIcon />,
   },
 ];
 const adminMenuItems = [
@@ -158,7 +159,7 @@ function TeacherNavLinks({
           fontSize: isMobile ? "12px" : "16px",
         }}
       >
-        都合の悪い日時
+        面談できない日時
       </Button>
     </>
   );
@@ -202,10 +203,10 @@ function ParentNavLinks({
         variant="outlined"
         component={Link}
         href="/family_unavailabilities"
-        startIcon={<EventBusyIcon />}
+        startIcon={<EditCalendarIcon />}
         color="inherit"
       >
-        都合の悪い日時
+        面談できる日時
       </Button>
     </>
   );
