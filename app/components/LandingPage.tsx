@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -13,6 +13,8 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import Chip from "@mui/material/Chip";
+import Container from "@mui/material/Container";
 
 type RedirectMap = {
   teacher: string;
@@ -21,7 +23,7 @@ type RedirectMap = {
 };
 
 export default function LandingPage() {
-  const demoSectionRef = useRef<HTMLElement>(null);
+  const workflowRef = useRef<HTMLElement>(null);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -90,7 +92,7 @@ export default function LandingPage() {
         "スマホ操作も可能",
       ],
       color: "#fbebec",
-      circleColor: "error.main",
+      circleColor: "warning.main",
     },
     {
       image: "/images/admin.webp",
@@ -135,37 +137,79 @@ export default function LandingPage() {
     },
   ];
 
-  const roleExperience = [
+  //　デモログインの手順表示
+  const demologins = [
     {
-      image: "/images/teacher.webp",
-      title: "教師として体験する",
-      description: "面談表の確認・手動調整を体験",
+      number: "1",
+      role: "教師",
       mail: "aoki@example.com",
-      color: "#d6e4f0",
-      button: "教師デモを開始",
-      circleColor: "primary.main",
+      back_color: "#d6e4f0",
+      color: "primary.main",
       hoverColor: "primary.dark",
+      title: "面談できない日時を登録",
+      button_content: "教師デモを開始",
+      description: "出張・不在の日を設定します。",
     },
     {
-      image: "/images/parent.webp",
-      title: "保護者として体験する",
-      description: "都合を選んで提出・面談日の確認を体験",
+      number: "2",
+      role: "保護者",
       mail: "parent-nonsubmit@example.com",
-      color: "#fbebec",
-      button: "保護者デモを開始",
-      circleColor: "error.main",
+      back_color: "#fbebec",
+      color: "error.main",
       hoverColor: "error.dark",
+      title: "来校できる日を提出",
+      button_content: "保護者デモを開始",
+      description: "都合のいい日時を選んで提出します。",
     },
     {
-      image: "/images/admin.webp",
-      title: "管理者として体験する",
-      description: "自動割り当て・割り当て結果の確認を体験",
+      number: "3",
+      role: "管理者",
       mail: "admin@example.com",
-      color: "#e8f5ee",
-      font_color: "",
-      button: "管理者デモを開始",
-      circleColor: "success.main",
+      back_color: "#e8f5ee",
+      color: "success.main",
       hoverColor: "success.dark",
+      title: "自動割り当てを実行",
+      button_content: "管理者デモを開始",
+      description: "提出された希望と条件を基に、割り当てます。",
+    },
+  ];
+
+  // このアプリのワークフロー
+  const workflows = [
+    {
+      role: "教師",
+      color: "primary.main",
+      title: "面談できない日時を登録",
+      image: "/images/workflows/teacher_availability.webp",
+      description: "学校の都合で対応できない日を登録します。",
+    },
+    {
+      role: "保護者",
+      color: "error.main",
+      title: "来校できる日を提出",
+      image: "/images/workflows/family_availability.webp",
+      description: "都合のいい日時を選んで提出します。",
+    },
+    {
+      role: "管理者",
+      color: "success.main",
+      title: "自動割り当てを実行",
+      image: "/images/workflows/admin_assignment.webp",
+      description: "提出された希望と条件を基に、割り当てする。",
+    },
+    {
+      role: "教師",
+      title: "面談表を確認・調整",
+      color: "primary.main",
+      image: "/images/workflows/teacher_manual.webp",
+      description: "面談表を確認し、必要に応じて調整します。",
+    },
+    {
+      role: "保護者",
+      title: "決定した日時を確認",
+      color: "error.main",
+      image: "/images/workflows/family_schedule.webp",
+      description: "面談日時をメールやマイページから確認できます。",
     },
   ];
 
@@ -206,539 +250,673 @@ export default function LandingPage() {
     lead: { xs: "15px", sm: "15px", md: "14px" }, // 「なぜ作ったのか」本文
   };
 
-  return (
-    <>
-      <AlertSnackbar
-        open={alertOpen}
-        severity={alertSeverity}
-        message={alertMessage}
-        onClose={() => setAlertOpen(false)}
-      />
-      {/* ヒーロー */}
+  //矢印の見た目を事前に設定
+  function FlowArrow() {
+    return (
       <Box
         sx={{
           display: "flex",
-          p: 4,
-          flexDirection: "column",
-          mb: 8,
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
         }}
       >
+        <ArrowForwardIcon
+          sx={{
+            color: "text.secondary",
+            fontSize: 20,
+            transform: { xs: "rotate(90deg)", md: "none" },
+          }}
+        />
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      <Container maxWidth="lg">
+        <AlertSnackbar
+          open={alertOpen}
+          severity={alertSeverity}
+          message={alertMessage}
+          onClose={() => setAlertOpen(false)}
+        />
+        {/* ヒーロー */}
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", sm: "column", md: "row" },
+            p: 3,
+            flexDirection: "column",
+            mb: 5,
           }}
         >
-          {/* ヒーロー見出し */}
-          <Box sx={{ flex: 1 }}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                color: "text.secondary",
-                mb: 1,
-                fontSize: fontSizes.caption,
-              }}
-            >
-              学校向け 面談日程調整サービス
-            </Typography>
-
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="h3"
-                sx={{ fontSize: { xs: "26px", sm: "36px", md: "48px" } }}
-              >
-                保護者が学校へ行く日を、
-                <br />
-                1日にまとめます。
-              </Typography>
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: { xs: "15px", sm: "15px", md: "18px" },
-                  lineHeight: 2.5,
-                  color: "text.secondary",
-                }}
-              >
-                兄弟も支援学級も保護者の都合も。
-                <br />
-                複数の条件を考慮して、面談日程を自動で調整します。
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* 兄弟連続画像 */}
           <Box
             sx={{
-              flex: 1,
+              display: "flex",
+              flexDirection: { xs: "column", sm: "column", md: "row" },
             }}
           >
-            <Image
-              src="/images/LP-top.webp"
-              alt="兄弟がいる家庭をまとめるイメージ"
-              width={1200}
-              height={1200}
-            />
+            {/* ヒーロー見出し */}
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  color: "text.secondary",
+                  mb: 1,
+                  fontSize: fontSizes.caption,
+                }}
+              >
+                学校向け 面談日程調整サービス
+              </Typography>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{ fontSize: { xs: "26px", sm: "36px", md: "45px" } }}
+                >
+                  保護者が学校へ行く日を、
+                  <br />
+                  1日にまとめます。
+                </Typography>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: { xs: "15px", sm: "15px", md: "18px" },
+                    lineHeight: 2.5,
+                    color: "text.secondary",
+                  }}
+                >
+                  兄弟も支援学級も保護者の都合も。
+                  <br />
+                  複数の条件を考慮して、面談日程を自動で調整します。
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* 兄弟連続画像 */}
+            <Box
+              sx={{
+                flex: 1,
+              }}
+            >
+              <Image
+                src="/images/LP-top.webp"
+                alt="兄弟がいる家庭をまとめるイメージ"
+                width={1200}
+                height={1200}
+              />
+            </Box>
+          </Box>
+
+          {/*デモ導線 */}
+          <Paper elevation={4} sx={{ mt: 3, p: 3 }}>
+            <Box component="section">
+              <Typography variant="h5" sx={{ mb: 2 }}>
+                まずはデモを体験してみる
+              </Typography>
+              <Typography sx={{ mb: 3 }}>
+                <Box
+                  component="span"
+                  sx={{
+                    fontWeight: "bold",
+                  }}
+                >
+                  ①から順に体験
+                </Box>
+                すると、面談日が決まるまでの流れを実際に試せます
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", md: "row" },
+                  gap: 1,
+                }}
+              >
+                {demologins.map((demologin, index) => {
+                  const isLast = index === demologins.length - 1;
+
+                  return (
+                    <Fragment key={demologin.number}>
+                      {/* カード */}
+                      <Box
+                        sx={{
+                          flex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                          backgroundColor: demologin.back_color,
+                          borderRadius: 5,
+                          p: 2,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        >
+                          <Box
+                            sx={{
+                              width: 30,
+                              height: 30,
+                              backgroundColor: demologin.color,
+                              color: "common.white",
+                              borderRadius: "50%",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {demologin.number}
+                          </Box>
+                          <Chip
+                            sx={{
+                              minWidth: 110,
+                              backgroundColor: demologin.color,
+                              color: "common.white",
+                            }}
+                            label={demologin.role}
+                          />
+                        </Box>
+                        <Typography variant="h6">{demologin.title}</Typography>
+                        <Typography variant="body2" sx={{ flexGrow: 1, mb: 2 }}>
+                          {demologin.description}
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          onClick={() =>
+                            handleSubmit(demologin.mail, "password")
+                          }
+                          sx={{
+                            height: 50,
+                            fontSize: fontSizes.caption,
+                            backgroundColor: demologin.color,
+                            "&:hover": {
+                              backgroundColor: demologin.hoverColor,
+                            },
+                          }}
+                        >
+                          {demologin.button_content}
+                        </Button>
+                      </Box>
+
+                      {/* 矢印（最後のカードの後ろには出さない） */}
+                      {!isLast && <FlowArrow />}
+                    </Fragment>
+                  );
+                })}
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <Button
+                  onClick={() =>
+                    workflowRef.current?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  sx={{
+                    textDecoration: "underline",
+                    "&:hover": {
+                      textDecoration: "underline", // ホバーで消えないようにする
+                      backgroundColor: "transparent",
+                    },
+                    fontSize: 15,
+                  }}
+                >
+                  Tsunaguの詳しい流れを見る <ArrowDownwardIcon />
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+        </Box>
+
+        {/* Tsunaguで面談日程が決まるまで */}
+
+        <Box sx={{ p: 3, mb: 5 }} ref={workflowRef}>
+          <Box
+            sx={{
+              p: 3,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              backgroundColor: "#d6e4f0",
+              borderRadius: 5,
+              height: "auto",
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Typography variant="h4" sx={{ px: 3 }}>
+                Tsunaguで面談日程が決まるまで
+              </Typography>
+              <Typography variant="body2" sx={{ px: 3 }}>
+                教師・保護者が情報を入力し、管理者が自動割り当て
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+                justifyContent: "center",
+                gap: 1,
+              }}
+            >
+              {workflows.map((workflow, index) => {
+                const isLast = index === workflows.length - 1;
+                return (
+                  <Fragment key={index}>
+                    <Paper
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        minHeight: 350,
+                        flex: 1,
+                        minWidth: 0,
+                        p: 3,
+                        gap: 1,
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Chip
+                        sx={{
+                          minWidth: 110,
+                          backgroundColor: workflow.color,
+                          color: "common.white",
+                        }}
+                        label={workflow.role}
+                      />
+
+                      <Typography variant="h6">{workflow.title}</Typography>
+                      <Image
+                        src={workflow.image}
+                        alt={workflow.title}
+                        width={180}
+                        height={180}
+                        style={{ width: "100%", height: "auto", maxWidth: 180 }}
+                      />
+                      <Typography>{workflow.description}</Typography>
+                    </Paper>
+                    {/* 矢印 */}
+                    {!isLast && <FlowArrow />}
+                  </Fragment>
+                );
+              })}
+            </Box>
           </Box>
         </Box>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          ログイン不要・デモデータですぐに体験できます
-        </Typography>
-        {/*デモ導線 */}
-        <Paper elevation={4} sx={{ mt: 3 }}>
-          <Box component="section" sx={{ p: 3 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              まずはデモを体験してみる
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              3つの立場から、実際の操作を体験できます
+
+        {/* 学校現場では、こんな調節が必要です */}
+        <Paper sx={{ p: 3, mb: 5 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              height: "auto",
+              p: 3,
+              borderRadius: 5,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                px: 3,
+              }}
+            >
+              <Typography variant="h4">
+                学校現場では、こんな調整が必要です
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: 2,
+                p: 3,
+                alignItems: "center",
+              }}
+            >
+              {teacherProblems.map((problem, index) => {
+                return (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      minHeight: 200,
+                      flex: 1,
+                      borderRadius: 5,
+                      p: 2,
+                      gap: 2,
+                      backgroundColor: "#d6e4f0",
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ textAlign: "center" }}>
+                      {problem.title}
+                    </Typography>
+
+                    <Image
+                      src={problem.image}
+                      alt={problem.title}
+                      width={300}
+                      height={300}
+                      style={{
+                        borderRadius: 10,
+                        width: "80%",
+                        height: "auto",
+                        aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
+                      }}
+                    />
+                    <Typography sx={{ textAlign: "center", width: 200 }}>
+                      {problem.description}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+          </Box>
+        </Paper>
+
+        {/* tsunaguの割り当てロジックフロー */}
+        <Box sx={{ p: 3, mb: 5 }}>
+          <Box
+            sx={{
+              p: 3,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              backgroundColor: "#d6e4f0",
+              borderRadius: 5,
+              height: "auto",
+            }}
+          >
+            <Box>
+              <Typography
+                variant="h4"
+                sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+              >
+                Tsunaguが自動で解決します。
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+                justifyContent: "center",
+                gap: 3,
+              }}
+            >
+              {steps.map((step, index) => {
+                const isLast = index === steps.length - 1;
+                return (
+                  // ロジックの大外
+                  <Fragment key={step.title}>
+                    {/* 「画像」「タイトル」「説明文」を囲んでいる */}
+                    <Paper
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 2,
+                        textAlign: "center",
+                        p: 1,
+                        flex: 1,
+                        minWidth: 0,
+                        minHeight: 320,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: 140,
+                          flexShrink: 0,
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Image
+                          src={step.image}
+                          alt={step.title}
+                          width={150}
+                          height={150}
+                          style={{
+                            width: "100%",
+                            maxWidth: 150,
+                            height: "auto",
+                          }}
+                        />
+                      </Box>
+
+                      <Typography
+                        variant="h6"
+                        sx={{ fontSize: fontSizes.caption }}
+                      >
+                        {step.title}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        {step.description}
+                      </Typography>
+                    </Paper>
+                    {/* 矢印 */}
+                    {!isLast && <FlowArrow />}
+                  </Fragment>
+                );
+              })}
+            </Box>
+          </Box>
+        </Box>
+
+        {/* ３つのrole(役割)の説明 */}
+        <Box sx={{ p: 3, mb: 5 }}>
+          <Paper elevation={4} sx={{ p: 2 }}>
+            <Typography variant="h4" sx={{ px: 3 }}>
+              教師の空き状況と保護者の希望から、管理者が児童の面談日をつくります。
             </Typography>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: { xs: "column", sm: "column", md: "row" },
-                gap: { xs: 3, md: 6 },
+                p: 3,
+                justifyContent: "center",
+                gap: { xs: 1, md: 2 },
               }}
             >
-              {roleExperience.map((role, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    flex: 1,
-                    backgroundColor: role.circleColor,
-                    borderRadius: 5,
-                  }}
-                >
-                  <Button
+              {roleDescriptions.map((role, index) => {
+                return (
+                  // 役割の説明が書かれている箱
+                  <Box
+                    key={index}
                     sx={{
+                      flex: 1,
                       display: "flex",
                       flexDirection: "column",
-                      width: "100%",
-                      height: 100,
-                      fontSize: fontSizes.caption,
-                      backgroundColor: role.circleColor,
-                      "&:hover": {
-                        backgroundColor: role.hoverColor,
-                      },
+                      backgroundColor: role.color,
+                      gap: 2,
+                      alignItems: "center",
+                      borderRadius: 5,
+                      p: 2,
                     }}
-                    variant="contained"
-                    onClick={() => handleSubmit(role.mail, "password")}
                   >
-                    <Box sx={{ fontSize: fontSizes.caption }}>
-                      {" "}
-                      {role.button}
-                      <ArrowForwardIcon />
+                    <Typography variant="h5" sx={{ color: role.circleColor }}>
+                      {role.title}
+                    </Typography>
+                    <Typography>{role.description}</Typography>
+                    <Image
+                      src={role.image}
+                      alt={role.title}
+                      width={300}
+                      height={300}
+                      style={{ borderRadius: "50%" }}
+                    />
+
+                    {/* 書く役割のできることリスト */}
+                    <Box
+                      sx={{
+                        textAlign: "left",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                      }}
+                    >
+                      {role.items.map((item, itemIndex) => (
+                        <Typography key={itemIndex}>
+                          <CheckCircleIcon sx={{ color: role.circleColor }} />
+                          {item}
+                        </Typography>
+                      ))}
                     </Box>
-                    <Box sx={{ fontSize: fontSizes.body }}>
-                      {role.description}
-                    </Box>
-                  </Button>
-                </Box>
-              ))}
+                  </Box>
+                );
+              })}
             </Box>
-          </Box>
-        </Paper>
-      </Box>
-      <Typography variant="h4" sx={{ px: 3 }}>
-        教師の空き状況と保護者の希望から、管理者が児童の面談日をつくります。
-      </Typography>
-      {/* ３つの役割の説明をまとめる箱 */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "column", md: "row" },
-          p: 3,
-          justifyContent: "center",
-          gap: { xs: 1, md: 2 },
-          mb: 8,
-        }}
-      >
-        {roleDescriptions.map((role, index) => {
-          return (
-            // 役割の説明が書かれている箱
-            <Box
-              key={index}
-              sx={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: role.color,
-                gap: 2,
-                alignItems: "center",
-                borderRadius: 5,
-                p: 2,
-              }}
-            >
-              <Typography variant="h5" sx={{ color: role.circleColor }}>
-                {role.title}
-              </Typography>
-              <Typography>{role.description}</Typography>
-              <Image
-                src={role.image}
-                alt={role.title}
-                width={300}
-                height={300}
-                style={{ borderRadius: "50%" }}
-              />
-
-              {/* 書く役割のできることリスト */}
-              <Box
-                sx={{
-                  textAlign: "left",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                }}
-              >
-                {role.items.map((item, itemIndex) => (
-                  <Typography key={itemIndex}>
-                    <CheckCircleIcon sx={{ color: role.circleColor }} />
-                    {item}
-                  </Typography>
-                ))}
-              </Box>
-            </Box>
-          );
-        })}
-      </Box>
-
-      {/* 学校現場の悩み */}
-      <Box sx={{ p: 3, mb: 5 }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            flex: 1,
-            height: "auto",
-            backgroundColor: "#d6e4f0",
-            p: 3,
-            borderRadius: 5,
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              px: 3,
-            }}
-          >
-            <Typography variant="h4">
-              学校現場では、こんな調整が必要です
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              gap: 2,
-              p: 3,
-              alignItems: "center",
-            }}
-          >
-            {teacherProblems.map((problem, index) => {
-              return (
-                <Paper
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    minHeight: 200,
-                    flex: 1,
-                    borderRadius: 5,
-                    p: 2,
-                    gap: 2,
-                  }}
-                >
-                  <Typography variant="h6" sx={{ textAlign: "center" }}>
-                    {problem.title}
-                  </Typography>
-
-                  <Image
-                    src={problem.image}
-                    alt={problem.title}
-                    width={300}
-                    height={300}
-                    style={{
-                      borderRadius: 10,
-                      width: "80%",
-                      height: "auto",
-                      aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
-                    }}
-                  />
-                  <Typography sx={{ textAlign: "center", width: 200 }}>
-                    {problem.description}
-                  </Typography>
-                </Paper>
-              );
-            })}
-          </Box>
+          </Paper>
         </Box>
-      </Box>
 
-      {/* tsunaguの割り当てロジックフロー */}
-      <Box sx={{ p: 3, mb: 5 }}>
-        <Box
-          sx={{
-            p: 3,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            backgroundColor: "#d6e4f0",
-            borderRadius: 5,
-            height: "auto",
-          }}
-        >
-          <Box>
+        {/* プレビュー */}
+        <Box sx={{ p: 3, mb: 5 }}>
+          <Box
+            sx={{
+              borderRadius: 5,
+              display: "flex",
+              p: 3,
+              flexDirection: "column",
+              backgroundColor: "#d6e4f0",
+            }}
+          >
             <Typography
               variant="h4"
               sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
             >
-              Tsunaguが自動で解決します。
+              実際に出力されるもの
             </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-              justifyContent: "center",
-              gap: 3,
-            }}
-          >
-            {steps.map((step, index) => {
-              const isLast = index === steps.length - 1;
-              return (
-                // ロジックの大外
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                mt: 2,
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+              }}
+            >
+              <Paper
+                sx={{
+                  flex: 1,
+                  minHeight: 550,
+                  display: "flex",
+                  flexDirection: "column",
+                  p: 3,
+                }}
+              >
                 <Box
-                  key={step.title}
-                  sx={{
-                    display: "flex",
-                    flexDirection: { xs: "column", sm: "column", md: "row" },
-                  }}
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
                 >
-                  {/* 「画像」「タイトル」「説明文」を囲んでいる */}
-                  <Paper
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 2,
-                      textAlign: "center",
-                      width: 225,
-                      height: 270,
-                      p: 1,
-                    }}
+                  <PictureAsPdfIcon sx={{ color: "red" }} />
+                  <Typography
+                    variant="h5"
+                    sx={{ fontSize: fontSizes.subheading }}
                   >
-                    <Box
-                      sx={{
-                        width: "100%",
-                        height: 140,
-                        flexShrink: 0,
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Image
-                        src={step.image}
-                        alt={step.title}
-                        width={150}
-                        height={150}
-                      />
-                    </Box>
-
-                    <Typography
-                      variant="h6"
-                      sx={{ fontSize: fontSizes.caption }}
-                    >
-                      {step.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      {step.description}
-                    </Typography>
-                  </Paper>
-                  {/* 矢印 */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-
-                      height: 270,
-                    }}
-                  >
-                    {!isLast &&
-                      (isMobile ? (
-                        <span>
-                          <ArrowDownwardIcon
-                            sx={{
-                              color: "text.secondary",
-                              fontSize: 32,
-                            }}
-                          />
-                        </span>
-                      ) : (
-                        <span>
-                          <ArrowForwardIcon
-                            sx={{ color: "text.secondary", fontSize: 32 }}
-                          />
-                        </span>
-                      ))}
-                  </Box>
+                    面談表PDF
+                  </Typography>
                 </Box>
-              );
-            })}
+                <Paper
+                  elevation={4}
+                  sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
+                >
+                  <Image
+                    src="/images/meeting-slots.png"
+                    alt="面談表"
+                    fill
+                    style={{ objectFit: "contain", borderRadius: 8 }}
+                  />
+                </Paper>
+              </Paper>
+
+              <Paper
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  p: 3,
+                }}
+              >
+                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                  <MailIcon sx={{ color: "blue" }} />
+                  <Typography
+                    variant="h5"
+                    sx={{ fontSize: fontSizes.subheading }}
+                  >
+                    保護者への通知メール
+                  </Typography>
+                </Box>
+                <Paper
+                  elevation={4}
+                  sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
+                >
+                  <Image
+                    src="/images/gmail-response.png"
+                    alt="通知メール"
+                    fill
+                    style={{ objectFit: "contain", borderRadius: 8 }}
+                  />
+                </Paper>
+              </Paper>
+            </Box>
           </Box>
         </Box>
-      </Box>
 
-      {/* 実際のtsunaguの動画 */}
-
-      {/* プレビュー */}
-      <Box sx={{ p: 3, mb: 5 }}>
-        <Box
-          sx={{
-            borderRadius: 5,
-            display: "flex",
-            p: 3,
-            flexDirection: "column",
-            backgroundColor: "#d6e4f0",
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
-          >
-            実際に出力されるもの
-          </Typography>
+        {/* なぜTsunaguを作ったのか */}
+        <Paper sx={{ p: 3, mb: 5 }}>
           <Box
+            component="section"
             sx={{
+              p: 4,
+
               display: "flex",
-              gap: 2,
-              mt: 2,
-              flexDirection: { xs: "column", sm: "column", md: "row" },
+              borderRadius: 5,
             }}
           >
-            <Paper
-              sx={{
-                flex: 1,
-                minHeight: 550,
-                display: "flex",
-                flexDirection: "column",
-                p: 3,
-              }}
-            >
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+            <Box sx={{ flex: 2 }}>
+              <Typography
+                variant="h4"
+                sx={{ mb: 2, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
               >
-                <PictureAsPdfIcon sx={{ color: "red" }} />
-                <Typography
-                  variant="h5"
-                  sx={{ fontSize: fontSizes.subheading }}
-                >
-                  面談表PDF
-                </Typography>
-              </Box>
-              <Paper
-                elevation={4}
-                sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
+                なぜTsunaguを作ったのか
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  maxWidth: 700,
+                  lineHeight: 2,
+                  color: "text.secondary",
+                  mb: 3,
+                  fontSize: fontSizes.caption,
+                }}
               >
-                <Image
-                  src="/images/meeting-slots.png"
-                  alt="面談表"
-                  fill
-                  style={{ objectFit: "contain", borderRadius: 8 }}
-                />
-              </Paper>
-            </Paper>
-
-            <Paper
-              sx={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                p: 3,
-              }}
-            >
-              <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-                <MailIcon sx={{ color: "blue" }} />
-                <Typography
-                  variant="h5"
-                  sx={{ fontSize: fontSizes.subheading }}
-                >
-                  保護者への通知メール
-                </Typography>
-              </Box>
-              <Paper
-                elevation={4}
-                sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
-              >
-                <Image
-                  src="/images/gmail-response.png"
-                  alt="通知メール"
-                  fill
-                  style={{ objectFit: "contain", borderRadius: 8 }}
-                />
-              </Paper>
-            </Paper>
+                教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。
+                Googleフォームなどを使う学校もありますが、兄弟の連続配置や特別支援学級への配慮といった
+                学校特有の条件までは対応しきれていないのが実情です。
+                <br />
+                <br />
+                調整に追われる時間を減らし、本来の子どもと向き合う時間を確保するために、Tsunaguを開発しました。
+              </Typography>
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Image
+                src="/images/teacher-picture.webp"
+                alt="調整に追われる時間から、子どもと向き合う時間へ"
+                width={600}
+                height={500}
+              />
+            </Box>
           </Box>
-        </Box>
-      </Box>
-
-      {/* なぜTsunaguを作ったのか */}
-      <Box sx={{ p: 3, mb: 5 }}>
-        <Box
-          component="section"
-          sx={{
-            p: 4,
-            backgroundColor: "#d6e4f0",
-            display: "flex",
-            borderRadius: 5,
-          }}
-        >
-          <Box sx={{ flex: 2 }}>
-            <Typography
-              variant="h4"
-              sx={{ mb: 2, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
-            >
-              なぜTsunaguを作ったのか
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                maxWidth: 700,
-                lineHeight: 2,
-                color: "text.secondary",
-                mb: 3,
-                fontSize: fontSizes.caption,
-              }}
-            >
-              教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。
-              Googleフォームなどを使う学校もありますが、兄弟の連続配置や特別支援学級への配慮といった
-              学校特有の条件までは対応しきれていないのが実情です。
-              <br />
-              <br />
-              調整に追われる時間を減らし、本来の子どもと向き合う時間を確保するために、Tsunaguを開発しました。
-            </Typography>
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Image
-              src="/images/teacher-picture.webp"
-              alt="調整に追われる時間から、子どもと向き合う時間へ"
-              width={600}
-              height={500}
-            />
-          </Box>
-        </Box>
-      </Box>
+        </Paper>
+      </Container>
     </>
   );
 }
