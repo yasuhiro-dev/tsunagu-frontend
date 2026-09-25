@@ -115,6 +115,7 @@ function AdminContent() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [scheduleId, setScheduleId] = useState<number | null>(null);
   const [alertMessage, setAlertMessage] = useState("");
+
   const isMobile = useMediaQuery("(max-width:600px)");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",

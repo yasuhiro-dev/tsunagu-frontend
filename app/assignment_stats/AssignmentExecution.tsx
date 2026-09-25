@@ -23,6 +23,7 @@ import { stepLabelClasses } from "@mui/material/StepLabel";
 import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+import DemoGuide from "@/app/components/DemoGuide";
 
 type Props = {
   scheduleId: number | null;
@@ -68,6 +69,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
   const [isAssigning, setIsAssigning] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [unassignedChildren, setUnassignedChildren] = useState<
     UnassignedChild[]
   >([]);
@@ -125,11 +127,13 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("全員の割り当てが成功しました");
+      setShowAssignmentDialog(true);
     } else if (res.ok === true && data.unassigned_children.length > 0) {
       setUnassignedChildren(data.unassigned_children);
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage("割り当て失敗した児童がいます");
+      setShowAssignmentDialog(true);
     } else {
       setAlertMessage(data.error);
     }
@@ -162,6 +166,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+      {showAssignmentDialog && <DemoGuide page="assignment_button" />}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Box>
           <Paper sx={{ p: 2 }}>

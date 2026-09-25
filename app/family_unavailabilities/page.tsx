@@ -18,6 +18,12 @@ import {
   decodeToken,
 } from "@/utils/dateUtils";
 import DemoGuide from "@/app/components/DemoGuide";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import Alert from "@mui/material/Alert";
+import DialogActions from "@mui/material/DialogActions";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -28,9 +34,11 @@ export default function FamilyUnavailability() {
   const [submitted, setSubmitted] = useState(false);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
-  const [blockedSlotIds, setBlockedSlotIds] = useState<number[]>([]);
+  const [blockedSlotStartAt, setBlockedSlotStartAt] = useState<string[]>([]);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -39,7 +47,7 @@ export default function FamilyUnavailability() {
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
     const newIds = dateSlots
       .filter((slot) => !availableSlots.includes(slot.id))
-      .filter((slot) => !blockedSlotIds.includes(slot.id))
+      .filter((slot) => !blockedSlotStartAt.includes(slot.start_at))
       .map((slot) => slot.id);
     for (const slotId of newIds) {
       await fetchWithAuth(
@@ -107,7 +115,8 @@ export default function FamilyUnavailability() {
       },
     );
     const data = await res.json();
-    setBlockedSlotIds(data.map((slot: MeetingSlot) => slot.id));
+    console.log("blocked_slots raw:", data);
+    setBlockedSlotStartAt(data.map((slot: MeetingSlot) => slot.start_at));
   };
 
   // 保護者の参加できる日時の提出
@@ -123,12 +132,14 @@ export default function FamilyUnavailability() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("提出しました");
-
+      setDialogOpen(false);
       setSubmitted(true);
+      setShowSubmittedDialog(true);
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage(data.error);
+      setDialogOpen(false);
     }
   };
 
@@ -211,7 +222,33 @@ export default function FamilyUnavailability() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+      {/* 提出完了時の今後の流れのダイアログ */}
+      {showSubmittedDialog && <DemoGuide page="family_submitted" />}
       <DemoGuide page="family_availability" />
+      {/* 提出ボタンを押した時の確認ダイアログ */}
+      <Dialog open={dialogOpen}>
+        <Box sx={{ p: 3 }}>
+          <DialogTitle>この内容で提出しますか？</DialogTitle>
+          <DialogContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <DialogContentText>
+              提出すると、あとから内容を変更できません。
+            </DialogContentText>
+            <Alert severity="info">
+              選んだ日時が少ないと、自動では面談日時が決まらず、先生から日程のご相談をすることがあります。
+            </Alert>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button variant="outlined" onClick={() => setDialogOpen(false)}>
+              戻って修正する
+            </Button>
+            <Button variant="contained" onClick={handleSubmit}>
+              提出する
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
       <Box>
         <Box
           sx={{
@@ -243,13 +280,15 @@ export default function FamilyUnavailability() {
               dateSlots={dateSlots}
               isAvailable={(slot) => availableSlots.includes(slot.id)}
               isDisabled={(slot) =>
-                submitted || isPastDeadline || blockedSlotIds.includes(slot.id)
+                submitted ||
+                isPastDeadline ||
+                blockedSlotStartAt.includes(slot.start_at)
               }
               onClickSlot={handleClick}
               onSelectAll={handleSelectAll}
               onClearAll={handleClearAll}
               showBlockedNote={true}
-              isBlocked={(slot) => blockedSlotIds.includes(slot.id)}
+              isBlocked={(slot) => blockedSlotStartAt.includes(slot.start_at)}
             />
           ))}
         </Box>
@@ -260,7 +299,7 @@ export default function FamilyUnavailability() {
             disabled={
               submitted || isPastDeadline || availableSlots.length === 0
             }
-            onClick={handleSubmit}
+            onClick={() => setDialogOpen(true)}
           >
             {submitted ? "提出が完了しました" : "上記の内容で提出する"}
           </Button>
