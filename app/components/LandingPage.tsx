@@ -92,7 +92,7 @@ export default function LandingPage() {
         "スマホ操作も可能",
       ],
       color: "#fbebec",
-      circleColor: "warning.main",
+      circleColor: "#d18a94",
     },
     {
       image: "/images/admin.webp",
@@ -127,7 +127,7 @@ export default function LandingPage() {
       title: "保護者の都合",
       image: "/images/problems/parent.webp",
       description: "仕事や家庭の都合で来られない時間がある",
-      color: "#d6e4f0",
+      color: "#fbebec",
     },
     {
       title: "教師の都合",
@@ -155,7 +155,7 @@ export default function LandingPage() {
       role: "保護者",
       mail: "parent-nonsubmit@example.com",
       back_color: "#fbebec",
-      color: "error.main",
+      color: "#d18a94",
       hoverColor: "error.dark",
       title: "来校できる日を提出",
       button_content: "保護者デモを開始",
@@ -177,39 +177,54 @@ export default function LandingPage() {
   // このアプリのワークフロー
   const workflows = [
     {
+      number: "1",
       role: "教師",
+      mail: "aoki@example.com",
       color: "primary.main",
       title: "面談できない日時を登録",
       image: "/images/workflows/teacher_availability.webp",
       description: "学校の都合で対応できない日を登録します。",
+      path: "/teacher_unavailabilities",
     },
     {
+      number: "2",
       role: "保護者",
-      color: "error.main",
+      mail: "parent-nonsubmit@example.com",
+      color: "#d18a94",
       title: "来校できる日を提出",
       image: "/images/workflows/family_availability.webp",
       description: "都合のいい日時を選んで提出します。",
+      path: "/family_unavailabilities",
     },
     {
+      number: "3",
       role: "管理者",
+      mail: "admin@example.com",
       color: "success.main",
       title: "自動割り当てを実行",
       image: "/images/workflows/admin_assignment.webp",
       description: "提出された希望と条件を基に、割り当てする。",
+      path: "/admin",
     },
     {
+      number: "4",
       role: "教師",
+      mail: "aoki@example.com",
       title: "面談表を確認・調整",
       color: "primary.main",
       image: "/images/workflows/teacher_manual.webp",
       description: "面談表を確認し、必要に応じて調整します。",
+      path: "/meeting_slots",
     },
     {
+      number: "5",
       role: "保護者",
+      mail: "parent-nonsubmit@example.com",
       title: "決定した日時を確認",
-      color: "error.main",
+      color: "#d18a94",
       image: "/images/workflows/family_schedule.webp",
       description: "面談日時をメールやマイページから確認できます。",
+      path: "/my_schedule",
     },
   ];
 
@@ -449,7 +464,7 @@ export default function LandingPage() {
                   );
                 })}
               </Box>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
                 <Button
                   onClick={() =>
                     workflowRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -460,10 +475,10 @@ export default function LandingPage() {
                       textDecoration: "underline", // ホバーで消えないようにする
                       backgroundColor: "transparent",
                     },
-                    fontSize: 15,
+                    fontSize: 20,
                   }}
                 >
-                  Tsunaguの詳しい流れを見る <ArrowDownwardIcon />
+                  さらに面談表の確認・調節をするなら {""} <ArrowDownwardIcon />
                 </Button>
               </Box>
             </Box>
@@ -505,7 +520,11 @@ export default function LandingPage() {
                 return (
                   <Fragment key={index}>
                     <Paper
+                      onClick={() =>
+                        handleSubmit(workflow.mail, "password", workflow.path)
+                      }
                       sx={{
+                        cursor: "pointer",
                         display: "flex",
                         flexDirection: "column",
                         minHeight: 350,
@@ -515,16 +534,38 @@ export default function LandingPage() {
                         gap: 1,
                         justifyContent: "flex-start",
                         alignItems: "center",
+                        transition: "box-shadow 0.2s, transform 0.2s",
+                        "&:hover": {
+                          boxShadow: 10,
+                          transform: "translateY(-5px)",
+                        },
                       }}
                     >
-                      <Chip
-                        sx={{
-                          minWidth: 110,
-                          backgroundColor: workflow.color,
-                          color: "common.white",
-                        }}
-                        label={workflow.role}
-                      />
+                      <Box sx={{ display: "flex", gap: 2 }}>
+                        <Box
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            backgroundColor: workflow.color,
+                            color: "common.white",
+                            borderRadius: "50%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {workflow.number}
+                        </Box>
+                        <Chip
+                          sx={{
+                            minWidth: 110,
+                            backgroundColor: workflow.color,
+                            color: "common.white",
+                          }}
+                          label={workflow.role}
+                        />
+                      </Box>
 
                       <Typography variant="h6">{workflow.title}</Typography>
                       <Image
@@ -532,7 +573,11 @@ export default function LandingPage() {
                         alt={workflow.title}
                         width={180}
                         height={180}
-                        style={{ width: "100%", height: "auto", maxWidth: 180 }}
+                        style={{
+                          width: "100%",
+                          height: "auto",
+                          maxWidth: 180,
+                        }}
                       />
                       <Typography>{workflow.description}</Typography>
                     </Paper>

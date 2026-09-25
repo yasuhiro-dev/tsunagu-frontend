@@ -23,6 +23,9 @@ import IconButton from "@mui/material/IconButton";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DemoGuide from "@/app/components/DemoGuide";
+import { alpha } from "@mui/material/styles";
+
+import TouchAppIcon from "@mui/icons-material/TouchApp";
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -77,9 +80,30 @@ export default function MeetingSlotPage() {
   // 面談不可日・兄弟の面談表・特別支援の面談表
   const [validSlotsData, setValidSlotsData] = useState<{
     unavailable_start_at: string[];
+    siblings_start_at: string[];
+    own_support_start_at: string[];
     siblings_meeting_schedule: MeetingSchedule[][];
     own_support_meeting_schedule: MeetingSchedule[];
   } | null>(null);
+  //ドロワーから面談表を取得する
+  const [drawerData, setDrawerData] = useState<{
+    unavailable_start_at: string[];
+    siblings_start_at: string[];
+    own_support_start_at: string[];
+    siblings_meeting_schedule: MeetingSchedule[][];
+    own_support_meeting_schedule: MeetingSchedule[];
+  } | null>(null);
+
+  // 書類アイコン：面談情報を取得してドロワーを開く
+  const DrawerHandleClick = async (id: number) => {
+    const res = await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`,
+      { method: "GET", headers: { "Content-Type": "application/json" } },
+    );
+    const data = await res.json();
+    setDrawerData(data);
+    setIsOpen(true);
+  };
 
   // 編集リセットボタンの関数
   const handleEditReset = () => {
@@ -96,18 +120,25 @@ export default function MeetingSlotPage() {
   // １回目の選択と２回目の選択で分岐
   const handleFromToSelect = (cell: MeetingSlot) => {
     if (fromAssignmentId === null) {
+      if (!cell.assignment_id) return; // 空き枠は移動元にできない
       setFromAssignmentId(cell?.assignment_id);
+      fetchValidSlots(cell.assignment_id);
+      setHighlightedSlotIds([]);
     } else if (fromAssignmentId === cell?.assignment_id) {
+      //選択してもう一度同じところを選択
       setFromAssignmentId(null);
+      setValidSlotsData(null); //面談詳細をなくす
     } else {
+      // 移動先を選択 → 確認ダイアログを開く
       setToSlotId(cell?.id);
       setEditAlertOpen(true);
+      setValidSlotsData(null); //面談詳細をなくす
     }
   };
   //変更ダイアログに変更した児童名を表示する設定
   const fromSlot =
     slots.find(
-      (slot) => slot.assignment_id === fromAssignmentId, //移動元（空枠を選ばないように児童がいるassignment_id）
+      (slot) => slot.assignment_id === fromAssignmentId, //移動元（空枠を選ばないように児童がいるassignment_id/slot.idに合わせるため）
     ) ?? null;
   const toSlot = slots.find((slot) => slot.id === toSlotId) ?? null; //移動先（空枠も含まれるのでslot.id）
 
@@ -130,6 +161,7 @@ export default function MeetingSlotPage() {
         }),
       },
     );
+
     const data = await res.json();
     setslots(data);
     if (res.ok) {
@@ -137,14 +169,10 @@ export default function MeetingSlotPage() {
       setAlertSeverity("success");
       setAlertMessage("変更されました");
       // 移動先や移動元のidがない時には飛ばす、もしあるなら新しい値をstateに保存する
-      if (fromAssignmentId == null || toSlotId == null) {
+      if (fromSlot == null || toSlotId == null) {
         return;
       }
-
-      setHighlightedSlotIds([fromAssignmentId, toSlotId]);
-      setTimeout(() => {
-        setHighlightedSlotIds([]);
-      }, 3000);
+      setHighlightedSlotIds([fromSlot.id, toSlotId]);
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
@@ -157,15 +185,15 @@ export default function MeetingSlotPage() {
       return; //もし中身がnullならここで終了する
     }
     await handleReassign();
-
     setEditAlertOpen(false);
     handleEditReset();
+    setValidSlotsData(null);
   };
 
-  // 関連する面談情報を取得
-  const AssignmentHandleClick = async (id: number) => {
+  // 面談不可日・兄弟関係を取得（データ取得だけ）
+  const fetchValidSlots = async (id: number) => {
     const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`, //slotを選んだ１人のidを渡す
       {
         method: "GET",
         headers: {
@@ -174,8 +202,7 @@ export default function MeetingSlotPage() {
       },
     );
     const data = await res.json();
-    setValidSlotsData(data);
-    setIsOpen(true);
+    setValidSlotsData(data); //slotを選んだ１人の情報が返ってくる
   };
 
   useEffect(() => {
@@ -325,8 +352,6 @@ export default function MeetingSlotPage() {
 
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
               ※「希望日時未提出」の児童も、都合の悪い日時が申告されていないため通常通り割り当てられます
-              <br />※
-              枠をクリックして、移動先の枠をクリックすると入れ替えられます
             </Typography>
 
             <Box
@@ -346,9 +371,104 @@ export default function MeetingSlotPage() {
             </Box>
           </Box>
           <Box sx={{ minHeight: "64px" }}>
-            {isEditing && (
+            {isEditing ? (
               <Alert severity="info" sx={{ my: 2 }}>
                 移動先の枠を選んでください（もう一度同じ枠を押すと取消）
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap", // 画面が狭いときは折り返す
+                    alignItems: "center",
+                    columnGap: 2,
+                    rowGap: 0.5,
+                    mt: 1,
+                    fontSize: "12px",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: 0.5,
+                        backgroundColor: (theme) =>
+                          alpha(theme.palette.error.main, 0.4),
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    />
+                    教師と保護者の面談できない時間
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Chip
+                      label="兄弟"
+                      size="small"
+                      sx={{
+                        height: 16,
+                        fontSize: "9px",
+                        "& .MuiChip-label": { px: 0.5 },
+                      }}
+                    />
+                    兄弟の面談と重なる
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Chip
+                      label="特支"
+                      size="small"
+                      sx={{
+                        height: 16,
+                        fontSize: "9px",
+                        "& .MuiChip-label": { px: 0.5 },
+                      }}
+                    />
+                    特別支援学級の面談と重なる
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <DescriptionIcon
+                      sx={{ fontSize: "16px", color: "primary.main" }}
+                    />
+                    兄弟・特支の面談表を見る
+                  </Box>
+                </Box>
+              </Alert>
+            ) : (
+              <Alert severity="info" sx={{ my: 2 }}>
+                移動させたい児童の枠をクリックしてください
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                    columnGap: 2,
+                    rowGap: 0.5,
+                    mt: 1,
+                    fontSize: "12px",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <TouchAppIcon
+                      sx={{
+                        width: 14,
+                        height: 14,
+                      }}
+                    />
+                    選択すると、移動できない時間や兄弟・特支の面談と重なる時間が表示されます
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Box
+                      sx={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: 0.5,
+                        backgroundColor: (theme) =>
+                          alpha(theme.palette.error.main, 0.4),
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    />
+                    教師の面談できない時間
+                  </Box>
+                </Box>
               </Alert>
             )}
           </Box>
@@ -460,6 +580,31 @@ export default function MeetingSlotPage() {
                     {allDates.map((date) => {
                       const cell = matrix[time][date];
                       const assignmentId = cell.assignment_id;
+                      const isFrom =
+                        fromAssignmentId !== null &&
+                        assignmentId === fromAssignmentId; //選択元
+                      const isTo = cell?.id === toSlotId; //選択先
+                      const isHighlighted = highlightedSlotIds.includes(
+                        cell.id,
+                      );
+                      //保護者不可日時を取得
+                      const isUnavailable =
+                        validSlotsData?.unavailable_start_at?.includes(
+                          cell?.start_at,
+                        ) ?? false;
+                      // 兄弟の面談時間を取得
+                      const isSiblingSlot =
+                        validSlotsData?.siblings_start_at?.includes(
+                          cell?.start_at,
+                        ) ?? false;
+                      // 特別支援の面談時間を取得
+                      const isSupportSlot =
+                        validSlotsData?.own_support_start_at?.includes(
+                          cell?.start_at,
+                        ) ?? false;
+                      //教師の面談不可日
+                      const isTeacherUnavailable = cell?.status === "blocked";
+
                       return (
                         <Box
                           key={date}
@@ -467,82 +612,134 @@ export default function MeetingSlotPage() {
                             handleFromToSelect(cell);
                           }}
                           sx={{
+                            position: "relative",
+                            backgroundColor: (theme) =>
+                              isFrom
+                                ? alpha(theme.palette.primary.main, 0.2) // 移動元
+                                : isUnavailable
+                                  ? alpha(theme.palette.error.main, 0.15) // 保護者面談不可日
+                                  : isTeacherUnavailable
+                                    ? alpha(theme.palette.error.main, 0.15) // 教師面談不可日
+                                    : isHighlighted
+                                      ? alpha(theme.palette.success.light, 0.4) // 変更決定後のハイライト
+                                      : "transparent", // 通常
                             flex: 1,
+
                             minWidth: "120px",
-                            cursor: "pointer", // マウスを乗せたとき、指マークになる
+                            cursor:
+                              isUnavailable || isTeacherUnavailable
+                                ? "not-allowed"
+                                : "pointer", // マウスを乗せたとき、指マークになる
                             "&:hover": {
-                              backgroundColor: "action.hover", //  ホバー時に、薄く色がつく
+                              boxShadow:
+                                isUnavailable || isTeacherUnavailable
+                                  ? "0"
+                                  : "3", //  ホバー時に、薄く影がつく
                             },
 
                             minHeight: "80px",
                             borderRadius: 1,
-                            backgroundColor: highlightedSlotIds.includes(
-                              cell.id,
-                            )
-                              ? "warning.light" // ハイライトの色
-                              : "transparent", // 通常時は透明
+
                             // 選択中の枠線
                             border:
-                              assignmentId === fromAssignmentId ||
-                              cell?.id === toSlotId
-                                ? "solid 2px "
-                                : "solid 1px ",
-                            borderColor:
-                              assignmentId === fromAssignmentId
-                                ? "primary.main"
-                                : cell?.id === toSlotId
-                                  ? "error.main"
-                                  : "divider",
+                              isFrom || isTo ? "solid 2px " : "solid 1px ",
+                            borderColor: isFrom
+                              ? "primary.main"
+                              : isTo
+                                ? "error.main"
+                                : "divider",
                           }}
                         >
-                          {assignmentId && (
-                            <Box>
-                              <IconButton
-                                size="small"
-                                sx={{ fontSize: "14px" }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  AssignmentHandleClick(assignmentId);
-                                }}
-                              >
-                                <DescriptionIcon
-                                  sx={{ color: "primary.main" }}
-                                  fontSize="small"
-                                />
-                                <ChevronRightIcon
-                                  sx={{ color: "primary.main" }}
-                                  fontSize="small"
-                                />
-                              </IconButton>
-                            </Box>
+                          {isSiblingSlot && (
+                            <Chip
+                              label="兄弟"
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 4,
+                                right: 4,
+                                height: 16,
+                                fontSize: "9px",
+                                "& .MuiChip-label": { px: 0.5 },
+                              }}
+                            />
                           )}
+                          {isSupportSlot && (
+                            <Chip
+                              label="特支"
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 4,
+                                right: isSiblingSlot ? 36 : 4,
+                                height: 16,
+                                fontSize: "9px",
+                                "& .MuiChip-label": { px: 0.5 },
+                              }}
+                            />
+                          )}
+
                           {cell?.child_name ? (
                             <Box
                               sx={{
                                 display: "flex",
-                                gap: 1,
                                 flexDirection: "column",
+                                gap: 1,
                               }}
                             >
-                              <Typography variant="body1">
-                                {cell.child_name}
-                              </Typography>
-                              {
+                              {/* 名前 + 書類アイコン（横並び） */}
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.5,
+                                }}
+                              >
+                                <Typography variant="body1">
+                                  {cell.child_name}
+                                </Typography>
+                                {isFrom && assignmentId && (
+                                  <IconButton
+                                    size="small"
+                                    sx={{ p: 0.25 }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      DrawerHandleClick(assignmentId);
+                                    }}
+                                  >
+                                    <DescriptionIcon
+                                      sx={{
+                                        fontSize: 16,
+                                        color: "primary.main",
+                                      }}
+                                    />
+                                    <ChevronRightIcon
+                                      sx={{
+                                        fontSize: 16,
+                                        color: "primary.main",
+                                      }}
+                                    />
+                                  </IconButton>
+                                )}
+                              </Box>
+
+                              {/* 希望日時未提出：セルの下端に固定 */}
+                              {cell.submitted === false && (
                                 <Chip
                                   variant="outlined"
                                   label="希望日時未提出"
                                   color="warning"
                                   size="small"
                                   sx={{
+                                    position: "absolute",
+                                    bottom: 2,
+                                    left: 4,
+                                    right: 4,
                                     maxHeight: "15px",
                                     fontSize: "caption",
-                                    visibility:
-                                      cell.submitted === false
-                                        ? "visible"
-                                        : "hidden",
                                   }}
                                 />
-                              }
+                              )}
                             </Box>
                           ) : (
                             <Box
@@ -552,26 +749,28 @@ export default function MeetingSlotPage() {
                               }}
                             >
                               {/* 空きに児童を追加する */}
-                              <SlotAddPopover
-                                isEditing={isEditing}
-                                slotId={cell.id}
-                                onAdded={() => {
-                                  // １つ目：meeting_slotを再取得
-                                  fetchWithAuth(
-                                    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
-                                  )
-                                    .then((res) => res.json())
-                                    .then((data) => setslots(data));
-                                  // 2つ目：children/unassignedを再取得
-                                  fetchWithAuth(
-                                    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
-                                  )
-                                    .then((res) => res.json())
-                                    .then((data) =>
-                                      setUnassignedChildren(data),
-                                    );
-                                }}
-                              ></SlotAddPopover>
+                              {unassignedChildren.length !== 0 && (
+                                <SlotAddPopover
+                                  isEditing={isEditing}
+                                  slotId={cell.id}
+                                  onAdded={() => {
+                                    // １つ目：meeting_slotを再取得
+                                    fetchWithAuth(
+                                      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
+                                    )
+                                      .then((res) => res.json())
+                                      .then((data) => setslots(data));
+                                    // 2つ目：children/unassignedを再取得
+                                    fetchWithAuth(
+                                      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
+                                    )
+                                      .then((res) => res.json())
+                                      .then((data) =>
+                                        setUnassignedChildren(data),
+                                      );
+                                  }}
+                                ></SlotAddPopover>
+                              )}
                             </Box>
                           )}
                         </Box>
@@ -623,10 +822,10 @@ export default function MeetingSlotPage() {
                     }
                   >
                     {/* validSlotsDataがnullじゃないなら実行する */}
-                    {validSlotsData && (
+                    {drawerData && (
                       <Box sx={{ width: 668 }}>
                         {/* 特別支援の面談表があれば表示する */}
-                        {validSlotsData.own_support_meeting_schedule.map(
+                        {drawerData.own_support_meeting_schedule.map(
                           (schedule, index) => {
                             // バラバラなslotをまとめる
                             const scheduleMatrix = buildMatrix(schedule.slots);
@@ -710,7 +909,7 @@ export default function MeetingSlotPage() {
                                             border: "1px solid",
                                             borderColor: "divider",
                                             backgroundColor:
-                                              validSlotsData.unavailable_start_at.includes(
+                                              drawerData.unavailable_start_at.includes(
                                                 cell?.start_at,
                                               )
                                                 ? "error.light"
@@ -721,7 +920,7 @@ export default function MeetingSlotPage() {
                                                     : "success.light",
                                           }}
                                         >
-                                          {validSlotsData.unavailable_start_at.includes(
+                                          {drawerData.unavailable_start_at.includes(
                                             cell?.start_at,
                                           )
                                             ? "不可日"
@@ -742,9 +941,10 @@ export default function MeetingSlotPage() {
                             );
                           },
                         )}
+
                         {/* 兄弟の面談表を表示する */}
                         {/* 外側の配列 */}
-                        {validSlotsData.siblings_meeting_schedule.map(
+                        {drawerData.siblings_meeting_schedule.map(
                           (siblingSchedules, siblingIndex) => {
                             // 外側の配列のreturn
                             return (
@@ -847,7 +1047,7 @@ export default function MeetingSlotPage() {
                                                   border: "1px solid",
                                                   borderColor: "divider",
                                                   backgroundColor:
-                                                    validSlotsData.unavailable_start_at.includes(
+                                                    drawerData.unavailable_start_at.includes(
                                                       cell?.start_at,
                                                     )
                                                       ? "error.light"
@@ -860,7 +1060,7 @@ export default function MeetingSlotPage() {
                                                           : "success.light",
                                                 }}
                                               >
-                                                {validSlotsData.unavailable_start_at.includes(
+                                                {drawerData.unavailable_start_at.includes(
                                                   cell?.start_at,
                                                 )
                                                   ? "不可日"

@@ -2,7 +2,7 @@
 
 import UnassignedSelectDialog from "./UnassignedSelectDialog";
 import { useState } from "react";
-import { IconButton, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
 
@@ -32,6 +32,7 @@ export default function SlotAddPopover({ slotId, isEditing, onAdded }: Props) {
         <Box sx={{ color: "primary.main" }}>
           <AddIcon />
         </Box>
+        {}
         <Box>
           <Typography variant="caption" sx={{ color: "primary.main" }}>
             児童を割り当てる

@@ -3,7 +3,7 @@
 import { DemoPage, demoPageContent } from "./demoGuideContent";
 import Typography from "@mui/material/Typography";
 import { useState, useEffect } from "react";
-
+import { useRouter } from "next/navigation";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -20,6 +20,7 @@ export default function DemoGuide({ page }: Props) {
   // sessionStorage に「案内を見た」と記録するときのキー名
   const storageKey = `demo-guide-seen:${page}`;
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!sessionStorage.getItem(storageKey)) {
@@ -35,9 +36,7 @@ export default function DemoGuide({ page }: Props) {
 
   return (
     <Dialog sx={{ p: 1, mb: 3 }} onClose={handleClose} open={open}>
-      <DialogTitle variant="h5">
-        {content.roleLabel}として体験中します。
-      </DialogTitle>
+      <DialogTitle variant="h5">{content.title}</DialogTitle>
       <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         <Typography>{content.purpose}</Typography>
         {content.steps.map((step) => (
@@ -50,8 +49,19 @@ export default function DemoGuide({ page }: Props) {
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" onClick={handleClose}>
-          デモをはじめる
+        <Button
+          variant="contained"
+          onClick={() => {
+            if (content.buttonUrl) {
+              router.push(content.buttonUrl);
+            } else {
+              {
+                handleClose();
+              }
+            }
+          }}
+        >
+          {content.buttonLabel}
         </Button>
       </DialogActions>
     </Dialog>

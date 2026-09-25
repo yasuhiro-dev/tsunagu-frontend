@@ -168,7 +168,7 @@ export default function MySchedulePage() {
   const getCurrentStep = () => {
     // 提出かつ割り当て完了の場合
     if (assignment.length > 0) {
-      return 2;
+      return steps.length;
     }
     // 日程調節中（提出後）
     if (submitted === true) {
