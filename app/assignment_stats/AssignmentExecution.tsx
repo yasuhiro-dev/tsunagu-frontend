@@ -52,9 +52,7 @@ const steps = [
   {
     label: "面談表に反映",
     description: "決まった日時が面談表に表示されます。",
-    icon: (
-      <AssignmentTurnedInIcon sx={{ fontSize: 40, color: "primary.main" }} />
-    ),
+    icon: <AssignmentTurnedInIcon sx={{ fontSize: 40, color: "grey" }} />,
   },
 ];
 
@@ -191,26 +189,11 @@ export default function AssignmentExecution({ scheduleId }: Props) {
               >
                 <Stepper
                   alternativeLabel
-                  activeStep={0}
+                  activeStep={1}
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    [`& .${stepIconClasses.root}`]: {
-                      color: "primary.main",
-                    },
-                    [`& .${stepIconClasses.active}`]: {
-                      color: "primary.main",
-                    },
-                    [`& .${stepIconClasses.completed}`]: {
-                      color: "primary.main",
-                    },
-                    [`& .${stepLabelClasses.label}`]: {
-                      color: "text.primary",
-                    },
-                    [`& .${stepLabelClasses.active}`]: {
-                      color: "text.primary",
-                    },
                   }}
                 >
                   {steps.map((step) => (

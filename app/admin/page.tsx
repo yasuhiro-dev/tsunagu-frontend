@@ -41,6 +41,7 @@ import AlertSnackbar from "@/app/components/AlertSnackbar";
 import Chip from "@mui/material/Chip";
 import DeadlineSetting from "@/app/assignment_stats/DeadlineSetting";
 import AssignmentExecution from "@/app/assignment_stats/AssignmentExecution";
+import AssignmentNotification from "@/app/assignment_notification/AssignmentNotification";
 import { useSearchParams } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
@@ -544,9 +545,7 @@ function AdminContent() {
 
       <Paper sx={{ p: 3 }}>
         <DemoGuide page="admin_assignment" />
-        <Typography variant="h4" sx={{ mb: 2 }}>
-          ユーザー管理
-        </Typography>
+
         {/* サイドバー一覧 */}
         <Box sx={{ display: "flex" }}>
           <Box
@@ -570,37 +569,44 @@ function AdminContent() {
               面談の一括割り当て
             </Button>
             <Button
-              startIcon={<CalendarMonthIcon />}
+              startIcon={<AssignmentIcon />}
               sx={sidebarButtonStyle(1)}
               onClick={() => setTab(1)}
+            >
+              保護者への通知
+            </Button>
+            <Button
+              startIcon={<CalendarMonthIcon />}
+              sx={sidebarButtonStyle(2)}
+              onClick={() => setTab(2)}
             >
               締切日の設定
             </Button>
             <Button
               startIcon={<PersonIcon />}
-              sx={sidebarButtonStyle(2)}
-              onClick={() => setTab(2)}
+              sx={sidebarButtonStyle(3)}
+              onClick={() => setTab(3)}
             >
               教師一覧
             </Button>
             <Button
               startIcon={<PeopleIcon />}
-              sx={sidebarButtonStyle(3)}
-              onClick={() => setTab(3)}
+              sx={sidebarButtonStyle(4)}
+              onClick={() => setTab(4)}
             >
               保護者一覧
             </Button>
             <Button
               startIcon={<PersonAddAlt1Icon />}
-              sx={sidebarButtonStyle(4)}
-              onClick={() => setTab(4)}
+              sx={sidebarButtonStyle(5)}
+              onClick={() => setTab(5)}
             >
               教師登録
             </Button>
             <Button
               startIcon={<GroupAddIcon />}
-              sx={sidebarButtonStyle(5)}
-              onClick={() => setTab(5)}
+              sx={sidebarButtonStyle(6)}
+              onClick={() => setTab(6)}
             >
               保護者登録
             </Button>
@@ -623,9 +629,26 @@ function AdminContent() {
               </Box>
             </Box>
           )}
+          {/* 保護者への通知 */}
+          {tab === 1 && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                p: 3,
+
+                overflow: "auto",
+                flexDirection: "column",
+              }}
+            >
+              <Box>
+                <AssignmentNotification />
+              </Box>
+            </Box>
+          )}
 
           {/* 締切日の設定 */}
-          {tab === 1 && (
+          {tab === 2 && (
             <Box
               sx={{
                 display: "flex",
@@ -645,7 +668,7 @@ function AdminContent() {
           {/* 教師一覧画面 */}
 
           <Box sx={{ flexGrow: 1 }}>
-            {tab === 2 && (
+            {tab === 3 && (
               <Box sx={{ p: 3 }}>
                 <Box
                   sx={{
@@ -732,7 +755,6 @@ function AdminContent() {
                 <TableContainer
                   sx={{
                     maxHeight: "calc(100vh - 400px)",
-
                     overflow: "auto",
                     maxWidth: isMobile ? "265px" : "100",
                   }}
@@ -842,7 +864,7 @@ function AdminContent() {
             )}
 
             {/* 保護者一覧 */}
-            {tab === 3 && (
+            {tab === 4 && (
               <Box sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Box sx={{ mb: 3 }}>
@@ -1106,7 +1128,7 @@ function AdminContent() {
             )}
 
             {/* 教師登録画面 */}
-            {tab === 4 && (
+            {tab === 5 && (
               <Paper
                 sx={{
                   display: "flex",
@@ -1208,7 +1230,7 @@ function AdminContent() {
             )}
 
             {/* 保護者登録画面 */}
-            {tab === 5 && (
+            {tab === 6 && (
               <Paper
                 sx={{
                   display: "flex",
