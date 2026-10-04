@@ -171,6 +171,7 @@ export default function LandingPage() {
       title: "自動割り当てを実行",
       button_content: "管理者デモを開始",
       description: "提出された希望と条件を基に、割り当てます。",
+      path: "/admin?tab=1",
     },
   ];
 
@@ -204,7 +205,7 @@ export default function LandingPage() {
       title: "自動割り当てを実行",
       image: "/images/workflows/admin_assignment.webp",
       description: "提出された希望と条件を基に、割り当てする。",
-      path: "/admin",
+      path: "/admin?tab=1",
     },
     {
       number: "4",
@@ -370,7 +371,7 @@ export default function LandingPage() {
           <Paper elevation={4} sx={{ mt: 3, p: 3 }}>
             <Box component="section">
               <Typography variant="h5" sx={{ mb: 2 }}>
-                まずはデモを体験してみる
+                面談日程が決まるまでを、3ステップで体験
               </Typography>
               <Typography sx={{ mb: 3 }}>
                 <Box
@@ -379,9 +380,9 @@ export default function LandingPage() {
                     fontWeight: "bold",
                   }}
                 >
-                  ①から順に体験
+                  ①から順に進むと、
                 </Box>
-                すると、面談日が決まるまでの流れを実際に試せます
+                教師・保護者・管理者の操作がつながって、面談日程が自動で決まります。
               </Typography>
 
               <Box
@@ -443,7 +444,11 @@ export default function LandingPage() {
                           variant="contained"
                           fullWidth
                           onClick={() =>
-                            handleSubmit(demologin.mail, "password")
+                            handleSubmit(
+                              demologin.mail,
+                              "password",
+                              demologin.path,
+                            )
                           }
                           sx={{
                             height: 50,
@@ -478,7 +483,7 @@ export default function LandingPage() {
                     fontSize: 20,
                   }}
                 >
-                  さらに面談表の確認・調節をするなら {""} <ArrowDownwardIcon />
+                  続きの④⑤は、下の流れ図から ↓ {""} <ArrowDownwardIcon />
                 </Button>
               </Box>
             </Box>

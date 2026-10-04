@@ -12,18 +12,11 @@ import AlertSnackbar from "@/app/components/AlertSnackbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "dayjs/locale/ja";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-import Stepper from "@mui/material/Stepper";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import { stepIconClasses } from "@mui/material/StepIcon";
-import { stepLabelClasses } from "@mui/material/StepLabel";
 import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import DemoGuide from "@/app/components/DemoGuide";
+import FlowStepper from "@/app/components/FlowStepper";
 
 type Props = {
   scheduleId: number | null;
@@ -37,24 +30,6 @@ type UnassignedChild = {
     classname: string;
   }[];
 };
-
-const steps = [
-  {
-    label: "保護者・教師が日時を入力",
-    description: "教師は不在日、保護者は来校できる日時を入力します。",
-    icon: <PersonIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-  },
-  {
-    label: "自動で割り当て",
-    description: "条件をもとに、面談日を自動で決めます。",
-    icon: <SettingsIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-  },
-  {
-    label: "面談表に反映",
-    description: "決まった日時が面談表に表示されます。",
-    icon: <AssignmentTurnedInIcon sx={{ fontSize: 40, color: "grey" }} />,
-  },
-];
 
 export default function AssignmentExecution({ scheduleId }: Props) {
   const router = useRouter();
@@ -166,80 +141,75 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       />
       {showAssignmentDialog && <DemoGuide page="assignment_button" />}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Box>
-          <Paper sx={{ p: 2 }}>
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}
+        <Paper sx={{ p: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+            <Typography variant="h6">面談の一括割り当て</Typography>
+            <Typography>
+              保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、教師の空き枠に面談を自動で割り当てます。
+            </Typography>
+          </Box>
+
+          {/* 割り当ての手順 */}
+          <Box
+            sx={{
+              flex: 2,
+              minWidth: 0,
+              backgroundColor: "#ecf1f4ff",
+              p: 2,
+              borderRadius: 3,
+            }}
+          >
+            <FlowStepper activeStep={1} />
+          </Box>
+        </Paper>
+        <Paper sx={{ display: "flex", p: 2 }}>
+          {/* ボタン操作群 */}
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: "column",
+              p: 2,
+              mr: 2,
+              flex: 2,
+            }}
+          >
+            <Typography variant="h6">割り当てを実行します。</Typography>
+            <Typography>
+              希望日時が未提出の保護者も、都合の悪い日時が申告されていなければ、通常どおり割り当てられます。
+            </Typography>
+            <Typography>
+              実行後は、面談表で結果を確認・調整してから、保護者へ通知してください。
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flex: 1,
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1,
+            }}
+          >
+            {/*割り当て完了ボタン */}
+            <Button
+              variant="contained"
+              fullWidth
+              color="primary"
+              onClick={handleClick}
+              disabled={isAssigning}
+              sx={{
+                height: 50,
+              }}
             >
-              <Typography variant="h6">面談の一括割り当て</Typography>
-              <Typography variant="body2">
-                保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、教師の空き枠に面談を自動で割り当てます。
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              {/* 割り当ての手順 */}
-              <Box
-                sx={{
-                  flex: 2,
-                  minWidth: 0,
-                  backgroundColor: "#ecf1f4ff",
-                  p: 2,
-                  borderRadius: 3,
-                }}
-              >
-                <Stepper
-                  alternativeLabel
-                  activeStep={1}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {steps.map((step) => (
-                    <Step key={step.label}>
-                      <StepLabel>{step.label}</StepLabel>
-                      <Box sx={{ display: "flex", justifyContent: "center" }}>
-                        {step.icon}
-                      </Box>
-                      <Typography
-                        sx={{ maxWidth: 200, mx: "auto", minHeight: 70 }}
-                      >
-                        {step.description}
-                      </Typography>
-                    </Step>
-                  ))}
-                </Stepper>
-              </Box>
-              {/* ボタン操作群 */}
-              <Box
-                sx={{
-                  display: "flex",
-                  flex: 1,
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 1,
-                }}
-              >
-                {/*割り当て完了ボタン */}
-                <Button
-                  variant="contained"
-                  fullWidth
-                  color="primary"
-                  onClick={handleClick}
-                  disabled={isAssigning}
-                  sx={{
-                    height: 50,
-                  }}
-                >
-                  {isAssigning ? "割り当て中" : "▶ 割り当てを実行する"}
-                </Button>
-                <Typography>(約10秒ほどかかります)</Typography>
-              </Box>
-            </Box>
-          </Paper>
-        </Box>
+              {isAssigning ? "割り当て中" : "▶ 割り当てを実行する"}
+            </Button>
+            <Typography>(約10秒ほどかかります)</Typography>
+          </Box>
+        </Paper>
+
         <Box sx={{ display: "flex", gap: 2 }}>
           {/* 全体割り当て進捗状況 */}
           <Paper sx={{ p: 2 }}>

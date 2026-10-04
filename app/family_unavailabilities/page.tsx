@@ -186,12 +186,16 @@ export default function FamilyUnavailability() {
     fetchFamilySubmitted(familyId).then((submitted) => {
       setSubmitted(submitted);
     });
-    // 他のfetchと依存関係がなく独立して実行できるため、直下に配置
-    const loadingSchedule = async () => {
+    // 他のfetchと依存関係がなく独立して実行できるため、Promise.all で並列に実行する
+    const loadDeadline = async () => {
+      //scheduleと締切日を取得する
       const scheduleId = await fetchCurrentSchedule();
       const deadline = await fetchDeadline(scheduleId); // 締切日を受け取る
       setDeadLine(deadline); //締切日を再描写する
-      await fetchBlockedSlots();
+    };
+    const loadingSchedule = async () => {
+      //loadDeadline（締切日）とfetchBlockedSlots（教師不可日）を同時に取得
+      await Promise.all([fetchBlockedSlots(), loadDeadline()]);
     };
     loadingSchedule();
   }, [router]);

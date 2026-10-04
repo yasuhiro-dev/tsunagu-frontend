@@ -3,19 +3,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import FlowStepper from "@/app/components/FlowStepper";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import SendIcon from "@mui/icons-material/Send";
-import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-import Stepper from "@mui/material/Stepper";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -39,33 +33,9 @@ type UnLinkedUser = {
   teacher_name: string;
 };
 
-const steps = [
-  {
-    label: "面談日程を設定",
-    description: "保護者・教師の条件を入力します。",
-    icon: <PersonIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-  },
-  {
-    label: "自動で割り当て",
-    description: "条件に基づき日程を自動で決定します。",
-    icon: <SettingsIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-  },
-  {
-    label: "面談表を確認・調整",
-    description: "必要に応じて手動で調整します。",
-    icon: (
-      <AssignmentTurnedInIcon sx={{ fontSize: 40, color: "primary.main" }} />
-    ),
-  },
-  {
-    label: "保護者へ通知",
-    description: "確定した内容をメールで送信します。",
-    icon: <SendIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-  },
-];
-
 export default function AssignmentNotification() {
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [notifiedCount, setNotifiedCount] = useState(0);
   const [unNotified, setUnNotified] = useState(0);
   const [allUserCount, setAllUserCount] = useState(0);
@@ -79,11 +49,11 @@ export default function AssignmentNotification() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
-  //未通知ユーザの詳細から数だけを取り出す
+  //未送信ユーザの詳細から数だけを取り出す
   const unNotifiedCount = unLinkedUser.length;
   //ページネーション（全部で何ページあるか）
   const totalPages = useMemo(() => {
-    return Math.ceil(unNotifiedCount / itemsPerPage); //未通知保護者/1ページに表示される数
+    return Math.ceil(unNotifiedCount / itemsPerPage); //未送信保護者/1ページに表示される数
   }, [unNotifiedCount, itemsPerPage]);
   //ページネーション（１ページに表示するもの）
   const pagedNotifiedParent = useMemo(() => {
@@ -133,10 +103,10 @@ export default function AssignmentNotification() {
 
     const data = await res.json();
     setNotifiedCount(data.notified_count ?? 0); //通知済
-    setUnNotified(data.unnotified_count ?? 0); //未通知
+    setUnNotified(data.unnotified_count ?? 0); //未送信
     setUnLinkedTeacher(data.unlinked_teachers ?? []); //未連携教師
     setAllUserCount(data.all_user_count ?? 0); //全ユーザーの数
-    setUnLinkedUser(data.unnotified_details ?? []); //未通知ユーザー詳細
+    setUnLinkedUser(data.unnotified_details ?? []); //未送信ユーザー詳細
 
     return data.unnotified_count; //関数のfetchNotificationStatusが未送信件数の最新版を受け取れる
   };
@@ -150,7 +120,8 @@ export default function AssignmentNotification() {
     fetchNotificationStatus();
   }, []);
 
-  const isDone = unNotified === 0;
+  const isDone = unNotified === 0 && allUserCount > 0; //割り当て後、未通知が０
+  const unAvailable = allUserCount === 0; //割り当て前
   const unLinkedTeacherCount = unLinkedTeacher.length;
 
   return (
@@ -159,7 +130,7 @@ export default function AssignmentNotification() {
         display: "flex",
         flexDirection: "column",
         p: 2,
-        // maxWidth: isMobile ? "265px" : "100",
+        maxWidth: isMobile ? "265px" : "100",
         backgroundColor: "#ecf1f4ff",
       }}
     >
@@ -175,11 +146,10 @@ export default function AssignmentNotification() {
             <Typography variant="h6">保護者への通知</Typography>
             <Typography>
               確定した面談日程を、保護者へメールでお知らせします。
-            </Typography>
-            <Typography>
               面談表を調整した後に、内容を確認してから送信してください
             </Typography>
           </Box>
+          {/* 割り当ての手順 */}
           <Box
             sx={{
               flex: 2,
@@ -189,19 +159,7 @@ export default function AssignmentNotification() {
               borderRadius: 3,
             }}
           >
-            <Stepper alternativeLabel activeStep={3}>
-              {steps.map((step, index) => (
-                <Step key={index}>
-                  <StepLabel>{step.label}</StepLabel>
-                  <Box sx={{ display: "flex", justifyContent: "center" }}>
-                    {step.icon}
-                  </Box>
-                  <Typography sx={{ maxWidth: 200, mx: "auto", minHeight: 70 }}>
-                    {step.description}
-                  </Typography>
-                </Step>
-              ))}
-            </Stepper>
+            <FlowStepper activeStep={3} />
           </Box>
         </Paper>
         <Paper sx={{ display: "flex", p: 2 }}>
@@ -212,10 +170,11 @@ export default function AssignmentNotification() {
               flexDirection: "column",
               p: 2,
               mr: 2,
+              flex: 2,
             }}
           >
             <Typography variant="h6">
-              未通知保護者にメールを送信します。
+              未送信保護者にメールを送信します。
             </Typography>
             <Typography>
               面談日程は確定していますが、{unNotified}
@@ -244,7 +203,7 @@ export default function AssignmentNotification() {
               fullWidth
               color="primary"
               onClick={handleClick}
-              disabled={requested || isDone} //送信済みまたは未通知ユーザーが０の時にボタン操作できない
+              disabled={requested || isDone || unAvailable} //送信済みまたは未送信ユーザーが０の時にボタン操作できない
               sx={{
                 height: 50,
               }}
@@ -253,75 +212,86 @@ export default function AssignmentNotification() {
                 ? "全て送信済みです"
                 : requested
                   ? "送信を開始しました"
-                  : "▶ 送信を開始する"}
+                  : unAvailable
+                    ? "割り当て後に送信できます"
+                    : "▶ 送信を開始する"}
             </Button>
-
-            <Typography>すでに送信した保護者には再送されません。</Typography>
+            {!unAvailable && (
+              <Typography>すでに送信した保護者には再送されません。</Typography>
+            )}
           </Box>
         </Paper>
 
         <Paper sx={{ display: "flex", flexDirection: "column", p: 2, gap: 2 }}>
-          <Typography variant="h5">通知状況</Typography>
+          <Typography variant="h5">メール通知の状況</Typography>
           <Box sx={{ display: "flex" }}>
             <Box
               sx={{
                 display: "flex",
-                p: 2,
-                gap: 2,
+                flexDirection: "column",
                 flex: 1,
-                maxHeight: 300,
                 alignItems: "center",
                 justifyContent: "center",
+                maxHeight: 300,
               }}
             >
-              <Paper
-                sx={{
-                  flex: 1,
-                  backgroundColor: "#fbebec",
-                  display: "flex",
-                  flexDirection: "column", // ラベルと数字を縦に並べる
-                  alignItems: "center", // 横方向の中央
-                  justifyContent: "center", // 縦方向の中央
-                  textAlign: "center",
-                  gap: 2,
-                  p: 2,
-                }}
+              <Box sx={{ display: "flex", p: 2, gap: 2 }}>
+                <Paper
+                  sx={{
+                    minWidth: 150,
+                    backgroundColor: "#fbebec",
+                    display: "flex",
+                    flexDirection: "column", // ラベルと数字を縦に並べる
+                    alignItems: "center", // 横方向の中央
+                    justifyContent: "center", // 縦方向の中央
+                    textAlign: "center",
+                    gap: 2,
+                    p: 2,
+                  }}
+                >
+                  <Typography>未送信</Typography>
+                  <Typography variant="h6">{unNotified}件</Typography>
+                </Paper>
+                <Paper
+                  sx={{
+                    minWidth: 150,
+                    backgroundColor: "#e8f5ee",
+                    display: "flex",
+                    flexDirection: "column", // ラベルと数字を縦に並べる
+                    alignItems: "center", // 横方向の中央
+                    justifyContent: "center", // 縦方向の中央
+                    textAlign: "center",
+                    gap: 2,
+                    p: 2,
+                  }}
+                >
+                  <Typography>送信済み</Typography>
+                  <Typography variant="h6">{notifiedCount}件</Typography>
+                </Paper>
+                <Paper
+                  sx={{
+                    backgroundColor: "#d6e4f0",
+                    display: "flex",
+                    minWidth: 150,
+                    flexDirection: "column", // ラベルと数字を縦に並べる
+                    alignItems: "center", // 横方向の中央
+                    justifyContent: "center", // 縦方向の中央
+                    textAlign: "center",
+                    gap: 2,
+                    p: 2,
+                  }}
+                >
+                  <Typography>送信対象</Typography>
+                  <Typography variant="h6">{allUserCount}件</Typography>
+                </Paper>
+              </Box>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ minWidth: 150 }}
               >
-                <Typography>未通知</Typography>
-                <Typography variant="h6">{unNotified}件</Typography>
-              </Paper>
-              <Paper
-                sx={{
-                  flex: 1,
-                  backgroundColor: "#e8f5ee",
-                  display: "flex",
-                  flexDirection: "column", // ラベルと数字を縦に並べる
-                  alignItems: "center", // 横方向の中央
-                  justifyContent: "center", // 縦方向の中央
-                  textAlign: "center",
-                  gap: 2,
-                  p: 2,
-                }}
-              >
-                <Typography>送信済み</Typography>
-                <Typography variant="h6">{notifiedCount}件</Typography>
-              </Paper>
-              <Paper
-                sx={{
-                  flex: 1,
-                  backgroundColor: "#d6e4f0",
-                  display: "flex",
-                  flexDirection: "column", // ラベルと数字を縦に並べる
-                  alignItems: "center", // 横方向の中央
-                  justifyContent: "center", // 縦方向の中央
-                  textAlign: "center",
-                  gap: 2,
-                  p: 2,
-                }}
-              >
-                <Typography>対象保護者</Typography>
-                <Typography variant="h6">{allUserCount}件</Typography>
-              </Paper>
+                特別支援学級の面談を含むため、児童数より多くなる場合があります。
+              </Typography>
             </Box>
 
             <Paper
@@ -374,7 +344,7 @@ export default function AssignmentNotification() {
 
         <Paper sx={{ flex: 1 }}>
           <Typography variant="h6" sx={{ p: 2 }}>
-            未通知の保護者{" "}
+            未送信の保護者{" "}
             <Chip
               sx={{ backgroundColor: "#fbebec" }}
               label={`${unNotified}件`}
@@ -387,7 +357,7 @@ export default function AssignmentNotification() {
               // maxWidth: isMobile ? "265px" : "100",
             }}
           >
-            <Table>
+            <Table sx={{ tableLayout: "fixed" }}>
               {/* ヘッダーカラム */}
               <TableHead>
                 <TableRow
@@ -396,22 +366,37 @@ export default function AssignmentNotification() {
                     "& th": { color: "white" },
                   }}
                 >
-                  <TableCell>保護者名</TableCell>
-                  <TableCell>学年・組</TableCell>
-                  <TableCell>児童名</TableCell>
-                  <TableCell>担当教師</TableCell>
+                  <TableCell sx={{ width: "25%" }}>保護者名</TableCell>
+                  <TableCell sx={{ width: "25%" }}>学年・組</TableCell>
+                  <TableCell sx={{ width: "25%" }}>児童名</TableCell>
+                  <TableCell sx={{ width: "25%" }}>担当教師</TableCell>
                 </TableRow>
               </TableHead>
               {/* ボディーカラム */}
+
               <TableBody>
-                {pagedNotifiedParent.map((user, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{user.parent_name}</TableCell>
-                    <TableCell>{user.class_name}</TableCell>
-                    <TableCell>{user.child_name}</TableCell>
-                    <TableCell>{user.teacher_name}</TableCell>
+                {allUserCount === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      まだ面談が割り当てられていません。割り当て後に通知できます。
+                    </TableCell>
                   </TableRow>
-                ))}
+                ) : unNotified === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      未送信の保護者はいません。すべて送信済みです。
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  pagedNotifiedParent.map((user, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{user.parent_name}</TableCell>
+                      <TableCell>{user.class_name}</TableCell>
+                      <TableCell>{user.child_name}</TableCell>
+                      <TableCell>{user.teacher_name}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>

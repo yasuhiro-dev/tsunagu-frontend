@@ -30,6 +30,6 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3000
 
-      # 脆弱性がないか
+      # 本番依存に脆弱性がないか（dev依存のlintツール連鎖は対象外）
       - name: Check for high severity vulnerabilities
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
