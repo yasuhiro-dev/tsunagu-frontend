@@ -47,7 +47,7 @@ export default function ChildList() {
     all: children.length,
     submitted: children.filter((c) => c.submitted).length,
     unsubmitted: children.filter((c) => !c.submitted).length,
-    waiting: children.filter((c) => c.submitted && !c.assigned).length,
+    waiting: children.filter((c) => !c.assigned).length,
     done: children.filter((c) => c.submitted && c.assigned).length,
   };
 
@@ -131,34 +131,6 @@ export default function ChildList() {
                 {classNames.join("・")}
               </Typography>
             )}
-            <Box
-              sx={{
-                display: "flex",
-                backgroundColor: "#d6e4f0",
-                gap: 2,
-                p: 2,
-                borderRadius: 3,
-              }}
-            >
-              <Box sx={{ display: "flex" }}>
-                <Typography variant="body1" color="text.secondary">
-                  <GroupsIcon
-                    sx={{ fontSize: 40, color: "primary.main", mr: 2 }}
-                  />
-                  提出：{counts.submitted}/{counts.all}人（未提出
-                  {counts.unsubmitted}人）
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="body1" color="text.secondary">
-                  <EventAvailableIcon
-                    sx={{ fontSize: 40, color: "primary.main", mr: 2 }}
-                  />
-                  割り当て：{counts.done}/{counts.submitted}人（未割り当て
-                  {counts.waiting}人）
-                </Typography>
-              </Box>
-            </Box>
 
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
               ※デモ用に、多くの保護者は提出済みのデータを用意しています。
@@ -348,18 +320,26 @@ export default function ChildList() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {pagedChildren.map((child) => (
-                      <TableRow
-                        key={child.id}
-                        sx={{ "&:hover": { backgroundColor: "#f5f5f5" } }}
-                      >
-                        <TableCell>{child.child_name}</TableCell>
-                        <TableCell>{child.family_name}</TableCell>
-                        <TableCell>
-                          <Chip variant="outlined" {...getStatus(child)} />
+                    {pagedChildren.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={3} align="center">
+                          該当する児童はいません
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      pagedChildren.map((child) => (
+                        <TableRow
+                          key={child.id}
+                          sx={{ "&:hover": { backgroundColor: "#f5f5f5" } }}
+                        >
+                          <TableCell>{child.child_name}</TableCell>
+                          <TableCell>{child.family_name}</TableCell>
+                          <TableCell>
+                            <Chip variant="outlined" {...getStatus(child)} />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>

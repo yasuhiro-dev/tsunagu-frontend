@@ -5,7 +5,8 @@ export type DemoPage =
   | "admin_assignment"
   | "teacher_submitted"
   | "family_submitted"
-  | "assignment_button";
+  | "assignment_button"
+  | "assignment_notification";
 
 export type DemoGuideContent = {
   title: string;
@@ -69,6 +70,18 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
       "",
       "トップページの「Tsunaguで面談日程が決まるまで」から",
       "④「面談表の確認・調整」に進んでみましょう。",
+    ],
+    buttonLabel: "トップページに戻る",
+    buttonUrl: "/",
+  },
+  assignment_notification: {
+    title: "通知の操作が完了しました。",
+    purpose:
+      "ここまでが管理者の操作です。デモのため、実際のメールは送信していません",
+    steps: [
+      "",
+      "⑤「決定した日時の確認」から決まった面談日時を確認できます。",
+      "また、保護者に届くメールの例は、トップページの「実際に出力されるもの」で見られます",
     ],
     buttonLabel: "トップページに戻る",
     buttonUrl: "/",

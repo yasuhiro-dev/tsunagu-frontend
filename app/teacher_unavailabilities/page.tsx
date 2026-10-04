@@ -178,7 +178,9 @@ export default function MeetingSlotPage() {
             }}
           >
             <Typography variant="body1">このクラスの児童数</Typography>
-            <Typography variant="h5">{requiredSlots}件</Typography>
+            <Typography variant="h5" sx={{ color: "primary.main" }}>
+              {requiredSlots}件
+            </Typography>
             <Typography variant="body2">面談が必要な人数です</Typography>
           </Box>
           <Box
@@ -191,66 +193,143 @@ export default function MeetingSlotPage() {
             }}
           >
             <Typography variant="body1">現在の空き枠</Typography>
-            <Typography variant="h5">{availableCount}件</Typography>
+            <Typography variant="h5" sx={{ color: "primary.main" }}>
+              {availableCount}件
+            </Typography>
 
             <Typography variant="body2">まだ割り当て可能な枠です</Typography>
           </Box>
-          <Box
-            sx={{
-              p: 2,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            <Typography variant="body1">枠の空き具合</Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <LinearProgress
-                variant="determinate"
-                value={fulfillmentRate}
-                color={isShortage ? "error" : "success"}
-                sx={{ flex: 1 }}
-              />
-              <Typography variant="h6">
-                {Math.floor(fulfillmentRate)}%
-              </Typography>
-            </Box>
-
-            <Typography variant="body2">
-              {remainSlots >= 0
-                ? `必要${requiredSlots}枠に対して、あと${remainSlots}枠の余裕があります`
-                : `必要${requiredSlots}枠に対して、${Math.abs(remainSlots)}枠不足しています`}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              flex: 1,
-              p: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <Box sx={{ display: "flex", flex: 3 }}>
             <Box
               sx={{
-                display: "flex",
-                backgroundColor: remainSlots > 0 ? "#e8f5ee" : "#fbebec",
+                flex: 1.5,
                 p: 2,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
               }}
             >
-              {remainSlots > 0 ? (
-                <Typography
-                  variant="h6"
-                  sx={{ color: "success.main", fontSize: 12 }}
-                >
-                  ✓ 必要な枠数は足りています
+              <Typography variant="body1">枠の空き具合</Typography>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
+              >
+                <LinearProgress
+                  variant="determinate"
+                  value={fulfillmentRate}
+                  color={isShortage ? "error" : "success"}
+                  sx={{ flex: 1 }}
+                />
+                <Typography variant="h6">
+                  {Math.floor(fulfillmentRate)}%
                 </Typography>
-              ) : (
-                <Typography variant="h6" sx={{ color: "error", fontSize: 12 }}>
-                  ⚠ このまま提出すると、枠が {Math.abs(remainSlots)}{" "}
-                  枠不足する可能性があります
-                </Typography>
-              )}
+              </Box>
+
+              <Typography variant="body2">
+                {remainSlots >= 0 ? (
+                  <>
+                    必要{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: "primary.main",
+                      }}
+                    >
+                      {" "}
+                      {requiredSlots}件{" "}
+                    </Box>
+                    に対して、あと
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: "primary.main",
+                      }}
+                    >
+                      {" "}
+                      {remainSlots}枠{" "}
+                    </Box>
+                    の余裕があります
+                  </>
+                ) : (
+                  <>
+                    必要
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: "primary.main",
+                      }}
+                    >
+                      {" "}
+                      {requiredSlots}件{" "}
+                    </Box>
+                    に対して、
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: "primary.main",
+                      }}
+                    >
+                      {" "}
+                      {Math.abs(remainSlots)}枠{" "}
+                    </Box>
+                    不足しています
+                  </>
+                )}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                flex: 1,
+                p: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Box
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  backgroundColor: remainSlots > 0 ? "#e8f5ee" : "#fbebec",
+                  p: 2,
+                }}
+              >
+                {remainSlots > 0 ? (
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "success.main", fontSize: 12 }}
+                  >
+                    ✓ 必要な枠数は足りています
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "error", fontSize: 12 }}
+                  >
+                    ⚠ このまま提出すると、
+                    <br />
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: "primary.main",
+                      }}
+                    >
+                      {" "}
+                      {Math.abs(remainSlots)} 枠
+                    </Box>
+                    不足する可能性があります
+                  </Typography>
+                )}
+              </Box>
             </Box>
           </Box>
         </Paper>

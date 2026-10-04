@@ -116,15 +116,14 @@ function AdminContent() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [scheduleId, setScheduleId] = useState<number | null>(null);
   const [alertMessage, setAlertMessage] = useState("");
-
   const isMobile = useMediaQuery("(max-width:600px)");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
-  // ハンバーガーバーの設定（モバイル）
-  //URLからクエリ部分だけを取り出す
+
+  //URLからクエリ部分(?以降)だけを取り出す
   const searchParams = useSearchParams();
-  // そのクエリの中からtabを取り出す
+  // そのクエリの中からtabを取り出す（LPでtab=指定先を設定）
   const tabParam = searchParams.get("tab");
   // そのクエリから指定されたtabをstateする
   const [tab, setTab] = useState(Number(tabParam) || 0);
@@ -554,7 +553,7 @@ function AdminContent() {
               backgroundColor: "#ffffff",
               borderRight: "1px solid ",
               borderColor: "divider",
-
+              flexShrink: 0, //縮まない
               flexDirection: "column",
               p: 1,
               gap: 0.5,
@@ -562,26 +561,27 @@ function AdminContent() {
             }}
           >
             <Button
-              startIcon={<AssignmentIcon />}
+              startIcon={<CalendarMonthIcon />}
               sx={sidebarButtonStyle(0)}
               onClick={() => setTab(0)}
             >
-              面談の一括割り当て
+              締切日の設定
             </Button>
             <Button
               startIcon={<AssignmentIcon />}
               sx={sidebarButtonStyle(1)}
               onClick={() => setTab(1)}
             >
-              保護者への通知
+              面談の一括割り当て
             </Button>
             <Button
-              startIcon={<CalendarMonthIcon />}
+              startIcon={<AssignmentIcon />}
               sx={sidebarButtonStyle(2)}
               onClick={() => setTab(2)}
             >
-              締切日の設定
+              保護者への通知
             </Button>
+
             <Button
               startIcon={<PersonIcon />}
               sx={sidebarButtonStyle(3)}
@@ -613,7 +613,7 @@ function AdminContent() {
           </Box>
 
           {/* 面談の一括割り当て */}
-          {tab === 0 && (
+          {tab === 1 && (
             <Box
               sx={{
                 display: "flex",
@@ -630,7 +630,7 @@ function AdminContent() {
             </Box>
           )}
           {/* 保護者への通知 */}
-          {tab === 1 && (
+          {tab === 2 && (
             <Box
               sx={{
                 display: "flex",
@@ -648,7 +648,7 @@ function AdminContent() {
           )}
 
           {/* 締切日の設定 */}
-          {tab === 2 && (
+          {tab === 0 && (
             <Box
               sx={{
                 display: "flex",
