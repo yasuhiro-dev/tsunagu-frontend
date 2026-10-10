@@ -15,12 +15,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
-
-type RedirectMap = {
-  teacher: string;
-  parent: string;
-  admin: string;
-};
+import { demoLogin, RedirectMap, DEMO_ACCOUNTS } from "@/utils/demoLogin";
 
 export default function LandingPage() {
   const workflowRef = useRef<HTMLElement>(null);
@@ -31,29 +26,23 @@ export default function LandingPage() {
     "success",
   );
   const handleSubmit = async (
-    loginEmail: string,
-    loginPassword: string,
-    redirectOverride?: string,
+    loginEmail: string, // 1つ目に渡された値を、この名前で使う（文字列）
+    loginPassword: string, // ２つ目に渡された値を、この名前で使う（文字列）
+    redirectOverride?: string, // 3つ目に渡された値は渡さなくてもいい
   ) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email_address: loginEmail,
-        password: loginPassword,
-      }),
-    });
-    if (res.ok) {
-      const data: { token: string; role: keyof RedirectMap } = await res.json();
-      localStorage.setItem("token", data.token);
+    try {
+      //apiが失敗しなければ実行
+      const role = await demoLogin(loginEmail, loginPassword); //demoLoginに引数を渡し、roleが返ってくる
       const redirectMap: RedirectMap = {
+        //roleによって遷移先を指定する
         teacher: "/teacher_unavailabilities",
         parent: "/family_unavailabilities",
         admin: "/admin",
       };
       // redirectOverride（my_scheduleへの遷移）がなければroleを見て指定されたURLへ遷移
-      setRedirectTo(redirectOverride ?? redirectMap[data.role] ?? "/");
-    } else {
+      setRedirectTo(redirectOverride ?? redirectMap[role] ?? "/");
+    } catch {
+      //api失敗したら表示する
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage("デモログインに失敗しました");
@@ -141,8 +130,8 @@ export default function LandingPage() {
   const demologins = [
     {
       number: "1",
+      roleKey: "teacher" as const,
       role: "教師",
-      mail: "aoki@example.com",
       back_color: "#d6e4f0",
       color: "primary.main",
       hoverColor: "primary.dark",
@@ -152,8 +141,8 @@ export default function LandingPage() {
     },
     {
       number: "2",
+      roleKey: "parent" as const,
       role: "保護者",
-      mail: "parent-nonsubmit@example.com",
       back_color: "#fbebec",
       color: "#d18a94",
       hoverColor: "error.dark",
@@ -163,8 +152,8 @@ export default function LandingPage() {
     },
     {
       number: "3",
+      roleKey: "admin" as const,
       role: "管理者",
-      mail: "admin@example.com",
       back_color: "#e8f5ee",
       color: "success.main",
       hoverColor: "success.dark",
@@ -179,8 +168,8 @@ export default function LandingPage() {
   const workflows = [
     {
       number: "1",
+      roleKey: "teacher" as const,
       role: "教師",
-      mail: "aoki@example.com",
       color: "primary.main",
       title: "面談できない日時を登録",
       image: "/images/workflows/teacher_availability.webp",
@@ -189,8 +178,8 @@ export default function LandingPage() {
     },
     {
       number: "2",
+      roleKey: "parent" as const,
       role: "保護者",
-      mail: "parent-nonsubmit@example.com",
       color: "#d18a94",
       title: "来校できる日を提出",
       image: "/images/workflows/family_availability.webp",
@@ -199,8 +188,8 @@ export default function LandingPage() {
     },
     {
       number: "3",
+      roleKey: "admin" as const,
       role: "管理者",
-      mail: "admin@example.com",
       color: "success.main",
       title: "自動割り当てを実行",
       image: "/images/workflows/admin_assignment.webp",
@@ -210,7 +199,7 @@ export default function LandingPage() {
     {
       number: "4",
       role: "教師",
-      mail: "aoki@example.com",
+      roleKey: "teacher" as const,
       title: "面談表を確認・調整",
       color: "primary.main",
       image: "/images/workflows/teacher_manual.webp",
@@ -219,8 +208,8 @@ export default function LandingPage() {
     },
     {
       number: "5",
+      roleKey: "parent" as const,
       role: "保護者",
-      mail: "parent-nonsubmit@example.com",
       title: "決定した日時を確認",
       color: "#d18a94",
       image: "/images/workflows/family_schedule.webp",
@@ -322,17 +311,17 @@ export default function LandingPage() {
                   fontSize: fontSizes.caption,
                 }}
               >
-                学校向け 面談日程調整サービス
+                先生のための面談日程調整サービス
               </Typography>
 
               <Box sx={{ mb: 3 }}>
                 <Typography
                   variant="h3"
-                  sx={{ fontSize: { xs: "26px", sm: "36px", md: "45px" } }}
+                  sx={{ fontSize: { xs: "26px", sm: "36px", md: "40px" } }}
                 >
-                  保護者が学校へ行く日を、
+                  保護者面談の日程調整を
                   <br />
-                  1日にまとめます。
+                  先生の代わりに自動で
                 </Typography>
               </Box>
 
@@ -345,9 +334,9 @@ export default function LandingPage() {
                     color: "text.secondary",
                   }}
                 >
-                  兄弟も支援学級も保護者の都合も。
+                  保護者の希望を集めて、面談表を自動で作成
                   <br />
-                  複数の条件を考慮して、面談日程を自動で調整します。
+                  兄弟や支援学級の児童がいる家庭も、同じ日にまとめます
                 </Typography>
               </Box>
             </Box>
@@ -445,8 +434,8 @@ export default function LandingPage() {
                           fullWidth
                           onClick={() =>
                             handleSubmit(
-                              demologin.mail,
-                              "password",
+                              DEMO_ACCOUNTS[demologin.roleKey].email, //DEMO_ACCOUNTSのキー（role）を指定その中でemailを取り出す
+                              DEMO_ACCOUNTS[demologin.roleKey].password,
                               demologin.path,
                             )
                           }
@@ -526,7 +515,11 @@ export default function LandingPage() {
                   <Fragment key={index}>
                     <Paper
                       onClick={() =>
-                        handleSubmit(workflow.mail, "password", workflow.path)
+                        handleSubmit(
+                          DEMO_ACCOUNTS[workflow.roleKey].email,
+                          DEMO_ACCOUNTS[workflow.roleKey].password,
+                          workflow.path,
+                        )
                       }
                       sx={{
                         cursor: "pointer",
