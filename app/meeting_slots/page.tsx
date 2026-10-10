@@ -15,6 +15,7 @@ import Drawer from "@mui/material/Drawer";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Alert from "@mui/material/Alert";
@@ -24,8 +25,22 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DemoGuide from "@/app/components/DemoGuide";
 import { alpha } from "@mui/material/styles";
-
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TouchAppIcon from "@mui/icons-material/TouchApp";
+
+type Violation = {
+  kind: string; //どんな条件か
+  detail: string; //具体的な説明
+  name: string;
+};
+
+type ValidSlotsData = {
+  unavailable_start_at: string[]; //不可日の時間
+  siblings_start_at: string[]; //兄弟の時間
+  own_support_start_at: string[]; //特別支援の時間
+  siblings_meeting_schedule: MeetingSchedule[][]; //兄弟の面談表
+  own_support_meeting_schedule: MeetingSchedule[]; //特別支援の面談表
+};
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -58,6 +73,7 @@ export default function MeetingSlotPage() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [highlightedSlotIds, setHighlightedSlotIds] = useState<number[]>([]);
+  const [violations, setViolations] = useState<Violation[]>([]);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -78,21 +94,11 @@ export default function MeetingSlotPage() {
   // slot移動時の警告
   const [editAlertOpen, setEditAlertOpen] = useState(false);
   // 面談不可日・兄弟の面談表・特別支援の面談表
-  const [validSlotsData, setValidSlotsData] = useState<{
-    unavailable_start_at: string[];
-    siblings_start_at: string[];
-    own_support_start_at: string[];
-    siblings_meeting_schedule: MeetingSchedule[][];
-    own_support_meeting_schedule: MeetingSchedule[];
-  } | null>(null);
+  const [validSlotsData, setValidSlotsData] = useState<ValidSlotsData | null>(
+    null,
+  );
   //ドロワーから面談表を取得する
-  const [drawerData, setDrawerData] = useState<{
-    unavailable_start_at: string[];
-    siblings_start_at: string[];
-    own_support_start_at: string[];
-    siblings_meeting_schedule: MeetingSchedule[][];
-    own_support_meeting_schedule: MeetingSchedule[];
-  } | null>(null);
+  const [drawerData, setDrawerData] = useState<ValidSlotsData | null>(null);
 
   // 書類アイコン：面談情報を取得してドロワーを開く
   const DrawerHandleClick = async (id: number) => {
@@ -118,23 +124,107 @@ export default function MeetingSlotPage() {
   };
 
   // １回目の選択と２回目の選択で分岐
-  const handleFromToSelect = (cell: MeetingSlot) => {
+  const handleFromToSelect = async (cell: MeetingSlot) => {
     if (fromAssignmentId === null) {
-      if (!cell.assignment_id) return; // 空き枠は移動元にできない
+      //１回目の選択の場合
+      if (!cell.assignment_id) return; // 空き枠を１回目に選択しても反応しない
       setFromAssignmentId(cell?.assignment_id);
-      fetchValidSlots(cell.assignment_id);
+      const dataA = await fetchValidSlots(cell.assignment_id); //一回目に選択した児童の情報を受け取るdataAに入れる
+      setValidSlotsData(dataA); //児童の詳細情報を保存する
       setHighlightedSlotIds([]);
     } else if (fromAssignmentId === cell?.assignment_id) {
-      //選択してもう一度同じところを選択
+      //選択してもう一度同じところを選択(移動元と同じ枠（取消）)
       setFromAssignmentId(null);
       setValidSlotsData(null); //面談詳細をなくす
     } else {
-      // 移動先を選択 → 確認ダイアログを開く
+      // ２回目移動さきを選択の場合、
       setToSlotId(cell?.id);
-      setEditAlertOpen(true);
+      setEditAlertOpen(true); //ダイアログが出される
+      // 移動先に他の児童が入っている場合
+      const dataB = cell.assignment_id
+        ? await fetchValidSlots(cell.assignment_id) // 移動先の児童のデータを取得
+        : null; //もしいなければ何も返さない（情報がないため）
+      // １回目に選択した児童（移動元）を２回目に選択した児童の枠（移動先）に置いたらどうなるか
+      const violationsA = checkPlacement(
+        validSlotsData, //Aの児童の情報
+        cell, //Aの移動先の枠
+        fromSlot?.start_at, //Aの移動元の時刻
+        fromSlot?.child_name,
+      );
+      // Bを移動先(A)の枠に置いたらどうなるか
+      const violationsB =
+        dataB && fromSlot
+          ? checkPlacement(
+              dataB, //Bの児童情報
+              fromSlot, //Bの移動先の枠（Aが元いた場所）
+              cell.start_at, //Bの移動元の時刻（Aが元いた時刻）
+              cell.child_name,
+            )
+          : [];
       setValidSlotsData(null); //面談詳細をなくす
+      setViolations([...violationsA, ...violationsB]); //2つのリストを1つに合体
     }
   };
+  //　兄弟/特支が連続（15分）かどうかを判断する関数
+  const isNextTo = (a: string, b: string) => {
+    const diff = Math.abs(new Date(a).getTime() - new Date(b).getTime()); //２つのslotの日時を計算できる形に変換（差を表す）
+    return diff === 15 * 60 * 1000; //差がちょうど15分なら true、それ以外は false を返す
+  };
+
+  // 移動しても良いかを判断する関数（引数を受け取る）
+  const checkPlacement = (
+    data: ValidSlotsData | null,
+    slot: MeetingSlot,
+    fromStartAt?: string,
+    childName?: string,
+  ) => {
+    const name = childName ? `${childName}さん` : "この児童";
+    const violations: Violation[] = []; //中身が空の配列 [] を用意
+    //保護者の不可日の時間が含まれている場合
+    if (data?.unavailable_start_at?.includes(slot.start_at)) {
+      violations.push({
+        kind: "parent_unavailable",
+        name: name,
+        detail: `保護者の都合がつかない時間です`,
+      });
+    }
+    //教師の不可日の時間が含まれている場合
+    if (slot?.status === "blocked") {
+      violations.push({
+        kind: "teacher_unavailable",
+        name: name,
+        detail: "先生の都合がつかない時間です",
+      });
+    }
+    //兄弟の枠との関係
+    if (fromStartAt) {
+      const siblings = data?.siblings_start_at ?? []; //兄弟の時刻を持っているなら、その時刻をsiblingsに入れる
+      const before = siblings.some((s) => isNextTo(s, fromStartAt)); //移動前に、特支のslotとの差が15分か（連続かどうか）
+      const after = siblings.some((s) => isNextTo(s, slot.start_at)); //移動後に、特支のslotとの差が15分か（連続かどうか）
+      if (before && !after) {
+        violations.push({
+          kind: "sibling_not_consecutive",
+          detail: "兄弟の面談と連続しなくなります",
+          name: name,
+        });
+      }
+    }
+    //特別支援の枠との関係
+    if (fromStartAt) {
+      const own_support = data?.own_support_start_at ?? []; //特支の時刻を持っているなら、その時刻をown_supportに入れる
+      const before = own_support.some((o) => isNextTo(o, fromStartAt)); //移動前に、兄弟slotとの差が15分か
+      const after = own_support.some((o) => isNextTo(o, slot.start_at)); //移動後に、兄弟slotとの差が15分か
+      if (before && !after) {
+        violations.push({
+          kind: "support_not_consecutive",
+          detail: "特別支援学級での面談と連続しなくなります",
+          name: name,
+        });
+      }
+    }
+    return violations;
+  };
+
   //変更ダイアログに変更した児童名を表示する設定
   const fromSlot =
     slots.find(
@@ -201,8 +291,7 @@ export default function MeetingSlotPage() {
         },
       },
     );
-    const data = await res.json();
-    setValidSlotsData(data); //slotを選んだ１人の情報が返ってくる
+    return await res.json();
   };
 
   useEffect(() => {
@@ -782,27 +871,183 @@ export default function MeetingSlotPage() {
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
                 <Dialog open={editAlertOpen} onClose={handleCancelFinishAlert}>
-                  <DialogTitle>
-                    <Typography>{`${fromSlot?.child_name}さん（${formatDate(fromSlot?.start_at ?? "")} ${formatTime(fromSlot?.start_at ?? "")}）を`}</Typography>
-                    <br />{" "}
-                    {toSlot && (
-                      <Typography>
-                        {toSlot.child_name
-                          ? `${toSlot.child_name}さん(${formatDate(toSlot.start_at)} ${formatTime(toSlot.start_at)})へ`
-                          : `空き枠(${formatDate(toSlot.start_at)} ${formatTime(toSlot.start_at)})へ`}
-                      </Typography>
+                  <DialogTitle variant="h5">面談の時間を変更します</DialogTitle>
+
+                  <DialogContent>
+                    <Typography sx={{ mb: 2 }}>
+                      以下の児童の面談表を、別の時間枠に移動します
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: 3,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          backgroundColor: "#d6e4f0",
+                          gap: 1,
+                          p: 2,
+                          minWidth: 200,
+                          minHeight: 100,
+                          borderRadius: 2,
+                          textAlign: "center",
+                        }}
+                      >
+                        <Typography
+                          sx={{ color: "primary.main", fontWeight: "bold" }}
+                        >
+                          現在の時間
+                        </Typography>
+                        <Box sx={{ backgroundColor: "white", borderRadius: 2 }}>
+                          <Typography>
+                            {formatDate(fromSlot?.start_at ?? "")}
+                            {formatTime(fromSlot?.start_at ?? "")}
+                          </Typography>
+                        </Box>
+
+                        <Typography>{`${fromSlot?.child_name}さん`}</Typography>
+                      </Box>
+                      <ArrowForwardIcon
+                        sx={{
+                          minHeight: 100,
+                          color: "primary.main",
+                          fontSize: 30,
+                          transform: { xs: "rotate(90deg)", md: "none" },
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                          backgroundColor: "#e8f5ee",
+                          p: 2,
+                          minWidth: 200,
+                          minHeight: 100,
+                          borderRadius: 2,
+                          textAlign: "center",
+                        }}
+                      >
+                        <Typography
+                          sx={{ color: "success.main", fontWeight: "bold" }}
+                        >
+                          移動先の時間
+                        </Typography>
+                        <Box
+                          sx={{
+                            backgroundColor: "white",
+                            borderRadius: 2,
+                          }}
+                        >
+                          <Typography>
+                            {formatDate(toSlot?.start_at ?? "")}
+                            {formatTime(toSlot?.start_at ?? "")}
+                          </Typography>
+                        </Box>
+                        <Typography variant="body1">{`${toSlot?.child_name}さん`}</Typography>
+                      </Box>
+                    </Box>
+                  </DialogContent>
+                  <DialogContent>
+                    {violations.length > 0 && (
+                      <>
+                        <Alert severity="warning" sx={{ mx: 3, mb: 2 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 2,
+                            }}
+                          >
+                            <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                              <Typography
+                                variant="h6"
+                                sx={{ color: "warning.main" }}
+                              >
+                                以下の理由で面談できない可能性があります
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 2,
+                              }}
+                            >
+                              {violations.map((v, index) => (
+                                <Box
+                                  component="li"
+                                  sx={{ display: "flex", gap: 5 }}
+                                  key={index}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: "bold" }}
+                                  >
+                                    {v.name}
+                                  </Typography>
+                                  <Box
+                                    sx={{
+                                      color: "warning.dark",
+                                      backgroundColor: "#fff4e5",
+                                    }}
+                                  >
+                                    <Typography
+                                      variant="body2"
+                                      sx={{
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {v.detail}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              ))}
+                            </Box>
+                          </Box>
+                        </Alert>
+                      </>
                     )}
-                    <br /> <Typography>{`移動します。`}</Typography>
-                  </DialogTitle>
-                  <DialogActions>
+                  </DialogContent>
+                  <DialogContent>
+                    <Box
+                      sx={{
+                        backgroundColor: "#d6e4f0",
+                        borderRadius: 2,
+                        p: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "primary.main", fontWeight: "bold" }}
+                      >
+                        本当にこの時間に変更してもよろしいですか？
+                      </Typography>
+                      <Typography variant="body2">
+                        面談表をご確認の上、変更することをおすすめします。
+                      </Typography>
+                    </Box>
+                  </DialogContent>
+
+                  <DialogActions sx={{ p: 3 }}>
+                    <Button onClick={handleCancelFinishAlert}>
+                      キャンセル
+                    </Button>
                     <Button
                       // 編集用の面談表を再描写
                       onClick={handleApplyChange}
                       autoFocus
+                      variant="contained"
                     >
-                      はい
+                      変更する
                     </Button>
-                    <Button onClick={handleCancelFinishAlert}>いいえ</Button>
                   </DialogActions>
                 </Dialog>
               </Box>

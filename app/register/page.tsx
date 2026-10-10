@@ -276,6 +276,7 @@ export default function RegisterPage() {
               <InputLabel>クラス選択</InputLabel>
               <Select
                 value={child.classRoomId}
+                label="クラス選択"
                 onChange={(e) => {
                   const newChildren = [...children];
                   newChildren[index].classRoomId = e.target.value;

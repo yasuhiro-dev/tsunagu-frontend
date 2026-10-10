@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import Alert from "@mui/material/Alert";
 import FlowStepper from "@/app/components/FlowStepper";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import Paper from "@mui/material/Paper";
@@ -165,36 +166,53 @@ export default function AssignmentNotification() {
         <Paper sx={{ display: "flex", p: 2 }}>
           <Box
             sx={{
+              flex: 3,
               display: "flex",
               gap: 2,
               flexDirection: "column",
               p: 2,
-              mr: 2,
-              flex: 2,
             }}
           >
-            <Typography variant="h6">
-              未送信保護者にメールを送信します。
-            </Typography>
-            <Typography>
-              面談日程は確定していますが、{unNotified}
-              件の保護者にはまだメールが届いていません。
-            </Typography>
-            <Typography>
-              面談日程はマイページで確認できますが、メール通知はまだ届いていません。
-            </Typography>
+            {unAvailable ? (
+              <>
+                <Typography variant="h6">保護者へのメール通知</Typography>
+                <Typography>
+                  面談の割り当てが終わると、確定した日程をメールで通知できます。
+                </Typography>
+              </>
+            ) : isDone ? (
+              <>
+                <Typography variant="h6">
+                  保護者へのメール送信が完了しました
+                </Typography>
+                <Typography>
+                  すべての保護者に面談日程のメールを送信しました。
+                  <br />
+                  メール送信の結果を確認できます。
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Typography variant="h6">保護者へのメール通知</Typography>
+                <Typography>
+                  面談日程は確定していますが、{unNotified}
+                  件の保護者にはまだメールが届いていません。
+                </Typography>
+                <Typography>
+                  すでに送信した保護者には再送されません。
+                </Typography>
+              </>
+            )}
           </Box>
 
           {/* ボタン操作群 */}
           <Box
             sx={{
               display: "flex",
-              flex: 1,
+              flex: 2,
               flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 1,
-              minHeight: 100,
+              gap: 2,
+              p: 2,
             }}
           >
             {/*割り当て完了ボタン */}
@@ -214,11 +232,16 @@ export default function AssignmentNotification() {
                   ? "送信を開始しました"
                   : unAvailable
                     ? "割り当て後に送信できます"
-                    : "▶ 送信を開始する"}
+                    : `▶ ${unNotified}件に送信する`}
             </Button>
-            {!unAvailable && (
-              <Typography>すでに送信した保護者には再送されません。</Typography>
-            )}
+            <Alert severity="warning">
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <Typography variant="h6">デモ環境について</Typography>
+                <Typography variant="body2">
+                  この環境では、実際にメールは送信されません。
+                </Typography>
+              </Box>
+            </Alert>
           </Box>
         </Paper>
 
