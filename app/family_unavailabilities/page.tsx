@@ -293,6 +293,8 @@ export default function FamilyUnavailability() {
               onClearAll={handleClearAll}
               showBlockedNote={true}
               isBlocked={(slot) => blockedSlotStartAt.includes(slot.start_at)}
+              availableLabel="参加できる"
+              unavailableLabel="参加できない"
             />
           ))}
         </Box>

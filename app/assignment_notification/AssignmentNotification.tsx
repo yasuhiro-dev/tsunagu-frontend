@@ -19,6 +19,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Chip from "@mui/material/Chip";
 import Pagination from "@mui/material/Pagination";
+import DemoGuide from "@/app/components/DemoGuide";
 
 // 未連携教師オブジェクトの型
 type UnLinkedTeacher = {
@@ -46,6 +47,7 @@ export default function AssignmentNotification() {
   const [alertMessage, setAlertMessage] = useState("");
   const [requested, setRequested] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
   const itemsPerPage = 6;
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
@@ -78,6 +80,13 @@ export default function AssignmentNotification() {
         const latestCount = await fetchNotificationStatus(); //最新の情報をfetchNotificationStatusから呼ぶ
         pollCount = pollCount + 1; //関数を読んだら１回カウントされる
 
+        if (latestCount === 0) {
+          setAlertOpen(true);
+          setAlertSeverity("success");
+          setAlertMessage("メール送信が完了しました");
+          setShowSubmittedDialog(true);
+          //ここに案内を呼ぶ形にすれば確認画面へ飛ぶことができる
+        }
         if (latestCount === 0 || pollCount > 20) {
           clearInterval(timerId);
         }
@@ -135,6 +144,8 @@ export default function AssignmentNotification() {
         backgroundColor: "#ecf1f4ff",
       }}
     >
+      {showSubmittedDialog && <DemoGuide page="assignment_notification" />}
+      <DemoGuide page="admin_mail_send" />
       <AlertSnackbar
         open={alertOpen}
         severity={alertSeverity}

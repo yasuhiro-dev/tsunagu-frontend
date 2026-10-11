@@ -23,6 +23,8 @@ import {
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
+import Link from "next/link";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 type Assignment = {
   id: number;
@@ -215,6 +217,7 @@ export default function MySchedulePage() {
         })}
       </Stepper>
       <Typography sx={{ p: 2 }}>{getStatusMessage()}</Typography>
+
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {assignment.map((a, i) => (
           <Card
@@ -283,6 +286,20 @@ export default function MySchedulePage() {
             </CardContent>
           </Card>
         ))}
+      </Box>
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="body2" color="text.secondary">
+          保護者には、このような内容がメールでも届きます。
+        </Typography>
+        <Button
+          variant="text"
+          component={Link}
+          href="/#output"
+          endIcon={<ArrowForwardIcon />}
+          sx={{ mt: 0.5, px: 0 }}
+        >
+          出力例（PDF・メール）を見る
+        </Button>
       </Box>
     </Container>
   );

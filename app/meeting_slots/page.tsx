@@ -27,7 +27,8 @@ import DemoGuide from "@/app/components/DemoGuide";
 import { alpha } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TouchAppIcon from "@mui/icons-material/TouchApp";
-
+import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
+import Divider from "@mui/material/Divider";
 type Violation = {
   kind: string; //どんな条件か
   detail: string; //具体的な説明
@@ -85,6 +86,21 @@ export default function MeetingSlotPage() {
       child_name_kana: string;
     }[]
   >([]);
+
+  //デモログイン(教師→管理者)
+  const nextDemoRole = async () => {
+    try {
+      const account = DEMO_ACCOUNTS.admin;
+      const email = account.email;
+      const password = account.password;
+      await demoLogin(email, password);
+      window.location.href = "/admin?tab=2";
+    } catch {
+      setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertMessage("ログインに失敗しました");
+    }
+  };
   // サイドバー開閉
   const [isOpen, setIsOpen] = useState(false);
   // 移動元のslot
@@ -436,11 +452,11 @@ export default function MeetingSlotPage() {
             }}
           >
             <Typography variant="h5" gutterBottom>
-              面談スケジュール
+              面談表
             </Typography>
 
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              ※「希望日時未提出」の児童も、都合の悪い日時が申告されていないため通常通り割り当てられます
+              ※「希望日時未提出」の児童は、日時の制約なしとして割り当てられます
             </Typography>
 
             <Box
@@ -459,10 +475,18 @@ export default function MeetingSlotPage() {
               </Box>
             </Box>
           </Box>
-          <Box sx={{ minHeight: "64px" }}>
+          <Box>
             {isEditing ? (
-              <Alert severity="info" sx={{ my: 2 }}>
-                移動先の枠を選んでください（もう一度同じ枠を押すと取消）
+              <Alert severity="info" sx={{ my: 2, height: 110 }}>
+                <Typography variant="h6">
+                  移動先をクリックしてください
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    同じ児童をもう一度押すと取消
+                  </Typography>
+                </Box>
+
                 <Box
                   sx={{
                     display: "flex",
@@ -489,40 +513,68 @@ export default function MeetingSlotPage() {
                     教師と保護者の面談できない時間
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Chip
-                      label="兄弟"
-                      size="small"
-                      sx={{
-                        height: 16,
-                        fontSize: "9px",
-                        "& .MuiChip-label": { px: 0.5 },
-                      }}
-                    />
-                    兄弟の面談と重なる
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Chip
-                      label="特支"
-                      size="small"
-                      sx={{
-                        height: 16,
-                        fontSize: "9px",
-                        "& .MuiChip-label": { px: 0.5 },
-                      }}
-                    />
-                    特別支援学級の面談と重なる
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <DescriptionIcon
                       sx={{ fontSize: "16px", color: "primary.main" }}
                     />
                     兄弟・特支の面談表を見る
                   </Box>
+                  <Divider
+                    sx={{ borderColor: "text.secondary" }}
+                    orientation="vertical"
+                    flexItem
+                  />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Chip
+                      label="兄弟"
+                      color="success"
+                      size="small"
+                      sx={{
+                        height: 16,
+                        fontSize: "9px",
+                        "& .MuiChip-label": { px: 0.5 },
+                      }}
+                    />
+                    兄弟の面談
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Chip
+                      label="特支"
+                      size="small"
+                      color="success"
+                      sx={{
+                        height: 16,
+                        fontSize: "9px",
+                        "& .MuiChip-label": { px: 0.5 },
+                      }}
+                    />
+                    特別支援学級の面談
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    color="success"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    ※前後の時間なら連続になります
+                  </Typography>
                 </Box>
               </Alert>
             ) : (
-              <Alert severity="info" sx={{ my: 2 }}>
-                移動させたい児童の枠をクリックしてください
+              <Alert severity="info" sx={{ my: 2, height: 110 }}>
+                <Typography variant="h6">
+                  児童をクリックすると、面談日時を変更できます
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <TouchAppIcon
+                    sx={{
+                      width: 14,
+                      height: 14,
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    選んだ児童の、移動できない時間と、兄弟・特支の重なりが表示されます
+                  </Typography>
+                </Box>
+
                 <Box
                   sx={{
                     display: "flex",
@@ -534,15 +586,6 @@ export default function MeetingSlotPage() {
                     fontSize: "12px",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <TouchAppIcon
-                      sx={{
-                        width: 14,
-                        height: 14,
-                      }}
-                    />
-                    選択すると、移動できない時間や兄弟・特支の面談と重なる時間が表示されます
-                  </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <Box
                       sx={{
@@ -743,12 +786,14 @@ export default function MeetingSlotPage() {
                             <Chip
                               label="兄弟"
                               size="small"
+                              color="success"
                               sx={{
                                 position: "absolute",
                                 top: 4,
                                 right: 4,
                                 height: 16,
-                                fontSize: "9px",
+
+                                fontSize: "12px",
                                 "& .MuiChip-label": { px: 0.5 },
                               }}
                             />
@@ -757,12 +802,13 @@ export default function MeetingSlotPage() {
                             <Chip
                               label="特支"
                               size="small"
+                              color="success"
                               sx={{
                                 position: "absolute",
                                 top: 4,
                                 right: isSiblingSlot ? 36 : 4,
                                 height: 16,
-                                fontSize: "9px",
+                                fontSize: "12px",
                                 "& .MuiChip-label": { px: 0.5 },
                               }}
                             />
@@ -868,6 +914,23 @@ export default function MeetingSlotPage() {
                   </Box>
                 ))}
               </Box>
+              {/* 管理者画面へ遷移するボタン */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Typography>
+                  面談表の確認が終わったら、管理者画面で保護者へのメール送信を試せます。
+                </Typography>
+                <Button variant="contained" onClick={nextDemoRole}>
+                  管理者画面へ進む
+                </Button>
+              </Box>
+
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
                 <Dialog open={editAlertOpen} onClose={handleCancelFinishAlert}>

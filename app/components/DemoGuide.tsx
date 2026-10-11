@@ -114,7 +114,7 @@ export default function DemoGuide({ page }: Props) {
             onClick={() => {
               if (content.buttonUrl) {
                 //遷移先があるかを判断
-                nextDemoSubmit(); //ある場合には関数を呼ぶ、ボタンが１つしかないため引数に値を入れなくてもいい
+                nextDemoSubmit(); //ある場合には関数を呼ぶ
               } else {
                 {
                   handleClose();

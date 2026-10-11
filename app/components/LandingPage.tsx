@@ -16,6 +16,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
 import { demoLogin, RedirectMap, DEMO_ACCOUNTS } from "@/utils/demoLogin";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 
 export default function LandingPage() {
   const workflowRef = useRef<HTMLElement>(null);
@@ -54,77 +55,6 @@ export default function LandingPage() {
       window.location.href = redirectTo;
     }
   }, [redirectTo]);
-
-  // 3つの立場の説明
-  const roleDescriptions = [
-    {
-      image: "/images/teacher.webp",
-      title: "教師",
-      description: "自分の予定を確認・調整する",
-      items: [
-        "児童一覧・未提出者の確認",
-        "個別の手動割り当て",
-        "都合の悪い日時の登録",
-        "面談表のPDF出力",
-      ],
-      color: "#d6e4f0",
-      circleColor: "primary.main",
-    },
-    {
-      image: "/images/parent.webp",
-      title: "保護者",
-      description: "都合を伝え、日程を確認する",
-      items: [
-        "参加できる日時を選んで提出",
-        "調整中の状況を確認",
-        "確定した面談日を確認",
-        "スマホ操作も可能",
-      ],
-      color: "#fbebec",
-      circleColor: "#d18a94",
-    },
-    {
-      image: "/images/admin.webp",
-      title: "管理者",
-      description: "学校全体の面談日程をつくる",
-      items: [
-        "教師・保護者情報の登録・編集",
-        "面談の一括自動割り当て",
-        "提出締切日の設定",
-        "クラス別の割り当て状況の可視化",
-      ],
-      color: "#e8f5ee",
-      circleColor: "success.main",
-    },
-  ];
-
-  // 学校の悩みの説明
-  const teacherProblems = [
-    {
-      title: "兄弟の調整",
-      image: "/images/problems/siblings.webp",
-      description: "兄弟が別々な日になると何度も来校する必要がある",
-      color: "#d6e4f0",
-    },
-    {
-      title: "支援学級との調整",
-      image: "/images/problems/support.webp",
-      description: "通常学級と支援学級の面談も連続にする必要がある",
-      color: "#d6e4f0",
-    },
-    {
-      title: "保護者の都合",
-      image: "/images/problems/parent.webp",
-      description: "仕事や家庭の都合で来られない時間がある",
-      color: "#fbebec",
-    },
-    {
-      title: "教師の都合",
-      image: "/images/problems/teacher.webp",
-      description: "出張が入っている日には実施できない",
-      color: "#d6e4f0",
-    },
-  ];
 
   //　デモログインの手順表示
   const demologins = [
@@ -173,18 +103,20 @@ export default function LandingPage() {
       color: "primary.main",
       title: "面談できない日時を登録",
       image: "/images/workflows/teacher_availability.webp",
-      description: "学校の都合で対応できない日を登録します。",
+      description: "学校の都合で対応できない日時を登録します。",
       path: "/teacher_unavailabilities",
+      button_label: "教師画面を見る",
     },
     {
       number: "2",
       roleKey: "parent" as const,
       role: "保護者",
       color: "#d18a94",
-      title: "来校できる日を提出",
+      title: "来校できる日時を提出",
       image: "/images/workflows/family_availability.webp",
       description: "都合のいい日時を選んで提出します。",
       path: "/family_unavailabilities",
+      button_label: "保護者画面を見る",
     },
     {
       number: "3",
@@ -193,8 +125,9 @@ export default function LandingPage() {
       color: "success.main",
       title: "自動割り当てを実行",
       image: "/images/workflows/admin_assignment.webp",
-      description: "提出された希望と条件を基に、割り当てする。",
+      description: "提出された希望と条件を基に、面談日時を自動で割り当てます。",
       path: "/admin?tab=1",
+      button_label: "管理者画面を見る",
     },
     {
       number: "4",
@@ -205,16 +138,57 @@ export default function LandingPage() {
       image: "/images/workflows/teacher_manual.webp",
       description: "面談表を確認し、必要に応じて調整します。",
       path: "/meeting_slots",
+      button_label: "教師画面を見る",
     },
     {
       number: "5",
+      roleKey: "admin" as const,
+      role: "管理者",
+      color: "success.main",
+      title: "メールを送信",
+      image: "/images/workflows/admin_assignment.webp",
+      description: "面談日時が決まった保護者へメールを送信します。",
+      path: "/admin?tab=2",
+      button_label: "管理者画面を見る",
+    },
+    {
+      number: "6",
       roleKey: "parent" as const,
       role: "保護者",
       title: "決定した日時を確認",
       color: "#d18a94",
       image: "/images/workflows/family_schedule.webp",
-      description: "面談日時をメールやマイページから確認できます。",
+      description: "決まった面談日時を、マイページで確認します。",
       path: "/my_schedule",
+      button_label: "保護者画面を見る",
+    },
+  ];
+
+  // 学校の悩みの説明
+  const teacherProblems = [
+    {
+      title: "兄弟の調整",
+      image: "/images/problems/siblings.webp",
+      description: "兄弟が別々な日になると何度も来校する必要がある",
+      color: "#d6e4f0",
+    },
+    {
+      title: "支援学級との調整",
+      image: "/images/problems/support.webp",
+      description: "通常学級と支援学級の面談も連続にする必要がある",
+      color: "#d6e4f0",
+    },
+    {
+      title: "保護者の都合",
+      image: "/images/problems/parent.webp",
+      description: "仕事や家庭の都合で来られない時間がある",
+      color: "#fbebec",
+    },
+    {
+      title: "教師の都合",
+      image: "/images/problems/teacher.webp",
+      description: "出張が入っている日には実施できない",
+      color: "#d6e4f0",
     },
   ];
 
@@ -243,6 +217,49 @@ export default function LandingPage() {
       image: "/images/tsunagu-logic/manual-assignment.webp",
       title: "入らなかった家庭を確認",
       description: "入らなかった家庭は「未割り当て」から手動で配置",
+    },
+  ];
+
+  // 3つの立場の説明
+  const roleDescriptions = [
+    {
+      image: "/images/teacher.webp",
+      title: "教師",
+      description: "自分の予定を確認・調整する",
+      items: [
+        "児童一覧・未提出者の確認",
+        "個別の手動割り当て",
+        "都合の悪い日時の登録",
+        "面談表のPDF出力",
+      ],
+      color: "#d6e4f0",
+      circleColor: "primary.main",
+    },
+    {
+      image: "/images/parent.webp",
+      title: "保護者",
+      description: "都合を伝え、日程を確認する",
+      items: [
+        "参加できる日時を選んで提出",
+        "調整中の状況を確認",
+        "確定した面談日を確認",
+        "スマホ操作も可能",
+      ],
+      color: "#fbebec",
+      circleColor: "#d18a94",
+    },
+    {
+      image: "/images/admin.webp",
+      title: "管理者",
+      description: "学校全体の面談日程をつくる",
+      items: [
+        "教師・保護者情報の登録・編集",
+        "面談の一括自動割り当て",
+        "提出締切日の設定",
+        "クラス別の割り当て状況の可視化",
+      ],
+      color: "#e8f5ee",
+      circleColor: "success.main",
     },
   ];
   // モバイルの時（widthが600px以下の場合trueを返す）
@@ -287,196 +304,92 @@ export default function LandingPage() {
           onClose={() => setAlertOpen(false)}
         />
         {/* ヒーロー */}
+
         <Box
           sx={{
+            p: 4,
             display: "flex",
-            p: 3,
-            flexDirection: "column",
-            mb: 5,
+            alignItems: "center",
+            gap: 6,
+            flexDirection: { xs: "column", sm: "column", md: "row" },
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "column", md: "row" },
-            }}
-          >
-            {/* ヒーロー見出し */}
-            <Box sx={{ flex: 1 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  color: "text.secondary",
-                  mb: 1,
-                  fontSize: fontSizes.caption,
-                }}
-              >
-                先生のための面談日程調整サービス
-              </Typography>
-
-              <Box sx={{ mb: 3 }}>
-                <Typography
-                  variant="h3"
-                  sx={{ fontSize: { xs: "26px", sm: "36px", md: "40px" } }}
-                >
-                  保護者面談の日程調整を
-                  <br />
-                  先生の代わりに自動で
-                </Typography>
-              </Box>
-
-              <Box sx={{ mb: 3 }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontSize: { xs: "15px", sm: "15px", md: "18px" },
-                    lineHeight: 2.5,
-                    color: "text.secondary",
-                  }}
-                >
-                  保護者の希望を集めて、面談表を自動で作成
-                  <br />
-                  兄弟や支援学級の児童がいる家庭も、同じ日にまとめます
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* 兄弟連続画像 */}
-            <Box
+          {/* ヒーロー見出し */}
+          <Box sx={{ flex: 1 }}>
+            <Typography
+              variant="caption"
               sx={{
-                flex: 1,
+                color: "text.secondary",
+                mb: 1,
+                fontSize: fontSizes.caption,
               }}
             >
-              <Image
-                src="/images/LP-top.webp"
-                alt="兄弟がいる家庭をまとめるイメージ"
-                width={1200}
-                height={1200}
-              />
+              先生のための面談日程調整サービス
+            </Typography>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                variant="h3"
+                sx={{ fontSize: { xs: "26px", sm: "36px", md: "40px" } }}
+              >
+                保護者面談の日程調整を
+                <br />
+                先生の代わりに自動で
+              </Typography>
+            </Box>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                  lineHeight: 2,
+
+                  fontSize: { xs: "15px", sm: "15px", md: "18px" },
+                }}
+              >
+                保護者の希望を集めて、面談表を自動で作成
+                <br />
+                兄弟や支援学級の児童がいる家庭も、同じ日にまとめます
+              </Typography>
+            </Box>
+            <Box>
+              <Button
+                size="large"
+                variant="contained"
+                startIcon={<PlayCircleIcon />}
+                sx={{
+                  px: 10, // 左右の余白
+                  py: 2,
+                  fontSize: 20,
+                  fontWeight: "bold",
+                }}
+              >
+                デモを体験する
+              </Button>
+              <Typography
+                variant="body2"
+                sx={{ mt: 1.5, color: "text.secondary" }}
+              >
+                登録不要。教師・保護者・管理者の画面をそのまま操作できます。
+              </Typography>
             </Box>
           </Box>
 
-          {/*デモ導線 */}
-          <Paper elevation={4} sx={{ mt: 3, p: 3 }}>
-            <Box component="section">
-              <Typography variant="h5" sx={{ mb: 2 }}>
-                面談日程が決まるまでを、3ステップで体験
-              </Typography>
-              <Typography sx={{ mb: 3 }}>
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  ①から順に進むと、
-                </Box>
-                教師・保護者・管理者の操作がつながって、面談日程が自動で決まります。
-              </Typography>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", md: "row" },
-                  gap: 1,
-                }}
-              >
-                {demologins.map((demologin, index) => {
-                  const isLast = index === demologins.length - 1;
-
-                  return (
-                    <Fragment key={demologin.number}>
-                      {/* カード */}
-                      <Box
-                        sx={{
-                          flex: 1,
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 1,
-                          backgroundColor: demologin.back_color,
-                          borderRadius: 5,
-                          p: 2,
-                        }}
-                      >
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 2 }}
-                        >
-                          <Box
-                            sx={{
-                              width: 30,
-                              height: 30,
-                              backgroundColor: demologin.color,
-                              color: "common.white",
-                              borderRadius: "50%",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              flexShrink: 0,
-                            }}
-                          >
-                            {demologin.number}
-                          </Box>
-                          <Chip
-                            sx={{
-                              minWidth: 110,
-                              backgroundColor: demologin.color,
-                              color: "common.white",
-                            }}
-                            label={demologin.role}
-                          />
-                        </Box>
-                        <Typography variant="h6">{demologin.title}</Typography>
-                        <Typography variant="body2" sx={{ flexGrow: 1, mb: 2 }}>
-                          {demologin.description}
-                        </Typography>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          onClick={() =>
-                            handleSubmit(
-                              DEMO_ACCOUNTS[demologin.roleKey].email, //DEMO_ACCOUNTSのキー（role）を指定その中でemailを取り出す
-                              DEMO_ACCOUNTS[demologin.roleKey].password,
-                              demologin.path,
-                            )
-                          }
-                          sx={{
-                            height: 50,
-                            fontSize: fontSizes.caption,
-                            backgroundColor: demologin.color,
-                            "&:hover": {
-                              backgroundColor: demologin.hoverColor,
-                            },
-                          }}
-                        >
-                          {demologin.button_content}
-                        </Button>
-                      </Box>
-
-                      {/* 矢印（最後のカードの後ろには出さない） */}
-                      {!isLast && <FlowArrow />}
-                    </Fragment>
-                  );
-                })}
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-                <Button
-                  onClick={() =>
-                    workflowRef.current?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  sx={{
-                    textDecoration: "underline",
-                    "&:hover": {
-                      textDecoration: "underline", // ホバーで消えないようにする
-                      backgroundColor: "transparent",
-                    },
-                    fontSize: 20,
-                  }}
-                >
-                  続きの④⑤は、下の流れ図から ↓ {""} <ArrowDownwardIcon />
-                </Button>
-              </Box>
-            </Box>
-          </Paper>
+          {/* 兄弟連続画像 */}
+          <Box
+            sx={{
+              flex: 1.2,
+            }}
+          >
+            <Image
+              src="/images/LP-top.webp"
+              alt="兄弟がいる家庭をまとめるイメージ"
+              width={1600}
+              height={800}
+              priority
+              style={{ width: "100%", height: "auto" }}
+            />
+          </Box>
         </Box>
 
         {/* Tsunaguで面談日程が決まるまで */}
@@ -503,40 +416,31 @@ export default function LandingPage() {
             </Box>
             <Box
               sx={{
-                display: "flex",
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
                 flexDirection: { xs: "column", sm: "column", md: "row" },
                 justifyContent: "center",
-                gap: 1,
+                gap: 4,
               }}
             >
               {workflows.map((workflow, index) => {
-                const isLast = index === workflows.length - 1;
+                const isRowEnd = index % 3 === 2;
                 return (
-                  <Fragment key={index}>
+                  <Box
+                    key={workflow.number}
+                    sx={{ position: "relative", display: "flex" }}
+                  >
                     <Paper
-                      onClick={() =>
-                        handleSubmit(
-                          DEMO_ACCOUNTS[workflow.roleKey].email,
-                          DEMO_ACCOUNTS[workflow.roleKey].password,
-                          workflow.path,
-                        )
-                      }
                       sx={{
-                        cursor: "pointer",
                         display: "flex",
                         flexDirection: "column",
-                        minHeight: 350,
+                        minHeight: 300,
                         flex: 1,
                         minWidth: 0,
                         p: 3,
                         gap: 1,
                         justifyContent: "flex-start",
                         alignItems: "center",
-                        transition: "box-shadow 0.2s, transform 0.2s",
-                        "&:hover": {
-                          boxShadow: 10,
-                          transform: "translateY(-5px)",
-                        },
                       }}
                     >
                       <Box sx={{ display: "flex", gap: 2 }}>
@@ -574,14 +478,48 @@ export default function LandingPage() {
                         style={{
                           width: "100%",
                           height: "auto",
-                          maxWidth: 180,
+                          maxWidth: 120,
                         }}
                       />
                       <Typography>{workflow.description}</Typography>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: workflow.color,
+                          "&:hover": {
+                            backgroundColor: workflow.color,
+                            filter: "brightness(0.9)",
+                          },
+                          mt: "auto",
+                        }}
+                        onClick={() =>
+                          handleSubmit(
+                            DEMO_ACCOUNTS[workflow.roleKey].email,
+                            DEMO_ACCOUNTS[workflow.roleKey].password,
+                            workflow.path,
+                          )
+                        }
+                      >
+                        {workflow.button_label}
+                      </Button>
                     </Paper>
                     {/* 矢印 */}
-                    {!isLast && <FlowArrow />}
-                  </Fragment>
+
+                    {!isRowEnd && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: 0,
+                          bottom: 0, // 上から下まで、カードと同じ高さにする
+                          right: -24,
+                          display: { xs: "none", md: "flex" },
+                          alignItems: "center", // その中で、縦の真ん中に置く
+                        }}
+                      >
+                        <FlowArrow />
+                      </Box>
+                    )}
+                  </Box>
                 );
               })}
             </Box>
@@ -825,7 +763,9 @@ export default function LandingPage() {
         {/* プレビュー */}
         <Box sx={{ p: 3, mb: 5 }}>
           <Box
+            id="output"
             sx={{
+              scrollMarginTop: "80px",
               borderRadius: 5,
               display: "flex",
               p: 3,
@@ -839,6 +779,7 @@ export default function LandingPage() {
             >
               実際に出力されるもの
             </Typography>
+            <Typography>※表示内容は例です</Typography>
             <Box
               sx={{
                 display: "flex",
@@ -888,7 +829,13 @@ export default function LandingPage() {
                   p: 3,
                 }}
               >
-                <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mb: 2,
+                  }}
+                >
                   <MailIcon sx={{ color: "blue" }} />
                   <Typography
                     variant="h5"
