@@ -8,7 +8,8 @@ export type DemoPage =
   | "teacher_submitted"
   | "family_submitted"
   | "assignment_button"
-  | "assignment_notification";
+  | "assignment_notification"
+  | "admin_mail_send";
 
 export type DemoGuideContent = {
   title: string;
@@ -23,10 +24,10 @@ export type DemoGuideContent = {
 
 export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   teacher_unavailability: {
-    title: "教師として体験します。",
+    title: "ここからは教師の画面です。",
     purpose: "出張や不在など、面談に対応できない日時を登録する画面です。",
     steps: ["対応できない日時を「参加できない」にしてください。"],
-    buttonLabel: "デモをはじめる",
+    buttonLabel: "はじめる",
   },
 
   teacher_submitted: {
@@ -39,11 +40,11 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     nextDemoRole: "parent",
   },
   family_availability: {
-    title: "保護者として体験します。",
+    title: "ここからは保護者の画面です。",
     purpose: "面談の日程調整のために、参加できる日時を先生に伝える画面です",
     steps: ["参加できる日時のボタンを押して回答してみましょう。"],
     note: "※提出後は変更できません。",
-    buttonLabel: "デモをはじめる",
+    buttonLabel: "はじめる",
   },
 
   family_submitted: {
@@ -57,10 +58,10 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   },
 
   admin_assignment: {
-    title: "管理者として体験します。",
+    title: "ここからは管理者の画面です。",
     purpose: "教師と保護者の希望をもとに、面談日程を自動で割り当てます。",
     steps: ["「割り当てを実行する」を押して、結果を確認してみましょう。"],
-    buttonLabel: "デモをはじめる",
+    buttonLabel: "はじめる",
   },
   assignment_button: {
     title: "自動割り当てが完了しました。",
@@ -71,23 +72,28 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     nextDemoRole: "teacher",
   },
   teacher_meeting_slots: {
-    title: "教師として体験します。",
+    title: "ここからは教師の画面です。",
     purpose: "面談の日程をこの画面で確認・変更できます。",
     steps: [
       "変更したい1コマをクリックし、続けて移動先のコマをクリックしてください",
     ],
     buttonLabel: "面談の調整をはじめる",
   },
-  assignment_notification: {
-    title: "通知の操作が完了しました。",
-    purpose:
-      "ここまでが管理者の操作です。デモのため、実際のメールは送信していません",
+  admin_mail_send: {
+    title: "ここからは管理者の画面です",
+    purpose: "担任が調整した面談日程を、管理者が保護者へメールで通知します",
     steps: [
-      "",
-      "⑤「決定した日時の確認」から決まった面談日時を確認できます。",
-      "また、保護者に届くメールの例は、トップページの「実際に出力されるもの」で見られます",
+      "「メールを送信する」を押してみましょう。",
+      "デモのため、実際にメールは送信されません。",
     ],
-    buttonLabel: "トップページに戻る",
+    buttonLabel: "はじめる",
+  },
+  assignment_notification: {
+    title: "通知の操作が完了しました",
+    purpose:
+      "ここまでが管理者の操作です。デモのため実際にメールは送信されません。",
+    steps: ["次は保護者の画面で、決まった面談日時を確認しましょう。"],
+    buttonLabel: "保護者の画面へ進む",
     buttonCancel: "閉じる",
     buttonUrl: "/my_schedule",
     nextDemoRole: "parent",

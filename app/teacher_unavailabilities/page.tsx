@@ -86,7 +86,6 @@ export default function MeetingSlotPage() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("提出しました");
-
       setAvailableSlots(toAvailableIds(data));
       setShowSubmittedDialog(true);
     } else {
@@ -352,6 +351,8 @@ export default function MeetingSlotPage() {
               onSelectAll={teacherHandleSelectAll}
               onClearAll={teacherHandleClearAll}
               showBlockedNote={false}
+              availableLabel="対応できる"
+              unavailableLabel="対応できない"
             />
           ))}
         </Box>

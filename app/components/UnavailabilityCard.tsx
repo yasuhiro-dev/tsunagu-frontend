@@ -20,6 +20,8 @@ type UnavailabilityCardProps = {
   onClearAll: (dateSlots: MeetingSlot[]) => void;
   showBlockedNote?: boolean;
   isBlocked?: (slot: MeetingSlot) => boolean;
+  availableLabel: string;
+  unavailableLabel: string;
 };
 
 export default function UnavailabilityCard({
@@ -32,6 +34,8 @@ export default function UnavailabilityCard({
   onClearAll,
   showBlockedNote,
   isBlocked,
+  availableLabel,
+  unavailableLabel,
 }: UnavailabilityCardProps) {
   return (
     <Box sx={{ flex: 1, textAlign: "center" }}>
@@ -128,7 +132,7 @@ export default function UnavailabilityCard({
                               sx={{ fontSize: "10px" }}
                               component="span"
                             >
-                              参加できる
+                              {availableLabel}
                             </Typography>
                           </Box>
                         </ToggleButton>
@@ -153,7 +157,7 @@ export default function UnavailabilityCard({
                               sx={{ fontSize: "10px" }}
                               component="span"
                             >
-                              参加できない
+                              {unavailableLabel}
                             </Typography>
                           </Box>
                         </ToggleButton>
