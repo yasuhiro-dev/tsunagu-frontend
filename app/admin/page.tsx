@@ -45,7 +45,7 @@ import AssignmentNotification from "@/app/assignment_notification/AssignmentNoti
 import { useSearchParams } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import DemoGuide from "@/app/components/DemoGuide";
+import GuideHelp from "@/app/components/GuideHelp";
 
 type Teacher = {
   name: string;
@@ -543,7 +543,7 @@ function AdminContent() {
       />
 
       <Paper sx={{ p: 3 }}>
-        <DemoGuide page="admin_assignment" />
+        <GuideHelp page="admin_assignment" />
 
         {/* サイドバー一覧 */}
         <Box sx={{ display: "flex" }}>
@@ -612,62 +612,60 @@ function AdminContent() {
             </Button>
           </Box>
 
-          {/* 面談の一括割り当て */}
-          {tab === 1 && (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                p: 3,
-
-                overflow: "auto",
-                flexDirection: "column",
-              }}
-            >
-              <Box>
-                <AssignmentExecution scheduleId={scheduleId} />
-              </Box>
-            </Box>
-          )}
-          {/* 保護者への通知 */}
-          {tab === 2 && (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                p: 3,
-
-                overflow: "auto",
-                flexDirection: "column",
-              }}
-            >
-              <Box>
-                <AssignmentNotification />
-              </Box>
-            </Box>
-          )}
-
-          {/* 締切日の設定 */}
-          {tab === 0 && (
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                p: 3,
-
-                overflow: "auto",
-                flexDirection: "column",
-              }}
-            >
-              <Box>
-                <DeadlineSetting scheduleId={scheduleId} />
-              </Box>
-            </Box>
-          )}
-
-          {/* 教師一覧画面 */}
-
           <Box sx={{ flexGrow: 1 }}>
+            {/* 面談の一括割り当て */}
+            {tab === 1 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  p: 3,
+                  flexGrow: 1,
+                  overflow: "auto",
+                  flexDirection: "column",
+                }}
+              >
+                <Box>
+                  <AssignmentExecution scheduleId={scheduleId} />
+                </Box>
+              </Box>
+            )}
+            {/* 保護者への通知 */}
+            {tab === 2 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexGrow: 1,
+                  gap: 2,
+                  p: 3,
+                  overflow: "auto",
+                  flexDirection: "column",
+                }}
+              >
+                <Box>
+                  <AssignmentNotification />
+                </Box>
+              </Box>
+            )}
+
+            {/* 締切日の設定 */}
+            {tab === 0 && (
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: "flex",
+                  gap: 2,
+                  p: 3,
+                  overflow: "auto",
+                  flexDirection: "column",
+                }}
+              >
+                <Box>
+                  <DeadlineSetting scheduleId={scheduleId} />
+                </Box>
+              </Box>
+            )}
+            {/* 教師一覧画面 */}
             {tab === 3 && (
               <Box sx={{ p: 3 }}>
                 <Box

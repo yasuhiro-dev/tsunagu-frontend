@@ -15,26 +15,10 @@ type Props = {
 };
 
 const steps = [
-  {
-    label: "面談日程を設定",
-    description: "保護者・教師の条件を入力します。",
-    Icon: PersonIcon,
-  },
-  {
-    label: "自動で割り当て",
-    description: "条件に基づき日程を自動で決定します。",
-    Icon: SettingsIcon,
-  },
-  {
-    label: "面談表を確認・調整",
-    description: "必要に応じて手動で調整します。",
-    Icon: AssignmentTurnedInIcon,
-  },
-  {
-    label: "保護者へ通知",
-    description: "確定した内容をメールで送信します。",
-    Icon: SendIcon,
-  },
+  { label: "保護者・教師の希望", Icon: PersonIcon },
+  { label: "自動で割り当て", Icon: SettingsIcon },
+  { label: "面談表で確認・調整", Icon: AssignmentTurnedInIcon },
+  { label: "保護者へ通知", Icon: SendIcon },
 ];
 
 export default function FlowStepper({ activeStep }: Props) {
@@ -53,9 +37,6 @@ export default function FlowStepper({ activeStep }: Props) {
                 }}
               />
             </Box>
-            <Typography sx={{ maxWidth: 200, mx: "auto", minHeight: 70 }}>
-              {step.description}
-            </Typography>
           </Step>
         );
       })}

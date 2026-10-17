@@ -17,14 +17,14 @@ import {
   fetchFamilySubmitted,
   decodeToken,
 } from "@/utils/dateUtils";
-import DemoGuide from "@/app/components/DemoGuide";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import Alert from "@mui/material/Alert";
 import DialogActions from "@mui/material/DialogActions";
-
+import GuideHelp from "@/app/components/GuideHelp";
+import DemoGuide from "@/app/components/DemoGuide";
 export default function FamilyUnavailability() {
   const router = useRouter();
   const [slots, setSlots] = useState<MeetingSlot[]>([]);
@@ -227,8 +227,12 @@ export default function FamilyUnavailability() {
         onClose={() => setAlertOpen(false)}
       />
       {/* 提出完了時の今後の流れのダイアログ */}
-      {showSubmittedDialog && <DemoGuide page="family_submitted" />}
-      <DemoGuide page="family_availability" />
+
+      <DemoGuide
+        open={showSubmittedDialog}
+        onClose={() => setShowSubmittedDialog(false)}
+        page="family_submitted"
+      />
       {/* 提出ボタンを押した時の確認ダイアログ */}
       <Dialog open={dialogOpen}>
         <Box sx={{ p: 3 }}>
@@ -261,10 +265,12 @@ export default function FamilyUnavailability() {
             flexDirection: { xs: "column", sm: "column", md: "row" },
           }}
         >
-          <Typography variant="h6" sx={{ mb: 3 }}>
-            {headingText}
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="h6">{headingText}</Typography>
+            <GuideHelp page="family_availability" />
+          </Box>
+
+          <Typography variant="body1">
             {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
             回答締切：{deadLine !== null ? formatDate(deadLine) : null}
           </Typography>

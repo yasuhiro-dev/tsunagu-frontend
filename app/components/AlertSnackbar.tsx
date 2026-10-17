@@ -4,6 +4,7 @@ import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
 export type AlertSnackbarProps = {
+  autoHideDuration?: number | null;
   open: boolean;
   severity: "success" | "error";
   message: string;
@@ -11,6 +12,7 @@ export type AlertSnackbarProps = {
 };
 
 export default function AlertSnackbar({
+  autoHideDuration,
   open,
   severity,
   message,
@@ -20,7 +22,7 @@ export default function AlertSnackbar({
     <Snackbar
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       open={open}
-      autoHideDuration={3000}
+      autoHideDuration={autoHideDuration}
       onClose={onClose}
     >
       <Alert severity={severity}>{message}</Alert>

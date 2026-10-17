@@ -27,3 +27,19 @@ export const demoLogin = async (loginEmail: string, loginPassword: string) => {
   }
   throw new Error("ログインに失敗しました");
 };
+
+// デモ環境を初期状態に戻す（デモアカウントでログインした後に呼ぶ）
+export const resetDemo = async () => {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/demo/reset`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    },
+  );
+  if (!res.ok) throw new Error("デモ環境のリセットに失敗しました");
+  // 前回の体験で「案内を見た」記録を消し、STEPの案内をもう一度表示させる
+  Object.keys(sessionStorage)
+    .filter((key) => key.startsWith("demo-guide-seen:"))
+    .forEach((key) => sessionStorage.removeItem(key));
+};

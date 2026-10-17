@@ -17,7 +17,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import DemoGuide from "@/app/components/DemoGuide";
 import FlowStepper from "@/app/components/FlowStepper";
-
+import GuideHelp from "@/app/components/GuideHelp";
 type Props = {
   scheduleId: number | null;
 };
@@ -30,6 +30,11 @@ type UnassignedChild = {
     classname: string;
   }[];
 };
+const EmptyResult = () => (
+  <Typography color="text.secondary" sx={{ textAlign: "center", py: 4 }}>
+    割り当て実行後に表示されます。
+  </Typography>
+);
 
 export default function AssignmentExecution({ scheduleId }: Props) {
   const router = useRouter();
@@ -43,6 +48,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
+  const [alertDuration, setAlertDuration] = useState(4000);
   const [unassignedChildren, setUnassignedChildren] = useState<
     UnassignedChild[]
   >([]);
@@ -97,18 +103,23 @@ export default function AssignmentExecution({ scheduleId }: Props) {
     setIsAssigning(false);
 
     if (res.ok === true && data.unassigned_children.length === 0) {
+      setAlertDuration(4000);
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("全員の割り当てが成功しました");
       setShowAssignmentDialog(true);
     } else if (res.ok === true && data.unassigned_children.length > 0) {
+      setAlertDuration(8000);
       setUnassignedChildren(data.unassigned_children);
       setAlertOpen(true);
-      setAlertSeverity("error");
-      setAlertMessage("割り当て失敗した児童がいます");
+      setAlertSeverity("success");
+      setAlertMessage(
+        `割り当てが完了しました。条件に合う枠がなかった${data.unassigned_children.length}人は、担任が面談表で割り当てます`,
+      );
       setShowAssignmentDialog(true);
     } else {
       setAlertMessage(data.error);
+      setAlertDuration(8000);
     }
   };
 
@@ -122,6 +133,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAssignmentStats();
   }, []);
+  const hasResult = assignCount > 0;
 
   return (
     <Paper
@@ -129,21 +141,31 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         display: "flex",
         flexDirection: "column",
         p: 2,
-        maxWidth: isMobile ? "265px" : "100",
+        maxWidth: isMobile ? "265px" : "100%",
         backgroundColor: "#ecf1f4ff",
+        width: "100%",
       }}
     >
       <AlertSnackbar
+        autoHideDuration={alertDuration}
         open={alertOpen}
         severity={alertSeverity}
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      {showAssignmentDialog && <DemoGuide page="assignment_button" />}
+      <DemoGuide
+        page="assignment_button"
+        open={showAssignmentDialog}
+        onClose={() => setShowAssignmentDialog(false)}
+      />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Typography variant="h6">面談の一括割り当て</Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography variant="h6">面談の一括割り当て</Typography>
+              <GuideHelp page="admin_assignment" />
+            </Box>
+
             <Typography>
               保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、教師の空き枠に面談を自動で割り当てます。
             </Typography>
@@ -175,12 +197,9 @@ export default function AssignmentExecution({ scheduleId }: Props) {
               flex: 2,
             }}
           >
-            <Typography variant="h6">割り当てを実行します。</Typography>
+            <Typography variant="h6">割り当てを実行</Typography>
             <Typography>
-              希望日時が未提出の保護者も、都合の悪い日時が申告されていなければ、通常どおり割り当てられます。
-            </Typography>
-            <Typography>
-              実行後は、面談表で結果を確認・調整してから、保護者へ通知してください。
+              希望日時が未提出でも割り当て対象になります。
             </Typography>
           </Box>
           <Box
@@ -206,156 +225,180 @@ export default function AssignmentExecution({ scheduleId }: Props) {
             >
               {isAssigning ? "割り当て中" : "▶ 割り当てを実行する"}
             </Button>
-            <Typography>(約10秒ほどかかります)</Typography>
+            <Typography>(10秒ほどかかります)</Typography>
           </Box>
         </Paper>
 
         <Box sx={{ display: "flex", gap: 2 }}>
           {/* 全体割り当て進捗状況 */}
-          <Paper sx={{ p: 2 }}>
-            <Box sx={{ width: 300 }}>
+          <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
+            <Box>
               <Typography variant="h6" sx={{ mb: 2 }}>
                 <DonutLargeIcon sx={{ color: "primary.main" }} />
                 全体割り当て率
               </Typography>
 
-              {/* ここから、円グラフと3項目を横並びにする */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                {/* 円グラフ本体 */}
-                <Gauge
-                  {...settings}
-                  cornerRadius="50%"
-                  sx={(theme) => ({
-                    [`& .${gaugeClasses.valueText}`]: { fontSize: 40 },
-                    [`& .${gaugeClasses.valueArc}`]: {
-                      fill: theme.palette.success.main,
-                    },
-                    [`& .${gaugeClasses.referenceArc}`]: {
-                      fill: theme.palette.text.disabled,
-                    },
-                  })}
-                />
-                {/* 3項目、円グラフの横に */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 1,
-                  }}
-                >
-                  {/* 割り当て済み */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Box
-                      sx={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        backgroundColor: "success.main",
-                      }}
-                    />
-                    <Box>
-                      <Typography variant="body2">割り当て済み</Typography>
-                      <Typography variant="h6">{assignCount}件</Typography>
+              {hasResult ? (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  {" "}
+                  {/* ここから、円グラフと3項目を横並びにする */}
+                  {/* 円グラフ本体 */}
+                  <Gauge
+                    {...settings}
+                    cornerRadius="50%"
+                    sx={(theme) => ({
+                      [`& .${gaugeClasses.valueText}`]: { fontSize: 40 },
+                      [`& .${gaugeClasses.valueArc}`]: {
+                        fill: theme.palette.success.main,
+                      },
+                      [`& .${gaugeClasses.referenceArc}`]: {
+                        fill: theme.palette.text.disabled,
+                      },
+                    })}
+                  />
+                  {/* 3項目、円グラフの横に */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1,
+                    }}
+                  >
+                    {/* 割り当て済み */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          backgroundColor: "success.main",
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="body2">割り当て済み</Typography>
+                        <Typography variant="h6">{assignCount}件</Typography>
+                      </Box>
                     </Box>
-                  </Box>
 
-                  {/* 未割り当て */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Box
-                      sx={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        backgroundColor: "text.disabled",
-                      }}
-                    />
-                    <Box>
-                      <Typography variant="body2">未割り当て</Typography>
-                      <Typography variant="h6">{unAssignCount}件</Typography>
+                    {/* 未割り当て */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          backgroundColor: "text.disabled",
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="body2">未割り当て</Typography>
+                        <Typography variant="h6">{unAssignCount}件</Typography>
+                      </Box>
                     </Box>
-                  </Box>
 
-                  {/* 対象児童数 */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Box
-                      sx={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        backgroundColor: "text.disabled",
-                      }}
-                    />
-                    <Box>
-                      <Typography variant="body2">対象児童数</Typography>
-                      <Typography variant="h6">{totalCount}件</Typography>
+                    {/* 対象児童数 */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          backgroundColor: "text.disabled",
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="body2">対象児童数</Typography>
+                        <Typography variant="h6">{totalCount}件</Typography>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
+              ) : (
+                <EmptyResult />
+              )}
             </Box>
           </Paper>
-          {/* 学年割り当て進捗状況 */}
-          <Paper sx={{ p: 2 }}>
+          <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
+            {/* 学年割り当て進捗状況 */}
             <Box>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
+              >
                 <BarChartIcon sx={{ color: "primary.main" }} />
                 学年別割り当て率
               </Typography>
-              <Box>
-                {classRates && (
-                  <BarChart
-                    dataset={classRates}
-                    // 棒グラフの縦の読みの所
-                    yAxis={[
-                      {
-                        scaleType: "band",
-                        dataKey: "class_name",
-                        width: isMobile ? 60 : 80,
-                      },
-                    ]}
-                    series={[
-                      {
-                        color: "#409563",
-                        dataKey: "rate",
-                        valueFormatter: (value) =>
-                          `${value !== null ? Math.floor(value) : 0}%`,
-                      },
-                    ]}
-                    layout="horizontal"
-                    {...chartSetting}
-                  />
-                )}
-              </Box>
+
+              {hasResult && classRates ? (
+                <BarChart
+                  dataset={classRates}
+                  // 棒グラフの縦の読みの所
+                  yAxis={[
+                    {
+                      scaleType: "band",
+                      dataKey: "class_name",
+                      width: isMobile ? 60 : 80,
+                    },
+                  ]}
+                  series={[
+                    {
+                      color: "#409563",
+                      dataKey: "rate",
+                      valueFormatter: (value) =>
+                        `${value !== null ? Math.floor(value) : 0}%`,
+                    },
+                  ]}
+                  layout="horizontal"
+                  {...chartSetting}
+                />
+              ) : (
+                <EmptyResult />
+              )}
             </Box>
           </Paper>
           {/* 未割り当て一覧 */}
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6">
-              <PersonSearchIcon sx={{ color: "primary.main" }} />
-              未割り当ての児童
-            </Typography>
-            <Box
-              sx={{
-                mt: 4,
-                p: 2,
-                backgroundColor: "grey.100",
-                borderRadius: 2,
-                flex: 1,
-                minWidth: 300,
-                maxHeight: 250,
-                overflowY: "scroll",
-              }}
-            >
-              {unassignedChildren.length === 0 ? (
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  全員の割り当てが完了しています。
-                </Typography>
-              ) : (
-                unassignedChildren.map((child, index) => (
-                  <Typography key={index} variant="body2">
-                    {child.name}（{child.class_rooms[0]?.classname}）
+          <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
+                <PersonSearchIcon sx={{ color: "primary.main" }} />
+                未割り当ての児童
+              </Typography>
+
+              {hasResult ? (
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    backgroundColor: "grey.100",
+                    borderRadius: 2,
+
+                    maxHeight: 250,
+                    overflowY: "auto",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 1, color: "text.secondary" }}
+                  >
+                    参加できる日時が少ないなど、条件に合う枠がなかった児童です。担任が保護者と相談し、面談表から手動で割り当てます。
                   </Typography>
-                ))
+                  {unassignedChildren.length === 0 ? (
+                    <Typography variant="body2">
+                      全員の割り当てが完了しています。
+                    </Typography>
+                  ) : (
+                    unassignedChildren.map((child) => (
+                      <Typography key={child.id} variant="body2">
+                        {child.name}（{child.class_rooms[0]?.classname}）
+                      </Typography>
+                    ))
+                  )}
+                </Box>
+              ) : (
+                <EmptyResult />
               )}
             </Box>
           </Paper>

@@ -9,6 +9,7 @@ export type MeetingSlot = {
   child_name: string;
   assignment_id: number | null;
   submitted: boolean | null;
+  class_room: string | null;
 };
 
 // 日付を日本版で読みやすくした形
@@ -17,6 +18,7 @@ export const formatDate = (utcString: string) => {
     timeZone: "Asia/Tokyo",
     month: "long",
     day: "numeric",
+    weekday: "short",
   });
 };
 

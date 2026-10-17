@@ -6,24 +6,27 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Box from "@mui/material/Box";
 import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 // 親コンポーネントからpageを受け取る時の型指定
-type Props = { page: DemoPage };
+type Props = { page: DemoPage; open: boolean; onClose: () => void };
+// sessionStorage に「案内を見た」と記録するときのキー名を作る（GuideHelpでも同じ形で使うから定義した）
+export const getGuideStorageKey = (page: DemoPage) => `demo-guide-seen:${page}`;
 
 // 親から page を受け取る
-export default function DemoGuide({ page }: Props) {
+export default function DemoGuide({ page, open, onClose }: Props) {
   // 受け取った pageで、文言を取り出して content に入れる
   const content = demoPageContent[page];
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
-  // sessionStorage に「案内を見た」と記録するときのキー名
+  // sessionStorage に「案内を見た」と記録するときのキー名（pageごとに記録される）
   const storageKey = `demo-guide-seen:${page}`;
-  const [open, setOpen] = useState(false);
   const router = useRouter();
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -59,17 +62,9 @@ export default function DemoGuide({ page }: Props) {
       window.location.href = redirectTo;
     }
   }, [redirectTo]);
-
-  useEffect(() => {
-    if (!sessionStorage.getItem(storageKey)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setOpen(true);
-    }
-  }, [storageKey]);
-
   const handleClose = () => {
     sessionStorage.setItem(storageKey, "1");
-    setOpen(false);
+    onClose();
   };
 
   return (
@@ -80,8 +75,22 @@ export default function DemoGuide({ page }: Props) {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      <DialogTitle variant="h5">{content.title}</DialogTitle>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <DialogTitle variant="h5">{content.title}</DialogTitle>
+
+        <Chip
+          label={content.chip}
+          size="medium"
+          sx={{
+            fontSize: 18,
+            fontWeight: "bold",
+            backgroundColor: content.color,
+            color: "common.white",
+          }}
+        />
+      </Box>
       <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Typography variant="h6">{content.heading}</Typography>
         <Typography>{content.purpose}</Typography>
         {content.steps?.map((step) => (
           <Typography sx={{ mb: 1 }} key={step}>
@@ -96,12 +105,9 @@ export default function DemoGuide({ page }: Props) {
         {content.buttonCancel && (
           <DialogActions>
             <Button
-              variant="contained"
-              onClick={() => {
-                {
-                  handleClose();
-                }
-              }}
+              variant="outlined"
+              sx={{ p: 1, fontSize: 14 }}
+              onClick={handleClose}
             >
               {content.buttonCancel}
             </Button>
@@ -111,6 +117,9 @@ export default function DemoGuide({ page }: Props) {
         <DialogActions>
           <Button
             variant="contained"
+            color="success"
+            sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+            endIcon={<ArrowForwardIcon />}
             onClick={() => {
               if (content.buttonUrl) {
                 //遷移先があるかを判断

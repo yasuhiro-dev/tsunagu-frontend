@@ -20,6 +20,7 @@ import TableRow from "@mui/material/TableRow";
 import Chip from "@mui/material/Chip";
 import Pagination from "@mui/material/Pagination";
 import DemoGuide from "@/app/components/DemoGuide";
+import GuideHelp from "@/app/components/GuideHelp";
 
 // 未連携教師オブジェクトの型
 type UnLinkedTeacher = {
@@ -140,12 +141,15 @@ export default function AssignmentNotification() {
         display: "flex",
         flexDirection: "column",
         p: 2,
-        maxWidth: isMobile ? "265px" : "100",
+        maxWidth: isMobile ? "265px" : "100%",
         backgroundColor: "#ecf1f4ff",
       }}
     >
-      {showSubmittedDialog && <DemoGuide page="assignment_notification" />}
-      <DemoGuide page="admin_mail_send" />
+      <DemoGuide
+        page="assignment_notification"
+        open={showSubmittedDialog}
+        onClose={() => setShowSubmittedDialog(false)}
+      />
       <AlertSnackbar
         open={alertOpen}
         severity={alertSeverity}
@@ -155,7 +159,11 @@ export default function AssignmentNotification() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Typography variant="h6">保護者への通知</Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography variant="h6">保護者への通知</Typography>
+              <GuideHelp page="admin_mail_send" />
+            </Box>
+
             <Typography>
               確定した面談日程を、保護者へメールでお知らせします。
               面談表を調整した後に、内容を確認してから送信してください
@@ -206,8 +214,19 @@ export default function AssignmentNotification() {
               <>
                 <Typography variant="h6">保護者へのメール通知</Typography>
                 <Typography>
-                  面談日程は確定していますが、{unNotified}
-                  件の保護者にはまだメールが届いていません。
+                  面談日程は確定していますが、
+                  <Box
+                    component="span"
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: 24,
+                      color: "primary.main",
+                      mx: 0.5,
+                    }}
+                  >
+                    {unNotified}件
+                  </Box>
+                  の保護者にまだ送信していません。
                 </Typography>
                 <Typography>
                   すでに送信した保護者には再送されません。
@@ -234,7 +253,9 @@ export default function AssignmentNotification() {
               onClick={handleClick}
               disabled={requested || isDone || unAvailable} //送信済みまたは未送信ユーザーが０の時にボタン操作できない
               sx={{
-                height: 50,
+                p: 2,
+                fontWeight: "bold",
+                fontSize: 18,
               }}
             >
               {isDone
