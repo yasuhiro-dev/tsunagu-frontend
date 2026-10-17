@@ -12,13 +12,13 @@ import { MeetingSlot, groupByDate } from "@/utils/dateUtils";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import DemoGuide from "@/app/components/DemoGuide";
 import LinearProgress from "@mui/material/LinearProgress";
+import DemoGuide from "@/app/components/DemoGuide";
+import GuideHelp from "@/app/components/GuideHelp";
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
   const [error, setError] = useState("");
-  const [submitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [availableSlots, setAvailableSlots] = useState<number[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
@@ -156,12 +156,20 @@ export default function MeetingSlotPage() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      {showSubmittedDialog && <DemoGuide page="teacher_submitted" />}
-      <DemoGuide page="teacher_unavailability" />
+      <DemoGuide
+        page="teacher_submitted"
+        open={showSubmittedDialog}
+        onClose={() => setShowSubmittedDialog(false)}
+      />
+
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          面談に対応できない日時のボタンを押してください
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography variant="h6">
+            面談に対応できない日時のボタンを押してください
+          </Typography>
+          <GuideHelp page="teacher_unavailability" />
+        </Box>
+
         <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
           ※保護者の面談が決まっている枠は、面談不可にできません
         </Typography>
@@ -296,7 +304,12 @@ export default function MeetingSlotPage() {
                 sx={{
                   flex: 1,
                   display: "flex",
-                  backgroundColor: remainSlots > 0 ? "#e8f5ee" : "#fbebec",
+                  backgroundColor:
+                    remainSlots > 0
+                      ? "#e8f5ee"
+                      : remainSlots === 0
+                        ? "#fff4e5"
+                        : "#fbebec",
                   p: 2,
                 }}
               >
@@ -307,25 +320,34 @@ export default function MeetingSlotPage() {
                   >
                     ✓ 必要な枠数は足りています
                   </Typography>
+                ) : remainSlots === 0 ? (
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "warning.dark", fontSize: 12 }}
+                  >
+                    ⚠ 足りていますが、枠に余裕がありません
+                  </Typography>
                 ) : (
                   <Typography
                     variant="h6"
-                    sx={{ color: "error", fontSize: 12 }}
+                    sx={{
+                      color: "error.main",
+                      fontSize: 12,
+                    }}
                   >
-                    ⚠ このまま提出すると、
-                    <br />
+                    ⚠ あと
                     <Box
                       component="span"
                       sx={{
                         fontSize: 14,
                         fontWeight: "bold",
-                        color: "primary.main",
+                        color: "error.main",
                       }}
                     >
                       {" "}
-                      {Math.abs(remainSlots)} 枠
+                      {Math.abs(remainSlots)} 枠{" "}
                     </Box>
-                    不足する可能性があります
+                    増やしてください
                   </Typography>
                 )}
               </Box>
@@ -346,7 +368,7 @@ export default function MeetingSlotPage() {
               date={date}
               dateSlots={dateSlots}
               isAvailable={(slot) => availableSlots.includes(slot.id)}
-              isDisabled={(slot) => submitted || slot.status === "reserved"}
+              isDisabled={(slot) => slot.status === "reserved"}
               onClickSlot={teacherHandleClick}
               onSelectAll={teacherHandleSelectAll}
               onClearAll={teacherHandleClearAll}
@@ -360,10 +382,12 @@ export default function MeetingSlotPage() {
           <Button
             sx={{ mt: 3 }}
             variant="contained"
-            disabled={submitted}
+            disabled={remainSlots < 0}
             onClick={teacherHandleSubmit}
           >
-            {submitted ? "提出が完了しました" : "上記の内容で提出する"}
+            {remainSlots < 0
+              ? "枠不足のため提出できません"
+              : "上記の内容で提出する"}
           </Button>
         </Box>
       </Box>

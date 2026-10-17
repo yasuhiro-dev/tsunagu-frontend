@@ -15,8 +15,14 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
-import { demoLogin, RedirectMap, DEMO_ACCOUNTS } from "@/utils/demoLogin";
+import {
+  demoLogin,
+  resetDemo,
+  RedirectMap,
+  DEMO_ACCOUNTS,
+} from "@/utils/demoLogin";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import { Boldonse } from "next/font/google";
 
 export default function LandingPage() {
   const workflowRef = useRef<HTMLElement>(null);
@@ -30,10 +36,12 @@ export default function LandingPage() {
     loginEmail: string, // 1つ目に渡された値を、この名前で使う（文字列）
     loginPassword: string, // ２つ目に渡された値を、この名前で使う（文字列）
     redirectOverride?: string, // 3つ目に渡された値は渡さなくてもいい
+    reset: boolean = false, // 4つ目がtrueのときは、デモ環境を初期状態に戻してから遷移する
   ) => {
     try {
       //apiが失敗しなければ実行
       const role = await demoLogin(loginEmail, loginPassword); //demoLoginに引数を渡し、roleが返ってくる
+      if (reset) await resetDemo(); //前の人の操作が残らないよう、STEP 1から始めるときに戻す
       const redirectMap: RedirectMap = {
         //roleによって遷移先を指定する
         teacher: "/teacher_unavailabilities",
@@ -56,44 +64,6 @@ export default function LandingPage() {
     }
   }, [redirectTo]);
 
-  //　デモログインの手順表示
-  const demologins = [
-    {
-      number: "1",
-      roleKey: "teacher" as const,
-      role: "教師",
-      back_color: "#d6e4f0",
-      color: "primary.main",
-      hoverColor: "primary.dark",
-      title: "面談できない日時を登録",
-      button_content: "教師デモを開始",
-      description: "出張・不在の日を設定します。",
-    },
-    {
-      number: "2",
-      roleKey: "parent" as const,
-      role: "保護者",
-      back_color: "#fbebec",
-      color: "#d18a94",
-      hoverColor: "error.dark",
-      title: "来校できる日を提出",
-      button_content: "保護者デモを開始",
-      description: "都合のいい日時を選んで提出します。",
-    },
-    {
-      number: "3",
-      roleKey: "admin" as const,
-      role: "管理者",
-      back_color: "#e8f5ee",
-      color: "success.main",
-      hoverColor: "success.dark",
-      title: "自動割り当てを実行",
-      button_content: "管理者デモを開始",
-      description: "提出された希望と条件を基に、割り当てます。",
-      path: "/admin?tab=1",
-    },
-  ];
-
   // このアプリのワークフロー
   const workflows = [
     {
@@ -103,7 +73,7 @@ export default function LandingPage() {
       color: "primary.main",
       title: "面談できない日時を登録",
       image: "/images/workflows/teacher_availability.webp",
-      description: "学校の都合で対応できない日時を登録します。",
+      description: "学校側が対応できない日時を登録します。",
       path: "/teacher_unavailabilities",
       button_label: "教師画面を見る",
     },
@@ -123,9 +93,9 @@ export default function LandingPage() {
       roleKey: "admin" as const,
       role: "管理者",
       color: "success.main",
-      title: "自動割り当てを実行",
+      title: "面談表を自動割り当てを実行",
       image: "/images/workflows/admin_assignment.webp",
-      description: "提出された希望と条件を基に、面談日時を自動で割り当てます。",
+      description: "希望と条件から面談日時を自動で決めます。",
       path: "/admin?tab=1",
       button_label: "管理者画面を見る",
     },
@@ -136,7 +106,7 @@ export default function LandingPage() {
       title: "面談表を確認・調整",
       color: "primary.main",
       image: "/images/workflows/teacher_manual.webp",
-      description: "面談表を確認し、必要に応じて調整します。",
+      description: "面談表を確認し、必要なら調整します。",
       path: "/meeting_slots",
       button_label: "教師画面を見る",
     },
@@ -145,9 +115,9 @@ export default function LandingPage() {
       roleKey: "admin" as const,
       role: "管理者",
       color: "success.main",
-      title: "メールを送信",
-      image: "/images/workflows/admin_assignment.webp",
-      description: "面談日時が決まった保護者へメールを送信します。",
+      title: "保護者へメールを送信",
+      image: "/images/workflows/admin_mailer.webp",
+      description: "決まった面談日時をメールで知らせます。",
       path: "/admin?tab=2",
       button_label: "管理者画面を見る",
     },
@@ -158,7 +128,7 @@ export default function LandingPage() {
       title: "決定した日時を確認",
       color: "#d18a94",
       image: "/images/workflows/family_schedule.webp",
-      description: "決まった面談日時を、マイページで確認します。",
+      description: "決まった面談日時をマイページで確認します。",
       path: "/my_schedule",
       button_label: "保護者画面を見る",
     },
@@ -363,6 +333,14 @@ export default function LandingPage() {
                   fontSize: 20,
                   fontWeight: "bold",
                 }}
+                onClick={() => {
+                  handleSubmit(
+                    "aoki@example.com",
+                    "password",
+                    "/teacher_unavailabilities",
+                    true,
+                  );
+                }}
               >
                 デモを体験する
               </Button>
@@ -420,7 +398,7 @@ export default function LandingPage() {
                 gridTemplateColumns: "repeat(3, 1fr)",
                 flexDirection: { xs: "column", sm: "column", md: "row" },
                 justifyContent: "center",
-                gap: 4,
+                gap: 2,
               }}
             >
               {workflows.map((workflow, index) => {
@@ -437,17 +415,22 @@ export default function LandingPage() {
                         minHeight: 300,
                         flex: 1,
                         minWidth: 0,
-                        p: 3,
+                        p: 2,
                         gap: 1,
                         justifyContent: "flex-start",
-                        alignItems: "center",
                       }}
                     >
-                      <Box sx={{ display: "flex", gap: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 2,
+                          alignItems: "center",
+                        }}
+                      >
                         <Box
                           sx={{
-                            width: 30,
-                            height: 30,
+                            width: 40,
+                            height: 40,
                             backgroundColor: workflow.color,
                             color: "common.white",
                             borderRadius: "50%",
@@ -455,36 +438,50 @@ export default function LandingPage() {
                             justifyContent: "center",
                             alignItems: "center",
                             flexShrink: 0,
+                            fontWeight: "bold",
                           }}
                         >
                           {workflow.number}
                         </Box>
                         <Chip
                           sx={{
-                            minWidth: 110,
+                            minWidth: 80,
                             backgroundColor: workflow.color,
                             color: "common.white",
+                            fontWeight: "bold",
                           }}
                           label={workflow.role}
                         />
                       </Box>
 
                       <Typography variant="h6">{workflow.title}</Typography>
-                      <Image
-                        src={workflow.image}
-                        alt={workflow.title}
-                        width={180}
-                        height={180}
-                        style={{
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          height: 120,
                           width: "100%",
-                          height: "auto",
-                          maxWidth: 120,
+                          position: "relative",
                         }}
-                      />
-                      <Typography>{workflow.description}</Typography>
+                      >
+                        <Image
+                          src={workflow.image}
+                          alt={workflow.title}
+                          fill
+                          style={{ objectFit: "contain" }}
+                        />
+                      </Box>
+
+                      <Typography sx={{ fontSize: fontSizes.body }}>
+                        {workflow.description}
+                      </Typography>
                       <Button
                         variant="contained"
                         sx={{
+                          fontSize: fontSizes.body,
+                          fontWeight: "bold",
+                          p: 1,
+                          minWidth: 250,
                           backgroundColor: workflow.color,
                           "&:hover": {
                             backgroundColor: workflow.color,
@@ -511,9 +508,11 @@ export default function LandingPage() {
                           position: "absolute",
                           top: 0,
                           bottom: 0, // 上から下まで、カードと同じ高さにする
-                          right: -24,
+                          right: -25,
                           display: { xs: "none", md: "flex" },
                           alignItems: "center", // その中で、縦の真ん中に置く
+                          zIndex: 1,
+                          "& svg": { fontSize: 40, color: "primary.main" },
                         }}
                       >
                         <FlowArrow />

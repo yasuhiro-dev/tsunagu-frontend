@@ -36,6 +36,8 @@ export const theme = createTheme({
 
     warning: {
       main: "#c08b4a",
+      light: "#d9b48a",
+      dark: "#8f6430",
     },
 
     // guardian: {

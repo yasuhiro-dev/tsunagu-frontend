@@ -7,16 +7,23 @@ import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
 
 type Props = {
+  startAt: string;
   slotId: number;
   onAdded: () => void;
   isEditing: boolean;
 };
 
-export default function SlotAddPopover({ slotId, isEditing, onAdded }: Props) {
+export default function SlotAddPopover({
+  startAt,
+  slotId,
+  isEditing,
+  onAdded,
+}: Props) {
   const [openSelect, setOpenSelect] = useState(false);
 
   return (
     <>
+      {}
       <Box
         sx={{
           display: "flex",
@@ -41,6 +48,7 @@ export default function SlotAddPopover({ slotId, isEditing, onAdded }: Props) {
       </Box>
 
       <UnassignedSelectDialog
+        startAt={startAt}
         open={openSelect}
         slotId={slotId}
         onClose={() => setOpenSelect(false)}

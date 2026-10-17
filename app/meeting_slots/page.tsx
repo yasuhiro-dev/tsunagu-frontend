@@ -19,16 +19,20 @@ import DialogContent from "@mui/material/DialogContent";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import IconButton from "@mui/material/IconButton";
 import DescriptionIcon from "@mui/icons-material/Description";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DemoGuide from "@/app/components/DemoGuide";
+import GuideHelp from "@/app/components/GuideHelp";
 import { alpha } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import TouchAppIcon from "@mui/icons-material/TouchApp";
 import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+
 type Violation = {
   kind: string; //どんな条件か
   detail: string; //具体的な説明
@@ -75,6 +79,7 @@ export default function MeetingSlotPage() {
   const [alertMessage, setAlertMessage] = useState("");
   const [highlightedSlotIds, setHighlightedSlotIds] = useState<number[]>([]);
   const [violations, setViolations] = useState<Violation[]>([]);
+  const [guideOpen, setGuideOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -84,8 +89,12 @@ export default function MeetingSlotPage() {
       child_name: string;
       family_name: string;
       child_name_kana: string;
+      submitted: boolean;
+      available_start_at: string[]; //保護者が参加できると答えた時刻
     }[]
   >([]);
+
+  const classRoom = slots[0]?.class_room;
 
   //デモログイン(教師→管理者)
   const nextDemoRole = async () => {
@@ -155,11 +164,11 @@ export default function MeetingSlotPage() {
     } else {
       // ２回目移動さきを選択の場合、
       setToSlotId(cell?.id);
-      setEditAlertOpen(true); //ダイアログが出される
       // 移動先に他の児童が入っている場合
       const dataB = cell.assignment_id
         ? await fetchValidSlots(cell.assignment_id) // 移動先の児童のデータを取得
         : null; //もしいなければ何も返さない（情報がないため）
+      setEditAlertOpen(true); //ダイアログが出される
       // １回目に選択した児童（移動元）を２回目に選択した児童の枠（移動先）に置いたらどうなるか
       const violationsA = checkPlacement(
         validSlotsData, //Aの児童の情報
@@ -413,18 +422,25 @@ export default function MeetingSlotPage() {
   let unassignedSection;
   if (unassignedChildren.length === 0) {
     unassignedSection = (
-      <Typography>🎉 すべての児童の割り当てが完了しています。</Typography>
-    );
-  } else {
-    unassignedSection = (
-      <Typography>
-        ⚠️ 未割り当ての児童がいます
-        <br />
-        児童を割り当てるから手動で配置してください。
-      </Typography>
+      <Alert severity="success" sx={{ p: 1 }}>
+        すべての児童を割り当てました
+      </Alert>
     );
   }
+  // 未割り当て児童の欄に出す、保護者の希望（残った理由が分かるようにする）
+  const availabilityLabel = (child: (typeof unassignedChildren)[number]) => {
+    if (!child.submitted) return "希望日時未提出";
+    const times = child.available_start_at;
+    // 多いと欄からあふれるので、3枠までは日時を、それより多いときは件数を出す
+    if (times.length > 3) return `参加できる日時：${times.length}枠`;
+    const label = times
+      .map((t) => `${formatDate(t)} ${formatTime(t)}`)
+      .join("、");
+    return `参加できる日時：${label}${times.length === 1 ? " のみ" : ""}`;
+  };
   const isEditing = fromAssignmentId !== null;
+  const isToSlotExist = Boolean(toSlot?.assignment_id); //選択先がいる場合
+  const isViolationExist = violations.length > 0;
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -434,6 +450,7 @@ export default function MeetingSlotPage() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+
       <Paper
         sx={{
           p: 3,
@@ -441,7 +458,13 @@ export default function MeetingSlotPage() {
         }}
       >
         <Box sx={{ p: 1 }}>
-          <DemoGuide page="teacher_meeting_slots" />
+          {guideOpen && (
+            <DemoGuide
+              open={guideOpen}
+              onClose={() => setGuideOpen(false)}
+              page="teacher_meeting_slots"
+            />
+          )}
           <Box
             sx={{
               display: "flex",
@@ -451,13 +474,18 @@ export default function MeetingSlotPage() {
               mb: 2,
             }}
           >
-            <Typography variant="h5" gutterBottom>
-              面談表
-            </Typography>
+            <Box>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                <Typography variant="h5" gutterBottom>
+                  面談表 ({classRoom})
+                </Typography>
+                <GuideHelp page="teacher_meeting_slots" />
+              </Box>
 
-            <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              ※「希望日時未提出」の児童は、日時の制約なしとして割り当てられます
-            </Typography>
+              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                ※「希望日時未提出」の児童は、日時の制約なしとして割り当てられます
+              </Typography>
+            </Box>
 
             <Box
               className="no-print"
@@ -501,8 +529,8 @@ export default function MeetingSlotPage() {
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <Box
                       sx={{
-                        width: 14,
-                        height: 14,
+                        minWidth: 14,
+                        minHeight: 14,
                         borderRadius: 0.5,
                         backgroundColor: (theme) =>
                           alpha(theme.palette.error.main, 0.4),
@@ -559,47 +587,80 @@ export default function MeetingSlotPage() {
                 </Box>
               </Alert>
             ) : (
-              <Alert severity="info" sx={{ my: 2, height: 110 }}>
-                <Typography variant="h6">
-                  児童をクリックすると、面談日時を変更できます
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <TouchAppIcon
-                    sx={{
-                      width: 14,
-                      height: 14,
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    選んだ児童の、移動できない時間と、兄弟・特支の重なりが表示されます
-                  </Typography>
-                </Box>
-
+              <Alert
+                severity="info"
+                sx={{
+                  my: 2,
+                  minHeight: 110,
+                  "& .MuiAlert-message": { flex: 1 },
+                }} // メッセージ部分を横いっぱいに広げる
+              >
                 <Box
                   sx={{
                     display: "flex",
-                    flexWrap: "wrap",
+                    justifyContent: "space-between",
                     alignItems: "center",
-                    columnGap: 2,
-                    rowGap: 0.5,
-                    mt: 1,
-                    fontSize: "12px",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <Box>
+                    <Typography variant="h6">
+                      児童をクリックすると、面談日時を変更できます
+                    </Typography>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                    >
+                      <TouchAppIcon
+                        sx={{
+                          width: 14,
+                          height: 14,
+                        }}
+                      />
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        選んだ児童の、移動できない時間と、兄弟・特支の重なりが表示されます
+                      </Typography>
+                    </Box>
+
                     <Box
                       sx={{
-                        width: 14,
-                        height: 14,
-                        borderRadius: 0.5,
-                        backgroundColor: (theme) =>
-                          alpha(theme.palette.error.main, 0.4),
-                        border: "1px solid",
-                        borderColor: "divider",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        columnGap: 2,
+                        rowGap: 0.5,
+                        mt: 1,
+                        fontSize: "12px",
                       }}
-                    />
-                    教師の面談できない時間
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: 0.5,
+                            backgroundColor: (theme) =>
+                              alpha(theme.palette.error.main, 0.4),
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        />
+                        教師の面談できない時間
+                      </Box>
+                    </Box>
                   </Box>
+
+                  {/* 管理者画面へ遷移するボタン */}
+
+                  <Button
+                    variant="contained"
+                    color="success"
+                    sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={nextDemoRole}
+                  >
+                    次へ：保護者へメール送信
+                  </Button>
                 </Box>
               </Alert>
             )}
@@ -613,43 +674,84 @@ export default function MeetingSlotPage() {
             }}
           >
             <Box sx={{ width: "200px", flexShrink: 0 }}>
-              <Box sx={{ mb: 2, display: "flex", alignItems: "center" }}>
-                <Typography component="span">未割り当て児童</Typography>
-                <Chip
-                  label={unassignedChildren.length}
-                  color="error"
-                  size="small"
-                  sx={{ ml: 1 }}
-                />
-              </Box>
-              <Box sx={{ overflow: "auto", maxHeight: "520px" }}>
-                {unassignedChildren.map((child) => (
-                  <Box
-                    key={child.id}
-                    sx={{
-                      border: "1px solid",
-                      borderColor: "error.light",
-                      p: 1,
-                      mb: 1,
-                      borderRadius: 1,
-                    }}
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Typography component="span">未割り当て児童</Typography>
+                  <Chip
+                    label={unassignedChildren.length}
+                    color="error"
+                    size="small"
+                    sx={{ ml: 1 }}
+                  />
+                </Box>
+                {unassignedChildren.length !== 0 && (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary" }}
                   >
-                    <Typography variant="body2">{child.child_name}</Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      保護者：{child.family_name}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
-              <Box>
-                {unassignedChildren.length === 0 && (
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {unassignedSection}
+                    自動で配置できなかった児童
                   </Typography>
                 )}
+                <Box sx={{ overflow: "auto", maxHeight: "520px" }}>
+                  {unassignedChildren.map((child) => (
+                    <Box
+                      key={child.id}
+                      sx={{
+                        border: "1px solid",
+                        borderColor: "error.light",
+                        p: 1,
+                        mb: 1,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Typography variant="body2">
+                        {child.child_name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        保護者：{child.family_name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ display: "block", color: "text.secondary" }}
+                      >
+                        {availabilityLabel(child)}
+                      </Typography>
+                      <Box
+                        sx={{
+                          mt: 1,
+                          p: 0.5,
+                          borderRadius: 1,
+                          backgroundColor: "#fff4e5",
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ display: "block", color: "warning.dark" }}
+                        >
+                          ⚠希望の枠は埋まっています
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ display: "block", color: "warning.dark" }}
+                        >
+                          保護者へ電話で確認しましょう
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+              <Box>
+                <Typography
+                  component="div"
+                  variant="body2"
+                  sx={{ color: "text.secondary" }}
+                >
+                  {unassignedSection}
+                </Typography>
               </Box>
             </Box>
 
@@ -712,10 +814,12 @@ export default function MeetingSlotPage() {
                     {allDates.map((date) => {
                       const cell = matrix[time][date];
                       const assignmentId = cell.assignment_id;
+                      const isSelectId = fromAssignmentId !== null; //選択していない場合true
+                      const hasUnassigned = unassignedChildren.length > 0; //未割り当て児童がいる場合
                       const isFrom =
                         fromAssignmentId !== null &&
-                        assignmentId === fromAssignmentId; //選択元
-                      const isTo = cell?.id === toSlotId; //選択先
+                        assignmentId === fromAssignmentId; //このセルが選択元か
+                      const isTo = cell?.id === toSlotId; //このセルが選択先か
                       const isHighlighted = highlightedSlotIds.includes(
                         cell.id,
                       );
@@ -758,16 +862,36 @@ export default function MeetingSlotPage() {
                             flex: 1,
 
                             minWidth: "120px",
-                            cursor:
-                              isUnavailable || isTeacherUnavailable
-                                ? "not-allowed"
-                                : "pointer", // マウスを乗せたとき、指マークになる
-                            "&:hover": {
-                              boxShadow:
-                                isUnavailable || isTeacherUnavailable
-                                  ? "0"
-                                  : "3", //  ホバー時に、薄く影がつく
-                            },
+
+                            cursor: (
+                              isSelectId
+                                ? isUnavailable || isTeacherUnavailable // 児童を選択中のときは、教師と保護者不可日は押せない
+                                : isUnavailable || // まだ誰も選んでいないときは、教師と保護者の不可日と空き枠は押せない
+                                  isTeacherUnavailable ||
+                                  (!assignmentId && !hasUnassigned)
+                            )
+                              ? //未割り当て児童がリストにいない、かつ面談の枠が空の場合
+                                "not-allowed" //上の条件のうち１つでも当てはまれば指がバツになる
+                              : "pointer", // マウスを乗せたとき、指マークになる
+
+                            "&:hover": (
+                              isSelectId //選択していない場合true
+                                ? isUnavailable || isTeacherUnavailable // 児童をしていない場合（空の枠を含まない）
+                                : isUnavailable || // 選択中の場合（空の枠を含む）
+                                  isTeacherUnavailable ||
+                                  !assignmentId
+                            )
+                              ? {} // 前の分岐が選択していない場合（true）、何も変えない
+                              : {
+                                  // 前の分岐が選択している場合（false）、色をつける
+                                  backgroundColor: "#d6e4f0",
+                                  boxShadow:
+                                    isUnavailable ||
+                                    isTeacherUnavailable ||
+                                    !assignmentId
+                                      ? "0"
+                                      : "3", //  ホバー時に、薄く影がつく
+                                },
 
                             minHeight: "80px",
                             borderRadius: 1,
@@ -884,28 +1008,31 @@ export default function MeetingSlotPage() {
                               }}
                             >
                               {/* 空きに児童を追加する */}
-                              {unassignedChildren.length !== 0 && (
-                                <SlotAddPopover
-                                  isEditing={isEditing}
-                                  slotId={cell.id}
-                                  onAdded={() => {
-                                    // １つ目：meeting_slotを再取得
-                                    fetchWithAuth(
-                                      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
-                                    )
-                                      .then((res) => res.json())
-                                      .then((data) => setslots(data));
-                                    // 2つ目：children/unassignedを再取得
-                                    fetchWithAuth(
-                                      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
-                                    )
-                                      .then((res) => res.json())
-                                      .then((data) =>
-                                        setUnassignedChildren(data),
-                                      );
-                                  }}
-                                ></SlotAddPopover>
-                              )}
+
+                              {unassignedChildren.length !== 0 &&
+                                cell.status !== "blocked" && (
+                                  <SlotAddPopover
+                                    isEditing={isEditing}
+                                    startAt={cell.start_at}
+                                    slotId={cell.id}
+                                    onAdded={() => {
+                                      // １つ目：meeting_slotを再取得
+                                      fetchWithAuth(
+                                        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
+                                      )
+                                        .then((res) => res.json())
+                                        .then((data) => setslots(data));
+                                      // 2つ目：children/unassignedを再取得
+                                      fetchWithAuth(
+                                        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/unassigned`,
+                                      )
+                                        .then((res) => res.json())
+                                        .then((data) =>
+                                          setUnassignedChildren(data),
+                                        );
+                                    }}
+                                  ></SlotAddPopover>
+                                )}
                             </Box>
                           )}
                         </Box>
@@ -914,32 +1041,18 @@ export default function MeetingSlotPage() {
                   </Box>
                 ))}
               </Box>
-              {/* 管理者画面へ遷移するボタン */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Typography>
-                  面談表の確認が終わったら、管理者画面で保護者へのメール送信を試せます。
-                </Typography>
-                <Button variant="contained" onClick={nextDemoRole}>
-                  管理者画面へ進む
-                </Button>
-              </Box>
 
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
                 <Dialog open={editAlertOpen} onClose={handleCancelFinishAlert}>
-                  <DialogTitle variant="h5">面談の時間を変更します</DialogTitle>
+                  <DialogTitle variant="h5">
+                    {" "}
+                    {isToSlotExist
+                      ? "以下の2人の面談時間を入れ替えます"
+                      : "以下の児童の面談を、別の時間枠に移動します"}
+                  </DialogTitle>
 
                   <DialogContent>
-                    <Typography sx={{ mb: 2 }}>
-                      以下の児童の面談表を、別の時間枠に移動します
-                    </Typography>
                     <Box
                       sx={{
                         display: "flex",
@@ -968,20 +1081,33 @@ export default function MeetingSlotPage() {
                         <Box sx={{ backgroundColor: "white", borderRadius: 2 }}>
                           <Typography>
                             {formatDate(fromSlot?.start_at ?? "")}
+                            {"  "}
                             {formatTime(fromSlot?.start_at ?? "")}
                           </Typography>
                         </Box>
 
                         <Typography>{`${fromSlot?.child_name}さん`}</Typography>
                       </Box>
-                      <ArrowForwardIcon
-                        sx={{
-                          minHeight: 100,
-                          color: "primary.main",
-                          fontSize: 30,
-                          transform: { xs: "rotate(90deg)", md: "none" },
-                        }}
-                      />
+                      {isToSlotExist ? (
+                        <SwapHorizIcon
+                          sx={{
+                            minHeight: 100,
+                            color: "primary.main",
+                            fontSize: 30,
+                            transform: { xs: "rotate(90deg)", md: "none" },
+                          }}
+                        />
+                      ) : (
+                        <ArrowForwardIcon
+                          sx={{
+                            minHeight: 100,
+                            color: "primary.main",
+                            fontSize: 30,
+                            transform: { xs: "rotate(90deg)", md: "none" },
+                          }}
+                        />
+                      )}
+
                       <Box
                         sx={{
                           display: "flex",
@@ -1008,17 +1134,22 @@ export default function MeetingSlotPage() {
                         >
                           <Typography>
                             {formatDate(toSlot?.start_at ?? "")}
+                            {"  "}
                             {formatTime(toSlot?.start_at ?? "")}
                           </Typography>
                         </Box>
-                        <Typography variant="body1">{`${toSlot?.child_name}さん`}</Typography>
+                        <Typography variant="body1">
+                          {toSlot?.child_name
+                            ? `${toSlot?.child_name}さん`
+                            : "空の枠"}
+                        </Typography>
                       </Box>
                     </Box>
                   </DialogContent>
                   <DialogContent>
                     {violations.length > 0 && (
                       <>
-                        <Alert severity="warning" sx={{ mx: 3, mb: 2 }}>
+                        <Alert severity="warning">
                           <Box
                             sx={{
                               display: "flex",
@@ -1027,12 +1158,14 @@ export default function MeetingSlotPage() {
                             }}
                           >
                             <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                              <Typography
-                                variant="h6"
-                                sx={{ color: "warning.main" }}
+                              <AlertTitle
+                                sx={{
+                                  color: "warning.main",
+                                  fontWeight: "bold",
+                                }}
                               >
-                                以下の理由で面談できない可能性があります
-                              </Typography>
+                                変更する前に、以下を確認してください
+                              </AlertTitle>
                             </Box>
                             <Box
                               sx={{
@@ -1049,7 +1182,7 @@ export default function MeetingSlotPage() {
                                 >
                                   <Typography
                                     variant="body2"
-                                    sx={{ fontWeight: "bold" }}
+                                    sx={{ fontWeight: "bold", width: 100 }}
                                   >
                                     {v.name}
                                   </Typography>
@@ -1076,40 +1209,35 @@ export default function MeetingSlotPage() {
                       </>
                     )}
                   </DialogContent>
-                  <DialogContent>
-                    <Box
-                      sx={{
-                        backgroundColor: "#d6e4f0",
-                        borderRadius: 2,
-                        p: 2,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "primary.main", fontWeight: "bold" }}
-                      >
-                        本当にこの時間に変更してもよろしいですか？
-                      </Typography>
-                      <Typography variant="body2">
-                        面談表をご確認の上、変更することをおすすめします。
-                      </Typography>
-                    </Box>
-                  </DialogContent>
 
                   <DialogActions sx={{ p: 3 }}>
-                    <Button onClick={handleCancelFinishAlert}>
+                    <Button
+                      variant={isViolationExist ? "contained" : "text"}
+                      onClick={handleCancelFinishAlert}
+                      autoFocus={isViolationExist}
+                    >
                       キャンセル
                     </Button>
                     <Button
                       // 編集用の面談表を再描写
                       onClick={handleApplyChange}
                       autoFocus
-                      variant="contained"
+                      variant={isViolationExist ? "outlined" : "contained"}
+                      color={isViolationExist ? "warning" : "primary"}
+                      sx={
+                        isViolationExist
+                          ? {
+                              color: "warning.dark",
+                              borderColor: "warning.dark",
+                            }
+                          : {}
+                      }
                     >
-                      変更する
+                      {isViolationExist
+                        ? "このまま変更する"
+                        : isToSlotExist
+                          ? "入れ替える"
+                          : "変更する"}
                     </Button>
                   </DialogActions>
                 </Dialog>
