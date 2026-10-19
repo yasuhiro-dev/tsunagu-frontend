@@ -85,7 +85,7 @@ export const fetchFamilySubmitted = async (familyId: number) => {
     `${process.env.NEXT_PUBLIC_API_URL}/api/v1/families/${familyId}`,
   );
   const data = await res.json();
-  return data.submitted;
+  return { submitted: data.submitted, children: data.children };
 };
 // トークンを取得する関数
 export const decodeToken = (token: string) => {

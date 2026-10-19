@@ -500,6 +500,15 @@ export default function MeetingSlotPage() {
                 >
                   {isDownload ? "ダウンロード中" : "PDFをダウンロード"}
                 </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+                  endIcon={<ArrowForwardIcon />}
+                  onClick={nextDemoRole}
+                >
+                  次へ：保護者へメール送信
+                </Button>
               </Box>
             </Box>
           </Box>
@@ -651,16 +660,6 @@ export default function MeetingSlotPage() {
                   </Box>
 
                   {/* 管理者画面へ遷移するボタン */}
-
-                  <Button
-                    variant="contained"
-                    color="success"
-                    sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
-                    endIcon={<ArrowForwardIcon />}
-                    onClick={nextDemoRole}
-                  >
-                    次へ：保護者へメール送信
-                  </Button>
                 </Box>
               </Alert>
             )}

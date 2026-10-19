@@ -45,7 +45,6 @@ import AssignmentNotification from "@/app/assignment_notification/AssignmentNoti
 import { useSearchParams } from "next/navigation";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import GuideHelp from "@/app/components/GuideHelp";
 
 type Teacher = {
   name: string;
@@ -543,8 +542,6 @@ function AdminContent() {
       />
 
       <Paper sx={{ p: 3 }}>
-        <GuideHelp page="admin_assignment" />
-
         {/* サイドバー一覧 */}
         <Box sx={{ display: "flex" }}>
           <Box

@@ -19,9 +19,14 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Chip from "@mui/material/Chip";
 import Pagination from "@mui/material/Pagination";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
-
+import Image from "next/image";
+import NextStepButton from "@/app/components/NextStepButton";
 // 未連携教師オブジェクトの型
 type UnLinkedTeacher = {
   teacher_name: string;
@@ -49,6 +54,7 @@ export default function AssignmentNotification() {
   const [requested, setRequested] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const itemsPerPage = 6;
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
@@ -86,6 +92,7 @@ export default function AssignmentNotification() {
           setAlertSeverity("success");
           setAlertMessage("メール送信が完了しました");
           setShowSubmittedDialog(true);
+
           //ここに案内を呼ぶ形にすれば確認画面へ飛ぶことができる
         }
         if (latestCount === 0 || pollCount > 20) {
@@ -159,13 +166,17 @@ export default function AssignmentNotification() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography variant="h6">保護者への通知</Typography>
-              <GuideHelp page="admin_mail_send" />
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="h6">保護者への通知</Typography>
+                <GuideHelp page="admin_mail_send" />
+              </Box>
+              {isDone && <NextStepButton page="assignment_notification" />}
             </Box>
 
             <Typography>
               確定した面談日程を、保護者へメールでお知らせします。
+              <br />
               面談表を調整した後に、内容を確認してから送信してください
             </Typography>
           </Box>
@@ -182,21 +193,22 @@ export default function AssignmentNotification() {
             <FlowStepper activeStep={3} />
           </Box>
         </Paper>
-        <Paper sx={{ display: "flex", p: 2 }}>
+        <Paper sx={{ display: "flex", gap: 2, p: 2 }}>
+          {/* 左：説明 */}
           <Box
             sx={{
-              flex: 3,
               display: "flex",
-              gap: 2,
               flexDirection: "column",
+              gap: 2,
               p: 2,
+              flex: 2,
             }}
           >
             {unAvailable ? (
               <>
                 <Typography variant="h6">保護者へのメール通知</Typography>
                 <Typography>
-                  面談の割り当てが終わると、確定した日程をメールで通知できます。
+                  面談の割り当てが終わると、決まった日程をメールで通知できます。
                 </Typography>
               </>
             ) : isDone ? (
@@ -206,15 +218,12 @@ export default function AssignmentNotification() {
                 </Typography>
                 <Typography>
                   すべての保護者に面談日程のメールを送信しました。
-                  <br />
-                  メール送信の結果を確認できます。
                 </Typography>
               </>
             ) : (
               <>
                 <Typography variant="h6">保護者へのメール通知</Typography>
                 <Typography>
-                  面談日程は確定していますが、
                   <Box
                     component="span"
                     sx={{
@@ -233,30 +242,47 @@ export default function AssignmentNotification() {
                 </Typography>
               </>
             )}
+
+            <Alert severity="warning">
+              <Typography sx={{ fontWeight: "bold", mb: 1 }}>
+                デモ環境について
+              </Typography>
+              <Typography variant="body2">
+                この環境では、メールは送信されません。
+              </Typography>
+              <Typography variant="body2">
+                本番では、担任のGmailから保護者へ、お子さんごとの面談日時が届きます。
+              </Typography>
+              <Button
+                size="small"
+                sx={{ mt: 1, px: 0 }}
+                onClick={() => setPreviewOpen(true)}
+              >
+                届くメールの例を見る
+              </Button>
+            </Alert>
           </Box>
 
-          {/* ボタン操作群 */}
+          {/* 右：送信ボタン */}
           <Box
             sx={{
               display: "flex",
-              flex: 2,
               flexDirection: "column",
-              gap: 2,
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1,
               p: 2,
+              flex: 1,
+              minWidth: 300,
             }}
           >
-            {/*割り当て完了ボタン */}
             <Button
               variant="contained"
               fullWidth
               color="primary"
               onClick={handleClick}
-              disabled={requested || isDone || unAvailable} //送信済みまたは未送信ユーザーが０の時にボタン操作できない
-              sx={{
-                p: 2,
-                fontWeight: "bold",
-                fontSize: 18,
-              }}
+              disabled={requested || isDone || unAvailable}
+              sx={{ p: 2, fontWeight: "bold", fontSize: 18 }}
             >
               {isDone
                 ? "全て送信済みです"
@@ -264,18 +290,28 @@ export default function AssignmentNotification() {
                   ? "送信を開始しました"
                   : unAvailable
                     ? "割り当て後に送信できます"
-                    : `▶ ${unNotified}件に送信する`}
+                    : "▶ 保護者に送信する"}
             </Button>
-            <Alert severity="warning">
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Typography variant="h6">デモ環境について</Typography>
-                <Typography variant="body2">
-                  この環境では、実際にメールは送信されません。
-                </Typography>
-              </Box>
-            </Alert>
+            <Typography>(５秒ほどかかります)</Typography>
           </Box>
         </Paper>
+
+        {/* プレビューのダイアログ（レイアウトの外に出した） */}
+        <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)}>
+          <DialogTitle>保護者に届くメールの例</DialogTitle>
+          <DialogContent>
+            <Image
+              src="/images/gmail-response.png"
+              alt="保護者に届く面談日程のご案内メールの例"
+              width={842}
+              height={951}
+              style={{ width: "100%", height: "auto" }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPreviewOpen(false)}>閉じる</Button>
+          </DialogActions>
+        </Dialog>
 
         <Paper sx={{ display: "flex", flexDirection: "column", p: 2, gap: 2 }}>
           <Typography variant="h5">メール通知の状況</Typography>

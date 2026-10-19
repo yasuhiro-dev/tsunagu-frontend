@@ -15,6 +15,7 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import LinearProgress from "@mui/material/LinearProgress";
 import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
+import NextStepButton from "@/app/components/NextStepButton";
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function MeetingSlotPage() {
   const [alertMessage, setAlertMessage] = useState("");
   const [childrenLength, setChildrenLength] = useState<number>(0);
   const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -86,6 +88,7 @@ export default function MeetingSlotPage() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("提出しました");
+      setSubmitted(true);
       setAvailableSlots(toAvailableIds(data));
       setShowSubmittedDialog(true);
     } else {
@@ -163,11 +166,14 @@ export default function MeetingSlotPage() {
       />
 
       <Box sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Typography variant="h6">
-            面談に対応できない日時のボタンを押してください
-          </Typography>
-          <GuideHelp page="teacher_unavailability" />
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="h6">
+              面談に対応できない日時のボタンを押してください
+            </Typography>
+            <GuideHelp page="teacher_unavailability" />
+          </Box>
+          {submitted && <NextStepButton page={"teacher_submitted"} />}
         </Box>
 
         <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
@@ -382,12 +388,14 @@ export default function MeetingSlotPage() {
           <Button
             sx={{ mt: 3 }}
             variant="contained"
-            disabled={remainSlots < 0}
+            disabled={remainSlots < 0 || submitted}
             onClick={teacherHandleSubmit}
           >
             {remainSlots < 0
               ? "枠不足のため提出できません"
-              : "上記の内容で提出する"}
+              : submitted
+                ? "提出が完了しました"
+                : "上記の内容で提出する"}
           </Button>
         </Box>
       </Box>
