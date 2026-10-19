@@ -92,8 +92,8 @@ export default function MySchedulePage() {
     //ログイン中の保護者が提出済みかを取得し、stateへ
     const fetchSubmitted = async () => {
       const familyId = decodeToken(token).family_id;
-      const submitted = await fetchFamilySubmitted(familyId);
-      setSubmitted(submitted); //提出済みかをstateにセット
+      const data = await fetchFamilySubmitted(familyId);
+      setSubmitted(data.submitted); //提出済みかをstateにセット
     };
 
     Promise.all([fetchAssignments(), fetchDeadLine(), fetchSubmitted()])
