@@ -17,7 +17,9 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import DemoGuide from "@/app/components/DemoGuide";
 import FlowStepper from "@/app/components/FlowStepper";
+import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
 import GuideHelp from "@/app/components/GuideHelp";
+import NextStepButton from "@/app/components/NextStepButton";
 type Props = {
   scheduleId: number | null;
 };
@@ -29,6 +31,10 @@ type UnassignedChild = {
     id: number;
     classname: string;
   }[];
+};
+type SiblingAssignment = {
+  total: number;
+  success: number;
 };
 const EmptyResult = () => (
   <Typography color="text.secondary" sx={{ textAlign: "center", py: 4 }}>
@@ -44,6 +50,8 @@ export default function AssignmentExecution({ scheduleId }: Props) {
   const [unAssignCount, setUnAssignCount] = useState<number>(0);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [allRates, setAllRates] = useState<number>(0);
+  const [siblingAssignment, setSiblingAssignment] =
+    useState<SiblingAssignment | null>(null);
   const [isAssigning, setIsAssigning] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -85,6 +93,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
     setUnAssignCount(stateData.unassign_count);
     setTotalCount(stateData.total_count);
     setUnassignedChildren(stateData.unassigned_children);
+    setSiblingAssignment(stateData.siblings_stats);
   };
   // 割り当てボタンを押した時、schedulesにAPIを送る
   const handleClick = async () => {
@@ -109,17 +118,19 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       setAlertMessage("全員の割り当てが成功しました");
       setShowAssignmentDialog(true);
     } else if (res.ok === true && data.unassigned_children.length > 0) {
-      setAlertDuration(8000);
+      setAlertDuration(5000);
       setUnassignedChildren(data.unassigned_children);
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage(
         `割り当てが完了しました。条件に合う枠がなかった${data.unassigned_children.length}人は、担任が面談表で割り当てます`,
       );
-      setShowAssignmentDialog(true);
+      setTimeout(() => {
+        setShowAssignmentDialog(true);
+      }, 4000);
     } else {
       setAlertMessage(data.error);
-      setAlertDuration(8000);
+      setAlertDuration(5000);
     }
   };
 
@@ -153,6 +164,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+
       <DemoGuide
         page="assignment_button"
         open={showAssignmentDialog}
@@ -161,9 +173,12 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography variant="h6">面談の一括割り当て</Typography>
-              <GuideHelp page="admin_assignment" />
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography variant="h6">面談の一括割り当て</Typography>
+                <GuideHelp page="admin_assignment" />
+              </Box>
+              {hasResult && <NextStepButton page={"assignment_button"} />}
             </Box>
 
             <Typography>
@@ -186,7 +201,6 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         </Paper>
         <Paper sx={{ display: "flex", p: 2 }}>
           {/* ボタン操作群 */}
-
           <Box
             sx={{
               display: "flex",
@@ -201,11 +215,14 @@ export default function AssignmentExecution({ scheduleId }: Props) {
             <Typography>
               希望日時が未提出でも割り当て対象になります。
             </Typography>
+            {hasResult
+              ? `再実行すると、今の割り当て${assignCount}件はリセットされます。`
+              : "結果を見てから、やり直すこともできます。"}
           </Box>
           <Box
             sx={{
               display: "flex",
-              flex: 1,
+              minWidth: 320,
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
@@ -220,28 +237,71 @@ export default function AssignmentExecution({ scheduleId }: Props) {
               onClick={handleClick}
               disabled={isAssigning}
               sx={{
-                height: 50,
+                p: 2,
+                fontWeight: "bold",
+                fontSize: 18,
               }}
             >
               {isAssigning ? "割り当て中" : "▶ 割り当てを実行する"}
             </Button>
-            <Typography>(10秒ほどかかります)</Typography>
+            <Typography>(５秒ほどかかります)</Typography>
           </Box>
+        </Paper>
+        <Paper sx={{ borderRadius: 2, p: 4 }}>
+          {siblingAssignment && siblingAssignment.total > 0 && (
+            <>
+              <Typography
+                variant="h6"
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
+                <FamilyRestroomIcon sx={{ color: "primary.main" }} />
+                きょうだいの連続面談
+              </Typography>
+              {hasResult ? (
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                  <Typography>きょうだいがいる</Typography>
+                  <Box
+                    component="span"
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: "bold",
+                      fontSize: 20,
+                    }}
+                  >
+                    {siblingAssignment.total}家庭
+                  </Box>
+                  のうち、
+                  <Box
+                    component="span"
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: "bold",
+                      fontSize: 20,
+                    }}
+                  >
+                    {siblingAssignment.success}家庭
+                  </Box>
+                  の面談を同じ日に続けて組みました。
+                </Box>
+              ) : (
+                <EmptyResult />
+              )}
+            </>
+          )}
         </Paper>
 
         <Box sx={{ display: "flex", gap: 2 }}>
           {/* 全体割り当て進捗状況 */}
           <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
-            <Box>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                <DonutLargeIcon sx={{ color: "primary.main" }} />
-                全体割り当て率
-              </Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              <DonutLargeIcon sx={{ color: "primary.main" }} />
+              全体割り当て率
+            </Typography>
 
-              {hasResult ? (
+            {hasResult ? (
+              <>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   {" "}
-                  {/* ここから、円グラフと3項目を横並びにする */}
                   {/* 円グラフ本体 */}
                   <Gauge
                     {...settings}
@@ -257,66 +317,79 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                     })}
                   />
                   {/* 3項目、円グラフの横に */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 1,
-                    }}
-                  >
-                    {/* 割り当て済み */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box sx={{ display: "flex", flexDirection: "column" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                      }}
+                    >
+                      {" "}
+                      {/* 割り当て済み */}
                       <Box
                         sx={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          backgroundColor: "success.main",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
                         }}
-                      />
-                      <Box>
-                        <Typography variant="body2">割り当て済み</Typography>
-                        <Typography variant="h6">{assignCount}件</Typography>
+                      >
+                        <Box
+                          sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            backgroundColor: "success.main",
+                          }}
+                        />
+                        <Box>
+                          <Typography variant="body2">割り当て済み</Typography>
+                          <Typography variant="h6">{assignCount}件</Typography>
+                        </Box>
                       </Box>
-                    </Box>
-
-                    {/* 未割り当て */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {/* 未割り当て */}
                       <Box
-                        sx={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          backgroundColor: "text.disabled",
-                        }}
-                      />
-                      <Box>
-                        <Typography variant="body2">未割り当て</Typography>
-                        <Typography variant="h6">{unAssignCount}件</Typography>
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            backgroundColor: "text.disabled",
+                          }}
+                        />
+                        <Box>
+                          <Typography variant="body2">未割り当て</Typography>
+                          <Typography variant="h6">
+                            {unAssignCount}件
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-
-                    {/* 対象児童数 */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {/* 対象児童数 */}
                       <Box
-                        sx={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          backgroundColor: "text.disabled",
-                        }}
-                      />
-                      <Box>
-                        <Typography variant="body2">対象児童数</Typography>
-                        <Typography variant="h6">{totalCount}件</Typography>
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            backgroundColor: "text.disabled",
+                          }}
+                        />
+                        <Box>
+                          <Typography variant="body2">対象児童数</Typography>
+                          <Typography variant="h6">{totalCount}件</Typography>
+                        </Box>
                       </Box>
                     </Box>
                   </Box>
                 </Box>
-              ) : (
-                <EmptyResult />
-              )}
-            </Box>
+              </>
+            ) : (
+              <EmptyResult />
+            )}
           </Paper>
           <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
             {/* 学年割り当て進捗状況 */}

@@ -2,8 +2,6 @@
 
 import { DemoPage, demoPageContent } from "./demoGuideContent";
 import Typography from "@mui/material/Typography";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -11,8 +9,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Box from "@mui/material/Box";
-import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
-import AlertSnackbar from "@/app/components/AlertSnackbar";
+import NextStepButton from "@/app/components/NextStepButton";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 // 親コンポーネントからpageを受け取る時の型指定
@@ -24,57 +21,15 @@ export const getGuideStorageKey = (page: DemoPage) => `demo-guide-seen:${page}`;
 export default function DemoGuide({ page, open, onClose }: Props) {
   // 受け取った pageで、文言を取り出して content に入れる
   const content = demoPageContent[page];
-  const [redirectTo, setRedirectTo] = useState<string | null>(null);
-  // sessionStorage に「案内を見た」と記録するときのキー名（pageごとに記録される）
-  const storageKey = `demo-guide-seen:${page}`;
-  const router = useRouter();
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
-    "success",
-  );
-
-  const nextDemoSubmit = async () => {
-    if (content.nextDemoRole) {
-      //nextDemoRoleを持っているならば
-      try {
-        if (!content.buttonUrl) return;
-        //apiが失敗しなければ実行
-        const account = DEMO_ACCOUNTS[content.nextDemoRole]; //DEMO_ACCOUNTS に入っているメールとパスワードを取り出す
-        const mail = account.email;
-        const password = account.password;
-        await demoLogin(mail, password); //メールとパスワードを持ってトークンを取得する
-        setRedirectTo(content.buttonUrl);
-      } catch {
-        //api失敗したら表示する
-        setAlertOpen(true);
-        setAlertSeverity("error");
-        setAlertMessage("デモログインに失敗しました");
-      }
-    } else {
-      if (!content.buttonUrl) return;
-      router.push(content.buttonUrl);
-    }
-  };
-  // redirectToがセットされたら、実際に画面遷移を行う
-  useEffect(() => {
-    if (redirectTo) {
-      window.location.href = redirectTo;
-    }
-  }, [redirectTo]);
   const handleClose = () => {
+    // sessionStorage に「案内を見た」と記録するときのキー名（pageごとに記録される）
+    const storageKey = `demo-guide-seen:${page}`;
     sessionStorage.setItem(storageKey, "1");
     onClose();
   };
 
   return (
     <Dialog sx={{ p: 1, mb: 3 }} onClose={handleClose} open={open}>
-      <AlertSnackbar
-        open={alertOpen}
-        severity={alertSeverity}
-        message={alertMessage}
-        onClose={() => setAlertOpen(false)}
-      />
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <DialogTitle variant="h5">{content.title}</DialogTitle>
 
@@ -92,8 +47,8 @@ export default function DemoGuide({ page, open, onClose }: Props) {
       <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         <Typography variant="h6">{content.heading}</Typography>
         <Typography>{content.purpose}</Typography>
-        {content.steps?.map((step) => (
-          <Typography sx={{ mb: 1 }} key={step}>
+        {content.steps?.map((step, index) => (
+          <Typography sx={{ mb: 1 }} key={index}>
             {step}
           </Typography>
         ))}
@@ -115,24 +70,21 @@ export default function DemoGuide({ page, open, onClose }: Props) {
         )}
 
         <DialogActions>
-          <Button
-            variant="contained"
-            color="success"
-            sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
-            endIcon={<ArrowForwardIcon />}
-            onClick={() => {
-              if (content.buttonUrl) {
-                //遷移先があるかを判断
-                nextDemoSubmit(); //ある場合には関数を呼ぶ
-              } else {
-                {
-                  handleClose();
-                }
-              }
-            }}
-          >
-            {content.buttonLabel}
-          </Button>
+          {/* もしURL先がある場合、NextStepButtonが処理 */}
+          {content.buttonUrl ? (
+            <NextStepButton page={page} />
+          ) : (
+            // URL先がない場合は閉じるだけ
+            <Button
+              variant="contained"
+              color="success"
+              sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+              endIcon={<ArrowForwardIcon />}
+              onClick={handleClose}
+            >
+              {content.buttonLabel}
+            </Button>
+          )}
         </DialogActions>
       </Box>
     </Dialog>

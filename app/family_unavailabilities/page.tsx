@@ -1,5 +1,10 @@
 "use client";
 
+type Child = {
+  name: string;
+  classroom: string[];
+};
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
@@ -25,6 +30,7 @@ import Alert from "@mui/material/Alert";
 import DialogActions from "@mui/material/DialogActions";
 import GuideHelp from "@/app/components/GuideHelp";
 import DemoGuide from "@/app/components/DemoGuide";
+import NextStepButton from "@/app/components/NextStepButton";
 export default function FamilyUnavailability() {
   const router = useRouter();
   const [slots, setSlots] = useState<MeetingSlot[]>([]);
@@ -32,6 +38,7 @@ export default function FamilyUnavailability() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [children, setChildren] = useState<Child[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
   const [blockedSlotStartAt, setBlockedSlotStartAt] = useState<string[]>([]);
@@ -81,7 +88,6 @@ export default function FamilyUnavailability() {
   };
 
   //１コマ分選択/選択解除の関数
-
   const handleClick = async (slotId: number) => {
     if (availableSlots.includes(slotId)) {
       await fetchWithAuth(
@@ -182,9 +188,12 @@ export default function FamilyUnavailability() {
         setLoading(false);
       });
 
+    // 保護者が提出しているか(utilsファイル)
     const familyId = decodeToken(token).family_id;
-    fetchFamilySubmitted(familyId).then((submitted) => {
-      setSubmitted(submitted);
+    fetchFamilySubmitted(familyId).then((data) => {
+      console.log("family data:", data);
+      setSubmitted(data.submitted);
+      setChildren(data.children);
     });
     // 他のfetchと依存関係がなく独立して実行できるため、Promise.all で並列に実行する
     const loadDeadline = async () => {
@@ -217,6 +226,10 @@ export default function FamilyUnavailability() {
   } else if (isPastDeadline) {
     headingText = "回答期間は終了しました";
   }
+  //保護者の児童の情報
+  const childrenText = children
+    .map((c) => `${c.name}（${c.classroom.join("・")}）`)
+    .join("・");
 
   return (
     <Container sx={{ p: 3 }}>
@@ -261,6 +274,7 @@ export default function FamilyUnavailability() {
         <Box
           sx={{
             display: "flex",
+            mb: 2,
             justifyContent: "space-between",
             flexDirection: { xs: "column", sm: "column", md: "row" },
           }}
@@ -269,12 +283,46 @@ export default function FamilyUnavailability() {
             <Typography variant="h6">{headingText}</Typography>
             <GuideHelp page="family_availability" />
           </Box>
-
-          <Typography variant="body1">
-            {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
-            回答締切：{deadLine !== null ? formatDate(deadLine) : null}
-          </Typography>
+          {submitted ? (
+            <NextStepButton page={"family_submitted"} />
+          ) : (
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
+              回答締切：{deadLine !== null ? formatDate(deadLine) : null}
+            </Typography>
+          )}
         </Box>
+        <Alert severity="info">
+          {slots.length > 0 && children.length >= 2 ? (
+            <>
+              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                締切後、学校で
+                <Typography
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {childrenText}
+                </Typography>
+                の面談日時を決め、メールでお知らせします。
+              </Box>
+              <br />
+              <Box component="span" sx={{ display: "inline-flex" }}>
+                きょうだいの面談を続けて組むため、同じ日に続けて
+                <Typography sx={{ fontWeight: "bold" }}>2つ以上</Typography>
+                選んでください。
+              </Box>
+              <Typography>
+                例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
+                15:15〜15:30
+              </Typography>
+            </>
+          ) : (
+            ""
+          )}
+        </Alert>
 
         <Box
           sx={

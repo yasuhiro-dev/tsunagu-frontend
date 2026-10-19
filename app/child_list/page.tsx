@@ -211,7 +211,7 @@ export default function ChildList() {
                             gap: 1,
                           }}
                         >
-                          <Typography>全て</Typography>
+                          <Typography>全児童</Typography>
                           <Chip variant="outlined" label={counts.all} />
                         </Box>
                       }
@@ -239,7 +239,7 @@ export default function ChildList() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <Typography>未割り当て</Typography>
+                          <Typography>面談日時未割り当て</Typography>
                           <Chip
                             variant="outlined"
                             color="warning"
@@ -255,7 +255,7 @@ export default function ChildList() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <Typography>割り当て済み</Typography>
+                          <Typography>面談日時割り当て済み</Typography>
                           <Chip
                             variant="outlined"
                             color="success"
