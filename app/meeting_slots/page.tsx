@@ -27,6 +27,8 @@ import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
 import { alpha } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 import TouchAppIcon from "@mui/icons-material/TouchApp";
 import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -94,16 +96,18 @@ export default function MeetingSlotPage() {
     }[]
   >([]);
 
+  //割り当てされている数（割り当て前にダイアログを表示しない）
+  const assignCount = slots.filter((slot) => slot.assignment_id != null).length;
   const classRoom = slots[0]?.class_room;
 
   //デモログイン(教師→管理者)
-  const nextDemoRole = async () => {
+  const loginAsAdmin = async (path: string) => {
     try {
       const account = DEMO_ACCOUNTS.admin;
       const email = account.email;
       const password = account.password;
       await demoLogin(email, password);
-      window.location.href = "/admin?tab=2";
+      window.location.href = path;
     } catch {
       setAlertOpen(true);
       setAlertSeverity("error");
@@ -242,7 +246,7 @@ export default function MeetingSlotPage() {
       if (before && !after) {
         violations.push({
           kind: "support_not_consecutive",
-          detail: "特別支援学級での面談と連続しなくなります",
+          detail: "特別支援学級の面談と連続しなくなります",
           name: name,
         });
       }
@@ -283,10 +287,12 @@ export default function MeetingSlotPage() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("変更されました");
+
       // 移動先や移動元のidがない時には飛ばす、もしあるなら新しい値をstateに保存する
       if (fromSlot == null || toSlotId == null) {
         return;
       }
+
       setHighlightedSlotIds([fromSlot.id, toSlotId]);
     } else {
       setAlertOpen(true);
@@ -479,7 +485,13 @@ export default function MeetingSlotPage() {
                 <Typography variant="h5" gutterBottom>
                   面談表 ({classRoom})
                 </Typography>
-                <GuideHelp page="teacher_meeting_slots" />
+                <GuideHelp
+                  page={
+                    assignCount > 0
+                      ? "teacher_meeting_slots"
+                      : "assignment_before"
+                  }
+                />
               </Box>
 
               <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -500,15 +512,26 @@ export default function MeetingSlotPage() {
                 >
                   {isDownload ? "ダウンロード中" : "PDFをダウンロード"}
                 </Button>
-                <Button
-                  variant="contained"
-                  color="success"
-                  sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={nextDemoRole}
-                >
-                  次へ：保護者へメール送信
-                </Button>
+                {assignCount > 0 ? (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => loginAsAdmin("/admin?tab=2")}
+                  >
+                    次へ：保護者へメール送信
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    startIcon={<ArrowBackIcon />}
+                    color="success"
+                    onClick={() => loginAsAdmin("/admin?tab=1")}
+                  >
+                    面談割り当て画面へ戻る
+                  </Button>
+                )}
               </Box>
             </Box>
           </Box>
@@ -547,7 +570,7 @@ export default function MeetingSlotPage() {
                         borderColor: "divider",
                       }}
                     />
-                    教師と保護者の面談できない時間
+                    担任の先生と保護者の面談できない時間
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <DescriptionIcon
@@ -591,7 +614,7 @@ export default function MeetingSlotPage() {
                     color="success"
                     sx={{ fontWeight: "bold" }}
                   >
-                    ※前後の時間なら連続になります
+                    ※兄弟・特別支援の面談は連続した時間帯に配置されます
                   </Typography>
                 </Box>
               </Alert>
@@ -654,7 +677,7 @@ export default function MeetingSlotPage() {
                             borderColor: "divider",
                           }}
                         />
-                        教師の面談できない時間
+                        担任の先生の面談できない時間
                       </Box>
                     </Box>
                   </Box>
@@ -1362,7 +1385,7 @@ export default function MeetingSlotPage() {
                                             : cell?.status === "reserved"
                                               ? "予約済"
                                               : cell?.status === "blocked"
-                                                ? "教師の都合で不可"
+                                                ? "担任の先生の都合で不可"
                                                 : "空き"}
                                           <Typography variant="body2">
                                             {cell.child_name}
@@ -1502,7 +1525,7 @@ export default function MeetingSlotPage() {
                                                   : cell?.status === "reserved"
                                                     ? "予約済"
                                                     : cell?.status === "blocked"
-                                                      ? "教師の都合で不可"
+                                                      ? "担任の先生の都合で不可"
                                                       : "空き"}
                                                 <Typography variant="body2">
                                                   {cell.child_name}

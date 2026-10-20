@@ -10,6 +10,7 @@ export type MeetingSlot = {
   assignment_id: number | null;
   submitted: boolean | null;
   class_room: string | null;
+  teacher_name: string | null;
 };
 
 // 日付を日本版で読みやすくした形

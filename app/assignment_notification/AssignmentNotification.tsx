@@ -190,7 +190,7 @@ export default function AssignmentNotification() {
               borderRadius: 3,
             }}
           >
-            <FlowStepper activeStep={3} />
+            <FlowStepper activeStep={4} />
           </Box>
         </Paper>
         <Paper sx={{ display: "flex", gap: 2, p: 2 }}>
@@ -309,7 +309,9 @@ export default function AssignmentNotification() {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setPreviewOpen(false)}>閉じる</Button>
+            <Button variant="contained" onClick={() => setPreviewOpen(false)}>
+              閉じる
+            </Button>
           </DialogActions>
         </Dialog>
 
@@ -397,12 +399,12 @@ export default function AssignmentNotification() {
               }}
             >
               <Typography>
-                Google未連携の教師 {unLinkedTeacherCount}名
+                Google未連携の先生 {unLinkedTeacherCount}名
               </Typography>
 
               <Typography>
-                この教師が担当する家庭にはメールが送信できません。
-                <br /> 該当の教師にGoogle連携を依頼してください
+                この先生が担当する家庭にはメールが送信できません。
+                <br /> 該当の先生にGoogle連携を依頼してください
               </Typography>
               <Box
                 sx={{
@@ -414,7 +416,7 @@ export default function AssignmentNotification() {
               >
                 {unLinkedTeacherCount === 0 ? (
                   <Typography sx={{ color: "success.main" }}>
-                    ✓ すべての教師がGoogle連携済みです。このまま送信できます。
+                    ✓ すべての先生がGoogle連携済みです。このまま送信できます。
                   </Typography>
                 ) : (
                   unLinkedTeacher.map((teacher, index) => (
@@ -460,7 +462,7 @@ export default function AssignmentNotification() {
                   <TableCell sx={{ width: "25%" }}>保護者名</TableCell>
                   <TableCell sx={{ width: "25%" }}>学年・組</TableCell>
                   <TableCell sx={{ width: "25%" }}>児童名</TableCell>
-                  <TableCell sx={{ width: "25%" }}>担当教師</TableCell>
+                  <TableCell sx={{ width: "25%" }}>担任の先生</TableCell>
                 </TableRow>
               </TableHead>
               {/* ボディーカラム */}

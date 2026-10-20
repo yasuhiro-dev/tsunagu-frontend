@@ -65,10 +65,10 @@ const parentMenuItems = [
   },
 ];
 const adminMenuItems = [
-  { label: "教師一覧", href: "/admin?tab=0", icon: <PersonIcon /> },
+  { label: "担任の先生一覧", href: "/admin?tab=0", icon: <PersonIcon /> },
   { label: "保護者一覧", href: "/admin?tab=1", icon: <PeopleIcon /> },
   {
-    label: "教師登録",
+    label: "担任の先生の登録",
     href: "/admin?tab=2",
     icon: <PersonAddAlt1Icon />,
   },
@@ -377,7 +377,7 @@ export default function Navbar() {
                   {role === "teacher"
                     ? `${name} 先生`
                     : role === "admin"
-                      ? `管理者`
+                      ? `教頭先生`
                       : `${name} 様`}
                 </Typography>
                 <KeyboardArrowDownIcon fontSize="small" />
