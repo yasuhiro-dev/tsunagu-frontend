@@ -584,7 +584,7 @@ function AdminContent() {
               sx={sidebarButtonStyle(3)}
               onClick={() => setTab(3)}
             >
-              教師一覧
+              担任の先生一覧
             </Button>
             <Button
               startIcon={<PeopleIcon />}
@@ -598,7 +598,7 @@ function AdminContent() {
               sx={sidebarButtonStyle(5)}
               onClick={() => setTab(5)}
             >
-              教師登録
+              担任の先生の登録
             </Button>
             <Button
               startIcon={<GroupAddIcon />}
@@ -672,9 +672,9 @@ function AdminContent() {
                   }}
                 >
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="h6">教師一覧</Typography>
+                    <Typography variant="h6">担任の先生一覧</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      登録されている教師の情報を確認・編集・削除できます。
+                      登録されている担任の先生の情報を確認・編集・削除できます。
                     </Typography>
                   </Box>
                   <Box
@@ -730,7 +730,7 @@ function AdminContent() {
                               : "hidden",
                         }}
                       >
-                        削除する教師を選択してください
+                        削除する担任の先生を選択してください
                       </Typography>
 
                       <Button
@@ -1135,7 +1135,7 @@ function AdminContent() {
                   maxWidth: 500,
                 }}
               >
-                <Typography variant="h6">教師登録</Typography>
+                <Typography variant="h6">担任の先生の登録</Typography>
                 <Box
                   sx={{
                     display: "flex",
@@ -1145,7 +1145,7 @@ function AdminContent() {
                 >
                   <TextField
                     fullWidth
-                    label="教師の名前"
+                    label="担任の先生の名前"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />

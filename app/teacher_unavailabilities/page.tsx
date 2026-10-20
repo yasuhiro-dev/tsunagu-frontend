@@ -32,6 +32,8 @@ export default function MeetingSlotPage() {
     "success",
   );
 
+  const classRoom = slots[0]?.class_room;
+
   // 面談不可(blocked)以外の枠を、面談できる枠として扱う
   const toAvailableIds = (data: MeetingSlot[]) =>
     data.filter((slot) => slot.status !== "blocked").map((slot) => slot.id);
@@ -168,14 +170,15 @@ export default function MeetingSlotPage() {
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography variant="h6">
-              面談に対応できない日時のボタンを押してください
-            </Typography>
+            <Typography variant="h5">面談できない日時 ({classRoom})</Typography>
             <GuideHelp page="teacher_unavailability" />
           </Box>
           {submitted && <NextStepButton page={"teacher_submitted"} />}
         </Box>
 
+        <Typography sx={{ mt: 1 }}>
+          出張などで面談できない日時の「×」を押してください
+        </Typography>
         <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
           ※保護者の面談が決まっている枠は、面談不可にできません
         </Typography>
@@ -222,7 +225,7 @@ export default function MeetingSlotPage() {
                 gap: 2,
               }}
             >
-              <Typography variant="body1">枠の空き具合</Typography>
+              <Typography variant="body1">枠の充足率</Typography>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
               >

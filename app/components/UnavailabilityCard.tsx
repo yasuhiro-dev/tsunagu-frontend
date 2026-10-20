@@ -26,6 +26,7 @@ type UnavailabilityCardProps = {
 
 export default function UnavailabilityCard({
   date,
+
   dateSlots,
   isAvailable,
   isDisabled,
@@ -172,7 +173,7 @@ export default function UnavailabilityCard({
                       visibility: isBlocked?.(slot) ? "visible" : "hidden",
                     }}
                   >
-                    教師の都合により対応不可
+                    担任の先生の都合により対応不可
                   </Typography>
                 )}
 

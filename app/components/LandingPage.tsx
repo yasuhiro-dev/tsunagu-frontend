@@ -13,6 +13,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import CircularProgress from "@mui/material/CircularProgress";
 import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
 import {
@@ -29,6 +30,7 @@ export default function LandingPage() {
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -40,6 +42,7 @@ export default function LandingPage() {
   ) => {
     try {
       //apiが失敗しなければ実行
+      setIsLoading(true);
       const role = await demoLogin(loginEmail, loginPassword); //demoLoginに引数を渡し、roleが返ってくる
       if (reset) await resetDemo(); //前の人の操作が残らないよう、STEP 1から始めるときに戻す
       const redirectMap: RedirectMap = {
@@ -52,6 +55,7 @@ export default function LandingPage() {
       setRedirectTo(redirectOverride ?? redirectMap[role] ?? "/");
     } catch {
       //api失敗したら表示する
+      setIsLoading(false);
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage("デモログインに失敗しました");
@@ -69,13 +73,13 @@ export default function LandingPage() {
     {
       number: "1",
       roleKey: "teacher" as const,
-      role: "教師",
+      role: "担任の先生",
       color: "primary.main",
       title: "面談できない日時を登録",
       image: "/images/workflows/teacher_availability.webp",
       description: "学校側が対応できない日時を登録します。",
       path: "/teacher_unavailabilities",
-      button_label: "教師画面を見る",
+      button_label: "先生の画面を見る",
     },
     {
       number: "2",
@@ -91,35 +95,35 @@ export default function LandingPage() {
     {
       number: "3",
       roleKey: "admin" as const,
-      role: "管理者",
+      role: "教頭先生",
       color: "success.main",
-      title: "面談表を自動割り当てを実行",
+      title: "面談表の自動割り当てを実行",
       image: "/images/workflows/admin_assignment.webp",
       description: "希望と条件から面談日時を自動で決めます。",
       path: "/admin?tab=1",
-      button_label: "管理者画面を見る",
+      button_label: "教頭先生画面を見る",
     },
     {
       number: "4",
-      role: "教師",
+      role: "担任の先生",
       roleKey: "teacher" as const,
       title: "面談表を確認・調整",
       color: "primary.main",
       image: "/images/workflows/teacher_manual.webp",
       description: "面談表を確認し、必要なら調整します。",
       path: "/meeting_slots",
-      button_label: "教師画面を見る",
+      button_label: "先生の画面を見る",
     },
     {
       number: "5",
       roleKey: "admin" as const,
-      role: "管理者",
+      role: "教頭先生",
       color: "success.main",
       title: "保護者へメールを送信",
       image: "/images/workflows/admin_mailer.webp",
       description: "決まった面談日時をメールで知らせます。",
       path: "/admin?tab=2",
-      button_label: "管理者画面を見る",
+      button_label: "教頭先生画面を見る",
     },
     {
       number: "6",
@@ -155,7 +159,7 @@ export default function LandingPage() {
       color: "#fbebec",
     },
     {
-      title: "教師の都合",
+      title: "担任の先生の都合",
       image: "/images/problems/teacher.webp",
       description: "出張が入っている日には実施できない",
       color: "#d6e4f0",
@@ -176,7 +180,8 @@ export default function LandingPage() {
     {
       image: "/images/tsunagu-logic/reserch.webp",
       title: "条件に合う空き枠を探す",
-      description: "保護者の都合の悪い日時や教師の出張日を避けて、探します",
+      description:
+        "保護者の都合の悪い日時や担任の先生の出張日を避けて、探します",
     },
     {
       image: "/images/tsunagu-logic/assignment.webp",
@@ -194,7 +199,7 @@ export default function LandingPage() {
   const roleDescriptions = [
     {
       image: "/images/teacher.webp",
-      title: "教師",
+      title: "担任の先生",
       description: "自分の予定を確認・調整する",
       items: [
         "児童一覧・未提出者の確認",
@@ -220,10 +225,10 @@ export default function LandingPage() {
     },
     {
       image: "/images/admin.webp",
-      title: "管理者",
+      title: "教頭先生",
       description: "学校全体の面談日程をつくる",
       items: [
-        "教師・保護者情報の登録・編集",
+        "担任の先生・保護者情報の登録・編集",
         "面談の一括自動割り当て",
         "提出締切日の設定",
         "クラス別の割り当て状況の可視化",
@@ -326,12 +331,20 @@ export default function LandingPage() {
               <Button
                 size="large"
                 variant="contained"
-                startIcon={<PlayCircleIcon />}
+                disabled={isLoading}
+                startIcon={
+                  isLoading ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <PlayCircleIcon />
+                  )
+                }
                 sx={{
                   px: 10, // 左右の余白
                   py: 2,
                   fontSize: 20,
                   fontWeight: "bold",
+                  minWidth: 360,
                 }}
                 onClick={() => {
                   handleSubmit(
@@ -342,13 +355,13 @@ export default function LandingPage() {
                   );
                 }}
               >
-                デモを体験する
+                {isLoading ? "準備しています…" : "デモを体験する"}
               </Button>
               <Typography
                 variant="body2"
                 sx={{ mt: 1.5, color: "text.secondary" }}
               >
-                登録不要。教師・保護者・管理者の画面をそのまま操作できます。
+                登録不要。担任の先生・保護者・教頭先生の画面をそのまま操作できます。
               </Typography>
             </Box>
           </Box>
@@ -389,7 +402,7 @@ export default function LandingPage() {
                 Tsunaguで面談日程が決まるまで
               </Typography>
               <Typography variant="body2" sx={{ px: 3 }}>
-                教師・保護者が情報を入力し、管理者が自動割り当て
+                担任の先生・保護者が情報を入力し、教頭先生が自動割り当て
               </Typography>
             </Box>
             <Box
@@ -697,7 +710,7 @@ export default function LandingPage() {
         <Box sx={{ p: 3, mb: 5 }}>
           <Paper elevation={4} sx={{ p: 2 }}>
             <Typography variant="h4" sx={{ px: 3 }}>
-              教師の空き状況と保護者の希望から、管理者が児童の面談日をつくります。
+              担任の先生の空き状況と保護者の希望から、教頭先生が児童の面談日をつくります。
             </Typography>
             <Box
               sx={{

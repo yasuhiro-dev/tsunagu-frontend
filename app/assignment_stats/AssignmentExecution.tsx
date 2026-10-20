@@ -19,6 +19,7 @@ import DemoGuide from "@/app/components/DemoGuide";
 import FlowStepper from "@/app/components/FlowStepper";
 import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
 import GuideHelp from "@/app/components/GuideHelp";
+import CircularProgress from "@mui/material/CircularProgress";
 import NextStepButton from "@/app/components/NextStepButton";
 type Props = {
   scheduleId: number | null;
@@ -127,7 +128,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       );
       setTimeout(() => {
         setShowAssignmentDialog(true);
-      }, 4000);
+      }, 1000);
     } else {
       setAlertMessage(data.error);
       setAlertDuration(5000);
@@ -182,7 +183,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
             </Box>
 
             <Typography>
-              保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、教師の空き枠に面談を自動で割り当てます。
+              保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、担任の先生の空き枠に面談を自動で割り当てます。
             </Typography>
           </Box>
 
@@ -196,7 +197,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
               borderRadius: 3,
             }}
           >
-            <FlowStepper activeStep={1} />
+            <FlowStepper activeStep={2} />
           </Box>
         </Paper>
         <Paper sx={{ display: "flex", p: 2 }}>
@@ -231,18 +232,23 @@ export default function AssignmentExecution({ scheduleId }: Props) {
           >
             {/*割り当て完了ボタン */}
             <Button
-              variant="contained"
+              variant={hasResult ? "outlined" : "contained"}
               fullWidth
               color="primary"
               onClick={handleClick}
               disabled={isAssigning}
+              startIcon={isAssigning ? <CircularProgress size={20} /> : null}
               sx={{
                 p: 2,
                 fontWeight: "bold",
                 fontSize: 18,
               }}
             >
-              {isAssigning ? "割り当て中" : "▶ 割り当てを実行する"}
+              {isAssigning
+                ? "割り当て中"
+                : hasResult
+                  ? "もう一度割り当てる"
+                  : "▶ 割り当てを実行する"}
             </Button>
             <Typography>(５秒ほどかかります)</Typography>
           </Box>

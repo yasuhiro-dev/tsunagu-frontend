@@ -1,26 +1,27 @@
 "use client";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import SendIcon from "@mui/icons-material/Send";
-import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import SchoolIcon from "@mui/icons-material/School";
+import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 
 type Props = {
   activeStep: number;
 };
 
 const steps = [
-  { label: "保護者・教師の希望", Icon: PersonIcon },
+  { label: "先生が日時を提出", Icon: SchoolIcon },
+  { label: "保護者が日時を提出", Icon: FamilyRestroomIcon },
   { label: "自動で割り当て", Icon: SettingsIcon },
-  { label: "面談表で確認・調整", Icon: AssignmentTurnedInIcon },
+  { label: "先生が確認・調整", Icon: AssignmentTurnedInIcon },
   { label: "保護者へ通知", Icon: SendIcon },
+  { label: "保護者が確認", Icon: EventAvailableIcon },
 ];
-
 export default function FlowStepper({ activeStep }: Props) {
   return (
     <Stepper alternativeLabel activeStep={activeStep}>
@@ -29,10 +30,10 @@ export default function FlowStepper({ activeStep }: Props) {
         return (
           <Step key={index} completed={false}>
             <StepLabel>{step.label}</StepLabel>
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
               <step.Icon
                 sx={{
-                  fontSize: 40,
+                  fontSize: 30,
                   color: isActive ? "primary.main" : "text.disabled",
                 }}
               />

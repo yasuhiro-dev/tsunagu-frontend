@@ -217,8 +217,10 @@ export default function FamilyUnavailability() {
 
   const now = new Date();
   const deadLineDate = deadLine !== null ? new Date(deadLine) : null;
-
   const isPastDeadline = deadLineDate !== null && now > deadLineDate;
+  const RECOMMEND_SLOTS = 6;
+  const selectedCount = availableSlots.length;
+  const isEnough = selectedCount >= RECOMMEND_SLOTS;
 
   let headingText = "面談に参加できる日時のボタンを押してください";
   if (submitted === true) {
@@ -256,8 +258,33 @@ export default function FamilyUnavailability() {
             <DialogContentText>
               提出すると、あとから内容を変更できません。
             </DialogContentText>
-            <Alert severity="info">
-              選んだ日時が少ないと、自動では面談日時が決まらず、先生から日程のご相談をすることがあります。
+            <Alert severity={isEnough ? "info" : "warning"} sx={{ gap: 1 }}>
+              今は「参加できる」を
+              <Box
+                component="span"
+                sx={{
+                  color: isEnough ? "primary.main" : "warning.dark",
+                  fontWeight: "bold",
+                }}
+              >
+                {" "}
+                {selectedCount} 枠{" "}
+              </Box>
+              選んでいます。
+              <br />
+              {isEnough ? (
+                "自動で面談日時が決まりやすい状態です。"
+              ) : (
+                <>
+                  <Box
+                    component="span"
+                    sx={{ color: "primary.main", fontWeight: "bold" }}
+                  >
+                    {RECOMMEND_SLOTS}枠
+                  </Box>
+                  以上選ぶと、自動で面談日時が決まりやすくなります。
+                </>
+              )}
             </Alert>
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
@@ -295,7 +322,7 @@ export default function FamilyUnavailability() {
         <Alert severity="info">
           {slots.length > 0 && children.length >= 2 ? (
             <>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                 締切後、学校で
                 <Typography
                   sx={{
@@ -309,14 +336,17 @@ export default function FamilyUnavailability() {
                 の面談日時を決め、メールでお知らせします。
               </Box>
               <br />
-              <Box component="span" sx={{ display: "inline-flex" }}>
+              <Box
+                component="span"
+                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
+              >
                 きょうだいの面談を続けて組むため、同じ日に続けて
-                <Typography sx={{ fontWeight: "bold" }}>2つ以上</Typography>
+                <Typography sx={{ fontWeight: "bold" }}> 2つ以上 </Typography>
                 選んでください。
               </Box>
-              <Typography>
-                例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
-                15:15〜15:30
+              <Typography variant="caption">
+                (例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
+                15:15〜15:30)
               </Typography>
             </>
           ) : (
