@@ -175,13 +175,14 @@ export default function MeetingSlotPage() {
           </Box>
           {submitted && <NextStepButton page={"teacher_submitted"} />}
         </Box>
-
-        <Typography sx={{ mt: 1 }}>
-          出張などで面談できない日時の「×」を押してください
-        </Typography>
-        <Typography variant="body2" sx={{ mb: 3, color: "text.secondary" }}>
-          ※保護者の面談が決まっている枠は、面談不可にできません
-        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 3 }}>
+          <Typography>
+            出張などで面談できない日時の「×」を押してください
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            ※保護者の面談が決まっている枠は、面談不可にできません
+          </Typography>
+        </Box>
 
         <Paper sx={{ display: "flex" }}>
           <Box
@@ -191,6 +192,8 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
+              borderRight: 1,
+              borderColor: "divider",
             }}
           >
             <Typography variant="body1">このクラスの児童数</Typography>
@@ -199,6 +202,7 @@ export default function MeetingSlotPage() {
             </Typography>
             <Typography variant="body2">面談が必要な人数です</Typography>
           </Box>
+
           <Box
             sx={{
               flex: 1,
@@ -206,6 +210,8 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
+              borderRight: 1,
+              borderColor: "divider",
             }}
           >
             <Typography variant="body1">現在の空き枠</Typography>

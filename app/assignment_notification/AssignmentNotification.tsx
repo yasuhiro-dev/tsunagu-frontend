@@ -237,9 +237,6 @@ export default function AssignmentNotification() {
                   </Box>
                   の保護者にまだ送信していません。
                 </Typography>
-                <Typography>
-                  すでに送信した保護者には再送されません。
-                </Typography>
               </>
             )}
 
@@ -254,8 +251,9 @@ export default function AssignmentNotification() {
                 本番では、担任のGmailから保護者へ、お子さんごとの面談日時が届きます。
               </Typography>
               <Button
+                variant="outlined"
                 size="small"
-                sx={{ mt: 1, px: 0 }}
+                sx={{ mt: 1, p: 1 }}
                 onClick={() => setPreviewOpen(true)}
               >
                 届くメールの例を見る
@@ -292,7 +290,15 @@ export default function AssignmentNotification() {
                     ? "割り当て後に送信できます"
                     : "▶ 保護者に送信する"}
             </Button>
-            <Typography>(５秒ほどかかります)</Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ textAlign: "center", mt: 1 }}
+            >
+              すでに送信した保護者には再送されません
+              <br />
+              5秒ほどかかります
+            </Typography>
           </Box>
         </Paper>
 

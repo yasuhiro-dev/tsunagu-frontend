@@ -126,9 +126,6 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       setAlertMessage(
         `割り当てが完了しました。条件に合う枠がなかった${data.unassigned_children.length}人は、担任が面談表で割り当てます`,
       );
-      setTimeout(() => {
-        setShowAssignmentDialog(true);
-      }, 1000);
     } else {
       setAlertMessage(data.error);
       setAlertDuration(5000);
@@ -166,11 +163,6 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         onClose={() => setAlertOpen(false)}
       />
 
-      <DemoGuide
-        page="assignment_button"
-        open={showAssignmentDialog}
-        onClose={() => setShowAssignmentDialog(false)}
-      />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
@@ -349,7 +341,12 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                           }}
                         />
                         <Box>
-                          <Typography variant="body2">割り当て済み</Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            割り当て済み
+                          </Typography>
                           <Typography variant="h6">{assignCount}件</Typography>
                         </Box>
                       </Box>
@@ -366,7 +363,12 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                           }}
                         />
                         <Box>
-                          <Typography variant="body2">未割り当て</Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            未割り当て
+                          </Typography>
                           <Typography variant="h6">
                             {unAssignCount}件
                           </Typography>
@@ -380,12 +382,15 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                           sx={{
                             width: 10,
                             height: 10,
-                            borderRadius: "50%",
-                            backgroundColor: "text.disabled",
                           }}
                         />
                         <Box>
-                          <Typography variant="body2">対象児童数</Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            対象児童数
+                          </Typography>
                           <Typography variant="h6">{totalCount}件</Typography>
                         </Box>
                       </Box>
@@ -460,17 +465,20 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                 >
                   <Typography
                     variant="body2"
-                    sx={{ mt: 1, color: "text.secondary" }}
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
                   >
-                    参加できる日時が少ないなど、条件に合う枠がなかった児童です。担任が保護者と相談し、面談表から手動で割り当てます。
+                    自動で割り当てられなかった児童です。
+                    <br />
+                    面談表から手動で割り当ててください。
                   </Typography>
                   {unassignedChildren.length === 0 ? (
-                    <Typography variant="body2">
+                    <Typography variant="body1">
                       全員の割り当てが完了しています。
                     </Typography>
                   ) : (
                     unassignedChildren.map((child) => (
-                      <Typography key={child.id} variant="body2">
+                      <Typography key={child.id} variant="h6">
                         {child.name}（{child.class_rooms[0]?.classname}）
                       </Typography>
                     ))

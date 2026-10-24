@@ -31,6 +31,8 @@ import DialogActions from "@mui/material/DialogActions";
 import GuideHelp from "@/app/components/GuideHelp";
 import DemoGuide from "@/app/components/DemoGuide";
 import NextStepButton from "@/app/components/NextStepButton";
+import Stack from "@mui/material/Stack";
+import Chip from "@mui/material/Chip";
 export default function FamilyUnavailability() {
   const router = useRouter();
   const [slots, setSlots] = useState<MeetingSlot[]>([]);
@@ -221,6 +223,13 @@ export default function FamilyUnavailability() {
   const RECOMMEND_SLOTS = 6;
   const selectedCount = availableSlots.length;
   const isEnough = selectedCount >= RECOMMEND_SLOTS;
+  const nonSiblingDouble = selectedCount < 2;
+  const getSubmitted = () => {
+    if (isPastDeadline) return "提出期限が過ぎました";
+    if (submitted) return "提出が完了しました";
+    if (availableSlots.length === 0) return "日時を選んでください";
+    return "上記の内容で提出する";
+  };
 
   let headingText = "面談に参加できる日時のボタンを押してください";
   if (submitted === true) {
@@ -258,12 +267,21 @@ export default function FamilyUnavailability() {
             <DialogContentText>
               提出すると、あとから内容を変更できません。
             </DialogContentText>
-            <Alert severity={isEnough ? "info" : "warning"} sx={{ gap: 1 }}>
+            <Alert
+              severity={
+                nonSiblingDouble ? "warning" : isEnough ? "success" : "info"
+              }
+              sx={{ gap: 1 }}
+            >
               今は「参加できる」を
               <Box
                 component="span"
                 sx={{
-                  color: isEnough ? "primary.main" : "warning.dark",
+                  color: nonSiblingDouble
+                    ? "warning.dark"
+                    : isEnough
+                      ? "success.main"
+                      : "primary.main",
                   fontWeight: "bold",
                 }}
               >
@@ -272,7 +290,9 @@ export default function FamilyUnavailability() {
               </Box>
               選んでいます。
               <br />
-              {isEnough ? (
+              {nonSiblingDouble ? (
+                "きょうだい2人を続けて組むには、同じ日に続けて2枠必要です"
+              ) : isEnough ? (
                 "自動で面談日時が決まりやすい状態です。"
               ) : (
                 <>
@@ -319,39 +339,104 @@ export default function FamilyUnavailability() {
             </Typography>
           )}
         </Box>
-        <Alert severity="info">
-          {slots.length > 0 && children.length >= 2 ? (
-            <>
-              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                締切後、学校で
-                <Typography
+        <Alert
+          severity="info"
+          sx={{ "& .MuiAlert-icon": { pt: "14px", fontSize: 20 } }}
+        >
+          <Stack spacing={1.5}>
+            {slots.length > 0 && children.length >= 2 ? (
+              <>
+                <Box
                   sx={{
-                    display: "inline-flex",
+                    display: "flex",
+                    gap: 1,
                     alignItems: "center",
-                    fontWeight: "bold",
+                    fontSize: 20,
                   }}
                 >
-                  {childrenText}
-                </Typography>
-                の面談日時を決め、メールでお知らせします。
+                  締切後、学校で
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {childrenText}
+                  </Typography>
+                  の面談日時を決め、メールでお知らせします。
+                </Box>
+                <Stack spacing={1}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Chip
+                      label="必須"
+                      size="small"
+                      color="primary"
+                      sx={{ fontSize: 10 }}
+                    />
+                    <Box
+                      component="span"
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 1,
+                        fontSize: 15,
+                      }}
+                    >
+                      きょうだいの面談を続けて組むため、
+                      <Typography sx={{ fontWeight: "bold" }}>
+                        同じ日に続けて2つ以上
+                      </Typography>
+                      選んでください。
+                    </Box>
+                    <Typography variant="caption">
+                      (例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
+                      15:15〜15:30)
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 1,
+                      fontSize: 15,
+                    }}
+                  >
+                    <Chip
+                      label="目安"
+                      size="small"
+                      color="primary"
+                      variant="outlined"
+                      sx={{ fontSize: 10 }}
+                    />
+                    <Typography>
+                      <Box component="span">
+                        <Box component="span" sx={{ fontWeight: "bold" }}>
+                          {RECOMMEND_SLOTS}枠以上{" "}
+                        </Box>
+                        選んでおくと、面談日時が決まりやすくなります。
+                      </Box>
+                    </Typography>
+                  </Box>
+                </Stack>
+              </>
+            ) : (
+              <Box component="span">
+                参加できる日時を選んでください。
+                <Box component="span" sx={{ fontWeight: "bold" }}>
+                  多く選ぶほど
+                </Box>
+                、面談日時が決まりやすくなります。
               </Box>
-              <br />
-              <Box
-                component="span"
-                sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}
-              >
-                きょうだいの面談を続けて組むため、同じ日に続けて
-                <Typography sx={{ fontWeight: "bold" }}> 2つ以上 </Typography>
-                選んでください。
-              </Box>
-              <Typography variant="caption">
-                (例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
-                15:15〜15:30)
-              </Typography>
-            </>
-          ) : (
-            ""
-          )}
+            )}
+          </Stack>
         </Alert>
 
         <Box
@@ -391,12 +476,12 @@ export default function FamilyUnavailability() {
             }
             onClick={() => setDialogOpen(true)}
           >
-            {submitted ? "提出が完了しました" : "上記の内容で提出する"}
+            {getSubmitted()}
           </Button>
         </Box>
         {!submitted && !isPastDeadline && availableSlots.length === 0 && (
           <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
-            参加できる日時を1つ以上選ぶと提出できます
+            ※選んだ日時が足りません。ページ上部の案内をご確認ください
           </Typography>
         )}
       </Box>

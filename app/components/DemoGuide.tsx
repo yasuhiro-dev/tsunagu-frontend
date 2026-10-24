@@ -44,14 +44,27 @@ export default function DemoGuide({ page, open, onClose }: Props) {
           }}
         />
       </Box>
-      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Typography variant="h6">{content.heading}</Typography>
-        <Typography>{content.purpose}</Typography>
-        {content.steps?.map((step, index) => (
-          <Typography sx={{ mb: 1 }} key={index}>
-            {step}
-          </Typography>
-        ))}
+        <Typography sx={{ whiteSpace: "pre-line" }}>
+          {content.purpose}
+        </Typography>
+        {content.steps && content.steps.length > 0 && (
+          <Box
+            sx={{
+              bgcolor: "grey.200",
+              borderRadius: 2,
+              p: 2,
+            }}
+          >
+            {content.steps?.map((step, index) => (
+              <Typography sx={{ mb: 1 }} key={index}>
+                {step}
+              </Typography>
+            ))}
+          </Box>
+        )}
+
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {content.note}
         </Typography>
