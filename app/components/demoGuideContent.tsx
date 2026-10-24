@@ -80,7 +80,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
         を押す
       </>,
       <>
-        ② 画面の一番下にある<ButtonName>提出する</ButtonName>を押す
+        ② 画面の一番下にある<ButtonName>上記の内容で提出する</ButtonName>を押す
       </>,
     ],
     note: "※提出後は変更できません。",
@@ -104,7 +104,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     title: "STEP 3 / 6",
     chip: "教頭先生の画面です",
     color: "success.main",
-    heading: "担任の先生と保護者の希望をもとに、面談日程を自動で決めます",
+    heading: "担任の先生と保護者の希望から、面談日程を自動で決めます",
     steps: [
       <>
         ① 画面の右にある<ButtonName>▶ 割り当てを実行する</ButtonName>を押す
@@ -130,13 +130,8 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     chip: "担任の先生の画面です",
     color: "primary.main",
     heading: "自動で入らなかった児童を、手で割り当てましょう",
-    purpose: (
-      <>
-        森本湊さんは希望の枠が埋まっていたため、自動では入りませんでした。
-        <br />
-        保護者に電話して、別の日でも大丈夫と言われた想定です。
-      </>
-    ),
+    purpose:
+      "希望の枠がすでに埋まっていたため、保護者に電話で確認し\n「別の日でも大丈夫」と言われた想定です。",
     steps: [
       <>
         ① 空いている枠の<ButtonName>＋ 児童を割り当てる</ButtonName>を押す
@@ -146,7 +141,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
         <ButtonName>次へ：保護者へメール送信</ButtonName>を押す
       </>,
     ],
-    note: "※割り当て済みの児童も、クリックすると別の枠へ移動できます。",
+
     buttonLabel: "面談の調整をはじめる",
   },
 
@@ -167,17 +162,18 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     title: "STEP 5 / 6",
     chip: "教頭先生の画面です",
     color: "success.main",
-    heading: "決まった面談日時を、保護者にメールで知らせましょう",
+    heading: "全クラスの面談日時を、保護者へまとめて知らせましょう",
+    purpose:
+      "どのクラスも面談表の確認が終わった想定です。\n教頭先生が、全クラス分をまとめて送信します。",
     steps: [
       <>
         ① 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>を押す
       </>,
       <>
-        ② 気になったら<ButtonName>届くメールの例を見る</ButtonName>
-        で、保護者に届くメールを確認できます
+        ② <ButtonName>届くメールの例を見る</ButtonName>
+        で、保護者に届くメールも確認できます
       </>,
     ],
-    note: "※デモのため、実際にメールは送信されません。",
     buttonLabel: "やってみる",
   },
   assignment_notification: {
@@ -198,7 +194,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     heading: "決まった面談日時を確認しましょう",
 
     steps: [
-      <>① 2人のお子さんの面談が、同じ日の続いた時間になっているか確認する</>,
+      <>① 2人のお子さんの面談が、同じ日の続く時間になっているか確認する</>,
       <>
         ② <ButtonName>カレンダーに追加</ButtonName>
         で、自分のカレンダーに登録もできます

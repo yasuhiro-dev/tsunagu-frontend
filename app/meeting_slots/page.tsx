@@ -447,6 +447,14 @@ export default function MeetingSlotPage() {
   const isEditing = fromAssignmentId !== null;
   const isToSlotExist = Boolean(toSlot?.assignment_id); //選択先がいる場合
   const isViolationExist = violations.length > 0;
+  // 未割り当て児童が入れる空き枠があるか
+  const hasOpenSlot = (child: (typeof unassignedChildren)[number]) =>
+    slots.some(
+      (slot) =>
+        slot.assignment_id == null && // まだ誰も入っていない
+        slot.status !== "blocked" && // 担任の都合がつく
+        (!child.submitted || child.available_start_at.includes(slot.start_at)), // 保護者の都合がつく（未提出なら制約なし）
+    );
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -565,12 +573,12 @@ export default function MeetingSlotPage() {
                         minHeight: 14,
                         borderRadius: 0.5,
                         backgroundColor: (theme) =>
-                          alpha(theme.palette.error.main, 0.4),
+                          alpha(theme.palette.warning.main, 0.4),
                         border: "1px solid",
                         borderColor: "divider",
                       }}
                     />
-                    担任の先生と保護者の面談できない時間
+                    担任または保護者の希望外の時間（割り当ては可能）
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <DescriptionIcon
@@ -672,7 +680,7 @@ export default function MeetingSlotPage() {
                             height: 14,
                             borderRadius: 0.5,
                             backgroundColor: (theme) =>
-                              alpha(theme.palette.error.main, 0.4),
+                              alpha(theme.palette.warning.main, 0.4),
                             border: "1px solid",
                             borderColor: "divider",
                           }}
@@ -706,64 +714,87 @@ export default function MeetingSlotPage() {
                     sx={{ ml: 1 }}
                   />
                 </Box>
-                {unassignedChildren.length !== 0 && (
+                {assignCount === 0 ? (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    まだ割り当てされていません
+                  </Typography>
+                ) : unassignedChildren.length > 0 ? (
                   <Typography
                     variant="caption"
                     sx={{ color: "text.secondary" }}
                   >
                     自動で配置できなかった児童
                   </Typography>
-                )}
+                ) : null}
                 <Box sx={{ overflow: "auto", maxHeight: "520px" }}>
-                  {unassignedChildren.map((child) => (
-                    <Box
-                      key={child.id}
-                      sx={{
-                        border: "1px solid",
-                        borderColor: "error.light",
-                        p: 1,
-                        mb: 1,
-                        borderRadius: 1,
-                      }}
-                    >
-                      <Typography variant="body2">
-                        {child.child_name}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{ color: "text.secondary" }}
-                      >
-                        保護者：{child.family_name}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{ display: "block", color: "text.secondary" }}
-                      >
-                        {availabilityLabel(child)}
-                      </Typography>
+                  {assignCount !== 0 &&
+                    unassignedChildren.map((child) => (
                       <Box
+                        key={child.id}
                         sx={{
-                          mt: 1,
-                          p: 0.5,
+                          border: "1px solid",
+                          borderColor: "error.light",
+                          p: 1,
+                          mb: 1,
                           borderRadius: 1,
-                          backgroundColor: "#fff4e5",
                         }}
                       >
-                        <Typography
-                          variant="caption"
-                          sx={{ display: "block", color: "warning.dark" }}
-                        >
-                          ⚠希望の枠は埋まっています
+                        <Typography variant="body2">
+                          {child.child_name}
                         </Typography>
                         <Typography
                           variant="caption"
-                          sx={{ display: "block", color: "warning.dark" }}
+                          sx={{ color: "text.secondary" }}
                         >
-                          保護者へ電話で確認しましょう
+                          保護者：{child.family_name}
                         </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ display: "block", color: "text.secondary" }}
+                        >
+                          {availabilityLabel(child)}
+                        </Typography>
+
+                        <Box
+                          sx={{
+                            mt: 1,
+                            p: 0.5,
+                            borderRadius: 1,
+                            backgroundColor: (theme) =>
+                              hasOpenSlot(child)
+                                ? alpha(theme.palette.success.main, 0.1)
+                                : alpha(theme.palette.warning.main, 0.1),
+                          }}
+                        >
+                          {hasOpenSlot(child) ? (
+                            <Typography
+                              variant="caption"
+                              sx={{ display: "block", color: "success.dark" }}
+                            >
+                              ✅希望の枠が空いています。面談表から割り当ててください
+                            </Typography>
+                          ) : (
+                            <>
+                              <Typography
+                                variant="caption"
+                                sx={{ display: "block", color: "warning.dark" }}
+                              >
+                                ⚠希望の枠は埋まっています
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{ display: "block", color: "warning.dark" }}
+                              >
+                                保護者へ電話で確認しましょう
+                              </Typography>
+                            </>
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
+                    ))}
                 </Box>
               </Box>
               <Box>
@@ -875,9 +906,9 @@ export default function MeetingSlotPage() {
                               isFrom
                                 ? alpha(theme.palette.primary.main, 0.2) // 移動元
                                 : isUnavailable
-                                  ? alpha(theme.palette.error.main, 0.15) // 保護者面談不可日
+                                  ? alpha(theme.palette.warning.main, 0.15) // 保護者面談不可日
                                   : isTeacherUnavailable
-                                    ? alpha(theme.palette.error.main, 0.15) // 教師面談不可日
+                                    ? alpha(theme.palette.warning.main, 0.15) // 教師面談不可日
                                     : isHighlighted
                                       ? alpha(theme.palette.success.light, 0.4) // 変更決定後のハイライト
                                       : "transparent", // 通常
@@ -924,7 +955,7 @@ export default function MeetingSlotPage() {
                             borderColor: isFrom
                               ? "primary.main"
                               : isTo
-                                ? "error.main"
+                                ? "warning.main"
                                 : "divider",
                           }}
                         >
@@ -1370,7 +1401,7 @@ export default function MeetingSlotPage() {
                                               drawerData.unavailable_start_at.includes(
                                                 cell?.start_at,
                                               )
-                                                ? "error.light"
+                                                ? "warning.light"
                                                 : cell?.status === "reserved"
                                                   ? "grey.300"
                                                   : cell?.status === "blocked"
@@ -1508,7 +1539,7 @@ export default function MeetingSlotPage() {
                                                     drawerData.unavailable_start_at.includes(
                                                       cell?.start_at,
                                                     )
-                                                      ? "error.light"
+                                                      ? "warning.light"
                                                       : cell?.status ===
                                                           "reserved"
                                                         ? "grey.300"

@@ -68,6 +68,16 @@ export default function LandingPage() {
     }
   }, [redirectTo]);
 
+  //ファーストビューの簡略ワークフロー
+  const simpleWorkflows = [
+    { number: "1", role: "担任", color: "primary.main" },
+    { number: "2", role: "保護者", color: "#d18a94" },
+    { number: "3", role: "教頭", color: "success.main" },
+    { number: "4", role: "担任", color: "primary.main" },
+    { number: "5", role: "教頭", color: "success.main" },
+    { number: "6", role: "保護者", color: "#d18a94" },
+  ];
+
   // このアプリのワークフロー
   const workflows = [
     {
@@ -90,7 +100,7 @@ export default function LandingPage() {
       image: "/images/workflows/family_availability.webp",
       description: "都合のいい日時を選んで提出します。",
       path: "/family_unavailabilities",
-      button_label: "保護者画面を見る",
+      button_label: "保護者の画面を見る",
     },
     {
       number: "3",
@@ -101,7 +111,7 @@ export default function LandingPage() {
       image: "/images/workflows/admin_assignment.webp",
       description: "希望と条件から面談日時を自動で決めます。",
       path: "/admin?tab=1",
-      button_label: "教頭先生画面を見る",
+      button_label: "教頭先生の画面を見る",
     },
     {
       number: "4",
@@ -123,7 +133,7 @@ export default function LandingPage() {
       image: "/images/workflows/admin_mailer.webp",
       description: "決まった面談日時をメールで知らせます。",
       path: "/admin?tab=2",
-      button_label: "教頭先生画面を見る",
+      button_label: "教頭先生の画面を見る",
     },
     {
       number: "6",
@@ -134,7 +144,7 @@ export default function LandingPage() {
       image: "/images/workflows/family_schedule.webp",
       description: "決まった面談日時をマイページで確認します。",
       path: "/my_schedule",
-      button_label: "保護者画面を見る",
+      button_label: "保護者の画面を見る",
     },
   ];
 
@@ -169,29 +179,28 @@ export default function LandingPage() {
   const steps = [
     {
       image: "/images/tsunagu-logic/group-family.webp",
-      title: "兄弟を1家庭にまとめる",
-      description: "兄弟がいる児童は、保護者の来校が1回で済むようまとめます",
+      title: "兄弟を1家庭に\nまとめる",
+      description: "来校1回で済むよう、同日に続けて組みます",
     },
     {
       image: "/images/tsunagu-logic/priority.webp",
       title: "調整困難な家庭を優先",
-      description: "兄弟が多い・支援学級に通う家庭ほど優先度を高くします",
+      description: "兄弟が多い・支援学級の家庭から決めます",
     },
     {
       image: "/images/tsunagu-logic/reserch.webp",
-      title: "条件に合う空き枠を探す",
-      description:
-        "保護者の都合の悪い日時や担任の先生の出張日を避けて、探します",
+      title: "条件に合う\n空き枠を探す",
+      description: "保護者と先生の都合が悪い日時を避けます",
     },
     {
       image: "/images/tsunagu-logic/assignment.webp",
       title: "空き枠に自動で配置",
-      description: "見つかった枠に、1家庭ずつ自動で入れていきます",
+      description: "見つかった枠に、1家庭ずつ入れます",
     },
     {
       image: "/images/tsunagu-logic/manual-assignment.webp",
-      title: "入らなかった家庭を確認",
-      description: "入らなかった家庭は「未割り当て」から手動で配置",
+      title: "入らなかった\n家庭を確認",
+      description: "面談表から、先生が手で配置します",
     },
   ];
 
@@ -269,6 +278,45 @@ export default function LandingPage() {
     );
   }
 
+  const numberCircleSx = {
+    width: 40,
+    height: 40,
+    color: "common.white",
+    borderRadius: "50%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+    fontWeight: "bold",
+  };
+  const demoStarttButton = (
+    <Button
+      size="large"
+      variant="contained"
+      disabled={isLoading}
+      startIcon={
+        isLoading ? <CircularProgress size={20} /> : <PlayCircleIcon />
+      }
+      sx={{
+        px: 10, // 左右の余白
+        py: 2,
+        fontSize: 18,
+        fontWeight: "bold",
+        minWidth: 400,
+      }}
+      onClick={() => {
+        handleSubmit(
+          "aoki@example.com",
+          "password",
+          "/teacher_unavailabilities",
+          true,
+        );
+      }}
+    >
+      {isLoading ? "準備しています…" : "デモを体験する（約5分）"}
+    </Button>
+  );
+
   return (
     <>
       <Container maxWidth="lg">
@@ -290,7 +338,7 @@ export default function LandingPage() {
           }}
         >
           {/* ヒーロー見出し */}
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <Typography
               variant="caption"
               sx={{
@@ -327,43 +375,50 @@ export default function LandingPage() {
                 兄弟や支援学級の児童がいる家庭も、同じ日にまとめます
               </Typography>
             </Box>
-            <Box>
-              <Button
-                size="large"
-                variant="contained"
-                disabled={isLoading}
-                startIcon={
-                  isLoading ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    <PlayCircleIcon />
-                  )
-                }
-                sx={{
-                  px: 10, // 左右の余白
-                  py: 2,
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  minWidth: 360,
-                }}
-                onClick={() => {
-                  handleSubmit(
-                    "aoki@example.com",
-                    "password",
-                    "/teacher_unavailabilities",
-                    true,
-                  );
-                }}
-              >
-                {isLoading ? "準備しています…" : "デモを体験する"}
-              </Button>
-              <Typography
-                variant="body2"
-                sx={{ mt: 1.5, color: "text.secondary" }}
-              >
-                登録不要。担任の先生・保護者・教頭先生の画面をそのまま操作できます。
-              </Typography>
+            <Box>{demoStarttButton}</Box>
+            <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+              {simpleWorkflows.map((simpleWorkflow, index) => {
+                const isLast = index === simpleWorkflows.length - 1;
+                return (
+                  <Box
+                    key={index}
+                    sx={{ display: "flex", alignItems: "flex-start" }}
+                  >
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          ...numberCircleSx,
+                          bgcolor: simpleWorkflow.color,
+                        }}
+                      >
+                        {simpleWorkflow.number}
+                      </Box>
+                      <Typography sx={{ whiteSpace: "nowrap" }}>
+                        {simpleWorkflow.role}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ mt: "10px", ml: 2 }}>
+                      {!isLast && <FlowArrow />}
+                    </Box>
+                  </Box>
+                );
+              })}
             </Box>
+            <Typography
+              variant="body2"
+              sx={{ mt: 1.5, color: "text.secondary" }}
+            >
+              担任の先生・保護者・教頭先生の立場を切り替えながら
+              <br />
+              6ステップで日程が決まるまでを体験できます。
+            </Typography>
           </Box>
 
           {/* 兄弟連続画像 */}
@@ -402,7 +457,7 @@ export default function LandingPage() {
                 Tsunaguで面談日程が決まるまで
               </Typography>
               <Typography variant="body2" sx={{ px: 3 }}>
-                担任の先生・保護者が情報を入力し、教頭先生が自動割り当て
+                デモでは、この6ステップを順番に体験できます。
               </Typography>
             </Box>
             <Box
@@ -442,16 +497,8 @@ export default function LandingPage() {
                       >
                         <Box
                           sx={{
-                            width: 40,
-                            height: 40,
+                            ...numberCircleSx,
                             backgroundColor: workflow.color,
-                            color: "common.white",
-                            borderRadius: "50%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexShrink: 0,
-                            fontWeight: "bold",
                           }}
                         >
                           {workflow.number}
@@ -489,16 +536,17 @@ export default function LandingPage() {
                         {workflow.description}
                       </Typography>
                       <Button
-                        variant="contained"
+                        variant="outlined"
                         sx={{
                           fontSize: fontSizes.body,
                           fontWeight: "bold",
                           p: 1,
                           minWidth: 250,
-                          backgroundColor: workflow.color,
+                          color: workflow.color,
+                          borderColor: workflow.color,
                           "&:hover": {
-                            backgroundColor: workflow.color,
-                            filter: "brightness(0.9)",
+                            borderColor: workflow.color,
+                            backgroundColor: "action.hover",
                           },
                           mt: "auto",
                         }}
@@ -510,7 +558,7 @@ export default function LandingPage() {
                           )
                         }
                       >
-                        {workflow.button_label}
+                        この画面を見る
                       </Button>
                     </Paper>
                     {/* 矢印 */}
@@ -535,83 +583,87 @@ export default function LandingPage() {
                 );
               })}
             </Box>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+              {demoStarttButton}
+            </Box>
           </Box>
         </Box>
 
         {/* 学校現場では、こんな調節が必要です */}
-        <Paper sx={{ p: 3, mb: 5 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              flex: 1,
-              height: "auto",
-              p: 3,
-              borderRadius: 5,
-            }}
-          >
+        <Box sx={{ p: 3, mb: 5 }}>
+          <Paper elevation={4}>
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                px: 3,
-              }}
-            >
-              <Typography variant="h4">
-                学校現場では、こんな調整が必要です
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                gap: 2,
+                flex: 1,
+                height: "auto",
                 p: 3,
-                alignItems: "center",
+                borderRadius: 5,
               }}
             >
-              {teacherProblems.map((problem, index) => {
-                return (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      minHeight: 200,
-                      flex: 1,
-                      borderRadius: 5,
-                      p: 2,
-                      gap: 2,
-                      backgroundColor: "#d6e4f0",
-                    }}
-                  >
-                    <Typography variant="h6" sx={{ textAlign: "center" }}>
-                      {problem.title}
-                    </Typography>
-
-                    <Image
-                      src={problem.image}
-                      alt={problem.title}
-                      width={300}
-                      height={300}
-                      style={{
-                        borderRadius: 10,
-                        width: "80%",
-                        height: "auto",
-                        aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  px: 3,
+                }}
+              >
+                <Typography variant="h4">
+                  学校現場では、こんな調整が必要です
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                  p: 3,
+                  alignItems: "center",
+                }}
+              >
+                {teacherProblems.map((problem, index) => {
+                  return (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        minHeight: 200,
+                        flex: 1,
+                        borderRadius: 5,
+                        p: 2,
+                        gap: 2,
+                        backgroundColor: "#d6e4f0",
                       }}
-                    />
-                    <Typography sx={{ textAlign: "center", width: 200 }}>
-                      {problem.description}
-                    </Typography>
-                  </Box>
-                );
-              })}
+                    >
+                      <Typography variant="h6" sx={{ textAlign: "center" }}>
+                        {problem.title}
+                      </Typography>
+
+                      <Image
+                        src={problem.image}
+                        alt={problem.title}
+                        width={300}
+                        height={300}
+                        style={{
+                          borderRadius: 10,
+                          width: "80%",
+                          height: "auto",
+                          aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
+                        }}
+                      />
+                      <Typography sx={{ textAlign: "center", width: 200 }}>
+                        {problem.description}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
             </Box>
-          </Box>
-        </Paper>
+          </Paper>
+        </Box>
 
         {/* tsunaguの割り当てロジックフロー */}
         <Box sx={{ p: 3, mb: 5 }}>
@@ -626,7 +678,7 @@ export default function LandingPage() {
               height: "auto",
             }}
           >
-            <Box>
+            <Box sx={{ px: 3 }}>
               <Typography
                 variant="h4"
                 sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
@@ -686,7 +738,10 @@ export default function LandingPage() {
 
                       <Typography
                         variant="h6"
-                        sx={{ fontSize: fontSizes.caption }}
+                        sx={{
+                          fontSize: fontSizes.caption,
+                          whiteSpace: "pre-line",
+                        }}
                       >
                         {step.title}
                       </Typography>
@@ -710,7 +765,7 @@ export default function LandingPage() {
         <Box sx={{ p: 3, mb: 5 }}>
           <Paper elevation={4} sx={{ p: 2 }}>
             <Typography variant="h4" sx={{ px: 3 }}>
-              担任の先生の空き状況と保護者の希望から、教頭先生が児童の面談日をつくります。
+              担任と保護者の都合から、教頭先生が日程をつくります。
             </Typography>
             <Box
               sx={{
@@ -781,17 +836,18 @@ export default function LandingPage() {
               borderRadius: 5,
               display: "flex",
               p: 3,
+
               flexDirection: "column",
               backgroundColor: "#d6e4f0",
             }}
           >
             <Typography
               variant="h4"
-              sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+              sx={{ px: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
             >
               実際に出力されるもの
             </Typography>
-            <Typography>※表示内容は例です</Typography>
+            <Typography sx={{ px: 3 }}>※表示内容は例です</Typography>
             <Box
               sx={{
                 display: "flex",
@@ -873,51 +929,56 @@ export default function LandingPage() {
         </Box>
 
         {/* なぜTsunaguを作ったのか */}
-        <Paper sx={{ p: 3, mb: 5 }}>
-          <Box
-            component="section"
-            sx={{
-              p: 4,
+        <Box sx={{ p: 3, mb: 5 }}>
+          <Paper elevation={4} sx={{ p: 2 }}>
+            <Box
+              component="section"
+              sx={{
+                p: 4,
 
-              display: "flex",
-              borderRadius: 5,
-            }}
-          >
-            <Box sx={{ flex: 2 }}>
-              <Typography
-                variant="h4"
-                sx={{ mb: 2, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
-              >
-                なぜTsunaguを作ったのか
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  maxWidth: 700,
-                  lineHeight: 2,
-                  color: "text.secondary",
-                  mb: 3,
-                  fontSize: fontSizes.caption,
-                }}
-              >
-                教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。
-                Googleフォームなどを使う学校もありますが、兄弟の連続配置や特別支援学級への配慮といった
-                学校特有の条件までは対応しきれていないのが実情です。
-                <br />
-                <br />
-                調整に追われる時間を減らし、本来の子どもと向き合う時間を確保するために、Tsunaguを開発しました。
-              </Typography>
+                display: "flex",
+                borderRadius: 5,
+              }}
+            >
+              <Box sx={{ flex: 2 }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    mb: 2,
+                    fontSize: { xs: "20px", sm: "26px", md: "34px" },
+                  }}
+                >
+                  なぜTsunaguを作ったのか
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    maxWidth: 700,
+                    lineHeight: 2,
+                    color: "text.secondary",
+                    mb: 3,
+                    fontSize: fontSizes.caption,
+                  }}
+                >
+                  教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。
+                  Googleフォームなどを使う学校もありますが、兄弟の連続配置や特別支援学級への配慮といった
+                  学校特有の条件までは対応しきれていないのが実情です。
+                  <br />
+                  <br />
+                  調整に追われる時間を減らし、本来の子どもと向き合う時間を確保するために、Tsunaguを開発しました。
+                </Typography>
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Image
+                  src="/images/teacher-picture.webp"
+                  alt="調整に追われる時間から、子どもと向き合う時間へ"
+                  width={600}
+                  height={500}
+                />
+              </Box>
             </Box>
-            <Box sx={{ flex: 1 }}>
-              <Image
-                src="/images/teacher-picture.webp"
-                alt="調整に追われる時間から、子どもと向き合う時間へ"
-                width={600}
-                height={500}
-              />
-            </Box>
-          </Box>
-        </Paper>
+          </Paper>
+        </Box>
       </Container>
     </>
   );
