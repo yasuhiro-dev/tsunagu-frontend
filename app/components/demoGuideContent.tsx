@@ -14,7 +14,9 @@ export type DemoPage =
   | "assignment_notification"
   | "admin_mail_send"
   | "my_schedule"
-  | "assignment_before";
+  | "assignment_before"
+  | "my_schedule_before_submit"
+  | "my_schedule_before_assign";
 
 export type DemoGuideContent = {
   title: string;
@@ -83,7 +85,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
         ② 画面の一番下にある<ButtonName>上記の内容で提出する</ButtonName>を押す
       </>,
     ],
-    note: "※提出後は変更できません。",
+    note: "※6枠以上選んでおくと、面談日時が決まりやすくなります（デモは2つでOK）",
     buttonLabel: "やってみる",
   },
 
@@ -202,5 +204,37 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     ],
     note: "※これでデモは終わりです。お試しいただきありがとうございました。",
     buttonLabel: "確認する",
+  },
+  // 保護者がまだ日時を提出していない
+  my_schedule_before_submit: {
+    title: "面談日時の決定前",
+    chip: "保護者の画面です",
+    color: "#d18a94",
+    heading: "まだ面談日時が決まっていません",
+    purpose:
+      "学校が面談日時を決めると、この画面に表示されます。\nまだ来校できる日時を提出していません。",
+    steps: [
+      <>①来校できる日時を提出すると、その中から面談日時が決まります。</>,
+      <>②締切までに提出しなかった場合は、学校が日時を決めます。</>,
+    ],
+    buttonLabel: "来校できる日時を提出する",
+    buttonUrl: "/family_unavailabilities",
+    nextDemoRole: "parent",
+    buttonCancel: "このまま見る",
+  },
+
+  // 提出は済んでいて、割り当てがまだ
+  my_schedule_before_assign: {
+    title: "面談日時の決定前",
+    chip: "保護者の画面です",
+    color: "#d18a94",
+    heading: "まだ面談日時が決まっていません",
+    purpose:
+      "日時の提出は完了しています。学校（教頭先生）が日程を決めると、\nここに表示されます。",
+    steps: [],
+    buttonLabel: "教頭先生の画面で日程を決める",
+    buttonUrl: "/admin?tab=1",
+    nextDemoRole: "admin",
+    buttonCancel: "このまま見る",
   },
 };

@@ -40,28 +40,29 @@ export default function UnavailabilityCard({
 }: UnavailabilityCardProps) {
   return (
     <Box sx={{ flex: 1, textAlign: "center" }}>
-      <Box sx={{ display: "flex", gap: 2, p: 2, justifyContent: "center" }}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => onSelectAll(dateSlots)}
-        >
-          全て可能
-        </Button>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => onClearAll(dateSlots)}
-        >
-          全て不可
-        </Button>
-      </Box>
       <Card
         sx={{
+          mt: 2,
           boxShadow: 3,
           borderRadius: 2,
         }}
       >
+        <Box sx={{ display: "flex", gap: 2, p: 2, justifyContent: "center" }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => onSelectAll(dateSlots)}
+          >
+            全て可能
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => onClearAll(dateSlots)}
+          >
+            全て不可
+          </Button>
+        </Box>
         <CardContent>
           <Typography
             variant="h6"
