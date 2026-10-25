@@ -182,10 +182,10 @@ export default function MeetingSlotPage() {
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 3 }}>
           <Typography>
-            出張などで面談できない日時の「×」を押してください
+            出張などで対応できない時間の『× 対応できない』を押してください
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            ※保護者の面談が決まっている枠は、面談不可にできません
+            ※保護者の面談が決まっている枠は、『対応できない』にできません
           </Typography>
         </Box>
 
@@ -202,14 +202,18 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              borderRight: { xs: 0, md: 1 },
-              borderBottom: { xs: 1, md: 0 },
+              borderStyle: "solid",
+              borderWidth: 0,
+              borderRightWidth: { xs: 0, md: 1 },
+              borderBottomWidth: { xs: 1, md: 0 },
               borderColor: "divider",
             }}
           >
-            <Typography variant="body1">このクラスの児童数</Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              このクラスの児童数
+            </Typography>
             <Typography variant="h5" sx={{ color: "primary.main" }}>
-              {requiredSlots}件
+              {requiredSlots}人
             </Typography>
             <Typography variant="body2">面談が必要な人数です</Typography>
           </Box>
@@ -221,14 +225,18 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              borderRight: { xs: 0, md: 1 },
-              borderBottom: { xs: 1, md: 0 },
+              borderStyle: "solid",
+              borderWidth: 0,
+              borderRightWidth: { xs: 0, md: 1 },
+              borderBottomWidth: { xs: 1, md: 0 },
               borderColor: "divider",
             }}
           >
-            <Typography variant="body1">現在の空き枠</Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              現在の空き枠
+            </Typography>
             <Typography variant="h5" sx={{ color: "primary.main" }}>
-              {availableCount}件
+              {availableCount}枠
             </Typography>
 
             <Typography variant="body2">まだ割り当て可能な枠です</Typography>
@@ -236,27 +244,16 @@ export default function MeetingSlotPage() {
           <Box sx={{ display: "flex", flex: 3 }}>
             <Box
               sx={{
-                flex: 1.5,
+                flex: 1,
                 p: 2,
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
               }}
             >
-              <Typography variant="body1">枠の充足率</Typography>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 2, flex: 1 }}
-              >
-                <LinearProgress
-                  variant="determinate"
-                  value={fulfillmentRate}
-                  color={isShortage ? "error" : "success"}
-                  sx={{ flex: 1 }}
-                />
-                <Typography variant="h6">
-                  {Math.floor(fulfillmentRate)}%
-                </Typography>
-              </Box>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                枠の過不足
+              </Typography>
 
               <Typography variant="body2">
                 {remainSlots >= 0 ? (
@@ -265,19 +262,20 @@ export default function MeetingSlotPage() {
                     <Box
                       component="span"
                       sx={{
-                        fontSize: 14,
+                        fontSize: 24,
                         fontWeight: "bold",
                         color: "primary.main",
                       }}
                     >
                       {" "}
-                      {requiredSlots}件{" "}
+                      {requiredSlots}枠{" "}
                     </Box>
-                    に対して、あと
+                    に対して、
+                    <br /> あと
                     <Box
                       component="span"
                       sx={{
-                        fontSize: 14,
+                        fontSize: 24,
                         fontWeight: "bold",
                         color: "primary.main",
                       }}
@@ -293,19 +291,20 @@ export default function MeetingSlotPage() {
                     <Box
                       component="span"
                       sx={{
-                        fontSize: 14,
+                        fontSize: 24,
                         fontWeight: "bold",
                         color: "primary.main",
                       }}
                     >
                       {" "}
-                      {requiredSlots}件{" "}
+                      {requiredSlots}枠{" "}
                     </Box>
                     に対して、
+                    <br />
                     <Box
                       component="span"
                       sx={{
-                        fontSize: 14,
+                        fontSize: 24,
                         fontWeight: "bold",
                         color: "primary.main",
                       }}
@@ -325,6 +324,7 @@ export default function MeetingSlotPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                textAlign: "center",
               }}
             >
               <Box

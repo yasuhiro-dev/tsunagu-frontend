@@ -47,6 +47,9 @@ export default function AssignmentNotification() {
   const [allUserCount, setAllUserCount] = useState(0);
   const [unLinkedTeacher, setUnLinkedTeacher] = useState<UnLinkedTeacher[]>([]);
   const [unLinkedUser, setUnLinkedUser] = useState<UnLinkedUser[]>([]);
+  const [demoUser, setDemoUser] = useState(false);
+  const [mailSubject, setMailSubject] = useState("");
+  const [mailBody, setMailBody] = useState<string[]>([]);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [requested, setRequested] = useState(false);
@@ -123,6 +126,9 @@ export default function AssignmentNotification() {
     setUnLinkedTeacher(data.unlinked_teachers ?? []); //未連携教師
     setAllUserCount(data.all_user_count ?? 0); //全ユーザーの数
     setUnLinkedUser(data.unnotified_details ?? []); //未送信ユーザー詳細
+    setDemoUser(data.demo_mode ?? false); //デモデータか判定
+    setMailSubject(data.mail_subject ?? "");
+    setMailBody(data.mail_body ?? []);
 
     return data.unnotified_count; //関数のfetchNotificationStatusが未送信件数の最新版を受け取れる
   };
@@ -177,7 +183,7 @@ export default function AssignmentNotification() {
               {isDone && <NextStepButton page="assignment_notification" />}
             </Box>
 
-            <Typography>
+            <Typography variant="body2">
               確定した面談日程を、保護者へメールでお知らせします。
               <br />
               面談表を調整した後に、内容を確認してから送信してください
@@ -224,10 +230,14 @@ export default function AssignmentNotification() {
             ) : isDone ? (
               <>
                 <Typography variant="h6">
-                  保護者へのメール送信が完了しました
+                  {demoUser
+                    ? "送信の流れを体験しました"
+                    : "保護者へのメール送信が完了しました"}
                 </Typography>
-                <Typography>
-                  すべての保護者に面談日程のメールを送信しました。
+                <Typography variant="body2">
+                  {demoUser
+                    ? "本番では、この時点で全保護者に面談日程のメールが届きます。"
+                    : "すべての保護者に面談日程のメールを送信しました。"}
                 </Typography>
               </>
             ) : (
@@ -316,13 +326,66 @@ export default function AssignmentNotification() {
         <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)}>
           <DialogTitle>保護者に届くメールの例</DialogTitle>
           <DialogContent>
-            <Image
-              src="/images/gmail-response.png"
-              alt="保護者に届く面談日程のご案内メールの例"
-              width={842}
-              height={951}
-              style={{ width: "100%", height: "auto" }}
-            />
+            {mailBody.length === 0 ? (
+              <Typography>
+                面談の割り当て後に、ここに届くメールの例が表示されます。
+              </Typography>
+            ) : (
+              <Box>
+                {mailBody.map((body, index) => (
+                  <Box key={index} sx={{ p: 2 }}>
+                    {mailBody.length >= 2 && (
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: "bold", mb: 1 }}
+                      >
+                        {index + 1}通目
+                      </Typography>
+                    )}
+                    {/* メールの枠 */}
+                    <Box
+                      sx={{
+                        border: 1,
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        overflow: "hidden",
+                      }}
+                    >
+                      {/* ① ヘッダー：グレー */}
+                      <Box
+                        sx={{
+                          backgroundColor: "grey.100",
+                          p: 2,
+                          borderBottom: 1,
+                          borderColor: "divider",
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          差出人：担任の先生のGmail
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          宛先：保護者
+                        </Typography>
+                        <Typography sx={{ fontWeight: "bold", mt: 1 }}>
+                          {mailSubject}
+                        </Typography>
+                      </Box>
+                      {/* ① 本文：白、③ 余白はここだけ */}
+                      <Typography
+                        sx={{
+                          whiteSpace: "pre-wrap",
+                          fontSize: 14,
+                          lineHeight: 1.8,
+                          p: 2,
+                        }}
+                      >
+                        {body}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </DialogContent>
           <DialogActions>
             <Button variant="contained" onClick={() => setPreviewOpen(false)}>
@@ -331,8 +394,15 @@ export default function AssignmentNotification() {
           </DialogActions>
         </Dialog>
 
-        <Paper sx={{ display: "flex", flexDirection: "column", p: 2, gap: 2 }}>
-          <Typography variant="h5">メール通知の状況</Typography>
+        <Paper sx={{ display: "flex", flexDirection: "column", p: 4, gap: 2 }}>
+          <Typography variant="h6">メール通知の状況</Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ minWidth: 150 }}
+          >
+            特別支援学級の面談を含むため、児童数より多くなる場合があります。
+          </Typography>
           <Box
             sx={{
               display: "flex",
@@ -344,7 +414,7 @@ export default function AssignmentNotification() {
                 display: "flex",
                 flexDirection: "column",
                 flex: 1,
-                alignItems: "center",
+                alignItems: { xs: "center", md: "flex-start" },
                 justifyContent: "center",
                 // スマホはカードが縦に積まれて300pxを超えるため、高さ制限はPCのみ
                 maxHeight: { md: 300 },
@@ -407,13 +477,6 @@ export default function AssignmentNotification() {
                   <Typography variant="h6">{allUserCount}件</Typography>
                 </Paper>
               </Box>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ minWidth: 150 }}
-              >
-                特別支援学級の面談を含むため、児童数より多くなる場合があります。
-              </Typography>
             </Box>
 
             <Paper
@@ -427,39 +490,58 @@ export default function AssignmentNotification() {
                 flex: 1,
               }}
             >
-              <Typography>
-                Google未連携の先生 {unLinkedTeacherCount}名
-              </Typography>
-
-              <Typography>
-                この先生が担当する家庭にはメールが送信できません。
-                <br /> 該当の先生にGoogle連携を依頼してください
-              </Typography>
-              <Box
-                sx={{
-                  maxHeight: 200,
-                  overflow: "auto",
-                  backgroundColor: "white",
-                  p: 2,
-                }}
-              >
-                {unLinkedTeacherCount === 0 ? (
-                  <Typography sx={{ color: "success.main" }}>
-                    ✓ すべての先生がGoogle連携済みです。このまま送信できます。
+              {!demoUser ? (
+                <>
+                  <Typography>
+                    Google未連携の先生 {unLinkedTeacherCount}名
                   </Typography>
-                ) : (
-                  unLinkedTeacher.map((teacher, index) => (
-                    <Box key={index} sx={{ display: "flex", mb: 2 }}>
-                      <Typography sx={{ flex: 1 }}>
-                        {teacher.class_room}
+
+                  <Typography>
+                    この先生が担当する家庭にはメールが送信できません。
+                    <br /> 該当の先生にGoogle連携を依頼してください
+                  </Typography>
+                  <Box
+                    sx={{
+                      maxHeight: 200,
+                      overflow: "auto",
+                      backgroundColor: "white",
+                      p: 2,
+                    }}
+                  >
+                    {unLinkedTeacherCount === 0 ? (
+                      <Typography sx={{ color: "success.main" }}>
+                        ✓
+                        すべての先生がGoogle連携済みです。このまま送信できます。
                       </Typography>
-                      <Typography sx={{ flex: 1 }}>
-                        {teacher.teacher_name}
-                      </Typography>
-                    </Box>
-                  ))
-                )}
-              </Box>
+                    ) : (
+                      unLinkedTeacher.map((teacher, index) => (
+                        <Box key={index} sx={{ display: "flex", mb: 2 }}>
+                          <Typography sx={{ flex: 1 }}>
+                            {teacher.class_room}
+                          </Typography>
+                          <Typography sx={{ flex: 1 }}>
+                            {teacher.teacher_name}
+                          </Typography>
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    Google連携の状況
+                  </Typography>
+                  <Typography variant="body2">
+                    本番では、各先生が自分のGoogleアカウントを連携し、担任のGmailから保護者へ送信します。
+                    <br />
+                    未連携の先生がいる場合は、ここに一覧で表示されます。
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    ※デモ環境では、連携なしで送信を体験できます。
+                  </Typography>
+                </>
+              )}
             </Paper>
           </Box>
         </Paper>

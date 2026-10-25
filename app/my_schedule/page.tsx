@@ -226,7 +226,15 @@ export default function MySchedulePage() {
         <Typography variant="h5">
           {isConfirmed ? "決定のお知らせ" : waiting ? "調整中" : "提出のお願い"}
         </Typography>
-        <GuideHelp page="my_schedule" />
+        <GuideHelp
+          page={
+            assignment.length > 0
+              ? "my_schedule"
+              : submitted
+                ? "my_schedule_before_assign"
+                : "my_schedule_before_submit"
+          }
+        />
       </Box>
 
       {/* 面談決定までの過程を表示 */}
