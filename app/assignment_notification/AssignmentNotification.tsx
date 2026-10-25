@@ -10,7 +10,6 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -43,7 +42,6 @@ type UnLinkedUser = {
 
 export default function AssignmentNotification() {
   const router = useRouter();
-  const isMobile = useMediaQuery("(max-width:600px)");
   const [notifiedCount, setNotifiedCount] = useState(0);
   const [unNotified, setUnNotified] = useState(0);
   const [allUserCount, setAllUserCount] = useState(0);
@@ -148,7 +146,6 @@ export default function AssignmentNotification() {
         display: "flex",
         flexDirection: "column",
         p: 2,
-        maxWidth: isMobile ? "265px" : "100%",
         backgroundColor: "#ecf1f4ff",
       }}
     >
@@ -166,7 +163,13 @@ export default function AssignmentNotification() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+                justifyContent: "space-between",
+              }}
+            >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography variant="h6">保護者への通知</Typography>
                 <GuideHelp page="admin_mail_send" />
@@ -193,7 +196,14 @@ export default function AssignmentNotification() {
             <FlowStepper activeStep={4} />
           </Box>
         </Paper>
-        <Paper sx={{ display: "flex", gap: 2, p: 2 }}>
+        <Paper
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+            gap: 2,
+            p: 2,
+          }}
+        >
           {/* 左：説明 */}
           <Box
             sx={{
@@ -271,7 +281,7 @@ export default function AssignmentNotification() {
               gap: 1,
               p: 2,
               flex: 1,
-              minWidth: 300,
+              minWidth: { xs: 100, md: 300 },
             }}
           >
             <Button
@@ -280,7 +290,7 @@ export default function AssignmentNotification() {
               color="primary"
               onClick={handleClick}
               disabled={requested || isDone || unAvailable}
-              sx={{ p: 2, fontWeight: "bold", fontSize: 18 }}
+              sx={{ p: 2, fontWeight: "bold", fontSize: { xs: 12, md: 18 } }}
             >
               {isDone
                 ? "全て送信済みです"
@@ -323,7 +333,12 @@ export default function AssignmentNotification() {
 
         <Paper sx={{ display: "flex", flexDirection: "column", p: 2, gap: 2 }}>
           <Typography variant="h5">メール通知の状況</Typography>
-          <Box sx={{ display: "flex" }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "column", md: "row" },
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
@@ -331,10 +346,18 @@ export default function AssignmentNotification() {
                 flex: 1,
                 alignItems: "center",
                 justifyContent: "center",
-                maxHeight: 300,
+                // スマホはカードが縦に積まれて300pxを超えるため、高さ制限はPCのみ
+                maxHeight: { md: 300 },
               }}
             >
-              <Box sx={{ display: "flex", p: 2, gap: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "column", md: "row" },
+                  p: 2,
+                  gap: 2,
+                }}
+              >
                 <Paper
                   sx={{
                     minWidth: 150,

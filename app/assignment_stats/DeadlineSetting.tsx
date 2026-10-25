@@ -11,7 +11,6 @@ import dayjs from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import "dayjs/locale/ja";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -34,7 +33,6 @@ const settingMessages = {
 
 export default function DeadlineSetting({ scheduleId }: Props) {
   const router = useRouter();
-  const isMobile = useMediaQuery("(max-width:600px)");
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [editDeadLine, setEditDeadLine] = useState<null | string>(null);
@@ -105,7 +103,7 @@ export default function DeadlineSetting({ scheduleId }: Props) {
         display: "flex",
         flexDirection: "column",
         p: 2,
-        maxWidth: isMobile ? "265px" : "1000px",
+        maxWidth: "1000px",
         mx: "auto",
       }}
     >
@@ -133,7 +131,14 @@ export default function DeadlineSetting({ scheduleId }: Props) {
           </Typography>
         </Box>
         {/* カレンダーと設定の説明画面を横並び */}
-        <Box sx={{ display: "flex", alignItems: "stretch", gap: 5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: "stretch",
+            gap: { xs: 2, md: 5 },
+          }}
+        >
           <Box
             sx={{
               backgroundColor: "#e8f5ee",
@@ -176,7 +181,7 @@ export default function DeadlineSetting({ scheduleId }: Props) {
               onClick={updateEditDeadLine}
               variant="contained"
               color="primary"
-              sx={{ width: 300 }}
+              sx={{ width: { xs: "100%", md: 300 } }}
             >
               締切日を更新する
             </Button>

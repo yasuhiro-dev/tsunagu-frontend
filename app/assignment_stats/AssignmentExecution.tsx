@@ -150,7 +150,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         display: "flex",
         flexDirection: "column",
         p: 2,
-        maxWidth: isMobile ? "265px" : "100%",
+        maxWidth: "100%",
         backgroundColor: "#ecf1f4ff",
         width: "100%",
       }}
@@ -166,7 +166,13 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Paper sx={{ p: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+                justifyContent: "space-between",
+              }}
+            >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography variant="h6">面談の一括割り当て</Typography>
                 <GuideHelp page="admin_assignment" />
@@ -192,7 +198,13 @@ export default function AssignmentExecution({ scheduleId }: Props) {
             <FlowStepper activeStep={2} />
           </Box>
         </Paper>
-        <Paper sx={{ display: "flex", p: 2 }}>
+        <Paper
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+            p: 2,
+          }}
+        >
           {/* ボタン操作群 */}
           <Box
             sx={{
@@ -215,7 +227,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
           <Box
             sx={{
               display: "flex",
-              minWidth: 320,
+              minWidth: { xs: 100, md: 320 },
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
@@ -233,7 +245,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
               sx={{
                 p: 2,
                 fontWeight: "bold",
-                fontSize: 18,
+                fontSize: { xs: 12, md: 18 },
               }}
             >
               {isAssigning
@@ -257,29 +269,31 @@ export default function AssignmentExecution({ scheduleId }: Props) {
               </Typography>
               {hasResult ? (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                  <Typography>きょうだいがいる</Typography>
-                  <Box
-                    component="span"
-                    sx={{
-                      color: "primary.main",
-                      fontWeight: "bold",
-                      fontSize: 20,
-                    }}
-                  >
-                    {siblingAssignment.total}家庭
-                  </Box>
-                  のうち、
-                  <Box
-                    component="span"
-                    sx={{
-                      color: "primary.main",
-                      fontWeight: "bold",
-                      fontSize: 20,
-                    }}
-                  >
-                    {siblingAssignment.success}家庭
-                  </Box>
-                  の面談を同じ日に続けて組みました。
+                  <Typography>
+                    きょうだいがいる
+                    <Box
+                      component="span"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: "bold",
+                        fontSize: 20,
+                      }}
+                    >
+                      {siblingAssignment.total}家庭
+                    </Box>
+                    のうち、
+                    <Box
+                      component="span"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: "bold",
+                        fontSize: 20,
+                      }}
+                    >
+                      {siblingAssignment.success}家庭
+                    </Box>
+                    の面談を同じ日に続けて組みました。
+                  </Typography>
                 </Box>
               ) : (
                 <EmptyResult />
@@ -288,7 +302,13 @@ export default function AssignmentExecution({ scheduleId }: Props) {
           )}
         </Paper>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+            gap: 2,
+          }}
+        >
           {/* 全体割り当て進捗状況 */}
           <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>

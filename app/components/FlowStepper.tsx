@@ -9,6 +9,8 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import SchoolIcon from "@mui/icons-material/School";
 import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 type Props = {
   activeStep: number;
@@ -23,17 +25,30 @@ const steps = [
   { label: "保護者が確認", Icon: EventAvailableIcon },
 ];
 export default function FlowStepper({ activeStep }: Props) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   return (
-    <Stepper alternativeLabel activeStep={activeStep}>
+    <Stepper
+      activeStep={activeStep}
+      orientation={isMobile ? "vertical" : "horizontal"}
+      alternativeLabel={!isMobile}
+    >
       {steps.map((step, index) => {
         const isActive = activeStep === index;
         return (
           <Step key={index} completed={false}>
             <StepLabel>{step.label}</StepLabel>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+
+                justifyContent: "center",
+                mt: 1,
+              }}
+            >
               <step.Icon
                 sx={{
-                  fontSize: 30,
+                  fontSize: isMobile ? 22 : 30,
                   color: isActive ? "primary.main" : "text.disabled",
                 }}
               />

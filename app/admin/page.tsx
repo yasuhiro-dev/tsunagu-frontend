@@ -541,7 +541,7 @@ function AdminContent() {
         onClose={() => setAlertOpen(false)}
       />
 
-      <Paper sx={{ p: 3 }}>
+      <Paper sx={{ p: { xs: 1, md: 3 } }}>
         {/* サイドバー一覧 */}
         <Box sx={{ display: "flex" }}>
           <Box
@@ -609,14 +609,14 @@ function AdminContent() {
             </Button>
           </Box>
 
-          <Box sx={{ flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             {/* 面談の一括割り当て */}
             {tab === 1 && (
               <Box
                 sx={{
                   display: "flex",
                   gap: 2,
-                  p: 3,
+                  p: { xs: 1, md: 3 },
                   flexGrow: 1,
                   overflow: "auto",
                   flexDirection: "column",
@@ -634,7 +634,7 @@ function AdminContent() {
                   display: "flex",
                   flexGrow: 1,
                   gap: 2,
-                  p: 3,
+                  p: { xs: 1, md: 3 },
                   overflow: "auto",
                   flexDirection: "column",
                 }}
@@ -652,7 +652,7 @@ function AdminContent() {
                   flexGrow: 1,
                   display: "flex",
                   gap: 2,
-                  p: 3,
+                  p: { xs: 1, md: 3 },
                   overflow: "auto",
                   flexDirection: "column",
                 }}
@@ -664,7 +664,7 @@ function AdminContent() {
             )}
             {/* 教師一覧画面 */}
             {tab === 3 && (
-              <Box sx={{ p: 3 }}>
+              <Box sx={{ p: { xs: 1, md: 3 } }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -722,8 +722,8 @@ function AdminContent() {
                       }}
                     >
                       <Typography
+                        variant="caption"
                         sx={{
-                          width: 250,
                           visibility:
                             selectedTeacherIds.length === 0
                               ? "visible"
@@ -751,7 +751,7 @@ function AdminContent() {
                   sx={{
                     maxHeight: "calc(100vh - 400px)",
                     overflow: "auto",
-                    maxWidth: isMobile ? "265px" : "100",
+                    maxWidth: "100%",
                   }}
                 >
                   <Table>
@@ -860,7 +860,7 @@ function AdminContent() {
 
             {/* 保護者一覧 */}
             {tab === 4 && (
-              <Box sx={{ p: 3 }}>
+              <Box sx={{ p: { xs: 1, md: 3 } }}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Box sx={{ mb: 3 }}>
                     <Typography variant="h6">保護者一覧</Typography>
@@ -945,8 +945,8 @@ function AdminContent() {
                       }}
                     >
                       <Typography
+                        variant="caption"
                         sx={{
-                          width: 280,
                           visibility:
                             selectedParentIds.length === 0
                               ? "visible"
@@ -975,7 +975,7 @@ function AdminContent() {
                     maxHeight: "calc(100vh - 400px)",
 
                     overflow: "auto",
-                    maxWidth: isMobile ? "265px" : "100",
+                    maxWidth: "100%",
                   }}
                 >
                   <Table>
@@ -1145,7 +1145,7 @@ function AdminContent() {
                 >
                   <TextField
                     fullWidth
-                    label="担任の先生の名前"
+                    label="担任の名前"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />

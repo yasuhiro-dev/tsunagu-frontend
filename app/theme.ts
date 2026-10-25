@@ -52,6 +52,16 @@ export const theme = createTheme({
     },
   },
   components: {
+    // フッターを画面の一番下に置くため、bodyを縦並びにして高さを画面いっぱいにする
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          minHeight: "100dvh",
+          display: "flex",
+          flexDirection: "column",
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

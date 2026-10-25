@@ -346,60 +346,41 @@ export default function FamilyUnavailability() {
           <Stack spacing={1.5}>
             {slots.length > 0 && children.length >= 2 ? (
               <>
-                <Box
-                  sx={{
-                    display: "flex",
-                    gap: 1,
-                    alignItems: "center",
-                    fontSize: 20,
-                  }}
+                <Typography
+                  sx={{ fontSize: { xs: 15, md: 18 }, lineHeight: 1.8 }}
                 >
                   締切後、学校で
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      fontWeight: "bold",
-                    }}
-                  >
+                  <Box component="span" sx={{ fontWeight: "bold" }}>
                     {childrenText}
-                  </Typography>
+                  </Box>
                   の面談日時を決め、メールでお知らせします。
-                </Box>
+                </Typography>
                 <Stack spacing={1}>
                   <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
+                    sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}
                   >
                     <Chip
                       label="必須"
                       size="small"
                       color="primary"
-                      sx={{ fontSize: 10 }}
+                      sx={{ fontSize: 10, flexShrink: 0, mt: 0.5 }}
                     />
-                    <Box
-                      component="span"
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 1,
-                        fontSize: 15,
-                      }}
-                    >
-                      きょうだいの面談を続けて組むため、
-                      <Typography sx={{ fontWeight: "bold" }}>
-                        同じ日に続けて2つ以上
+                    <Box>
+                      <Typography sx={{ fontSize: 15, lineHeight: 1.8 }}>
+                        きょうだいの面談を続けて組むため、
+                        <Box component="span" sx={{ fontWeight: "bold" }}>
+                          同じ日に続けて2つ以上
+                        </Box>
+                        選んでください。
                       </Typography>
-                      選んでください。
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "text.secondary" }}
+                      >
+                        例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
+                        15:15〜15:30
+                      </Typography>
                     </Box>
-                    <Typography variant="caption">
-                      (例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
-                      15:15〜15:30)
-                    </Typography>
                   </Box>
                   <Box
                     sx={{

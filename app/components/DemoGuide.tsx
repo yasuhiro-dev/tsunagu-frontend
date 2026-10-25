@@ -30,7 +30,13 @@ export default function DemoGuide({ page, open, onClose }: Props) {
 
   return (
     <Dialog sx={{ p: 1, mb: 3 }} onClose={handleClose} open={open}>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "column", md: "row" },
+          alignItems: "center",
+        }}
+      >
         <DialogTitle variant="h5">{content.title}</DialogTitle>
 
         <Chip

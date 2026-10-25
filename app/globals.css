@@ -1,19 +1,23 @@
-@import "tailwindcss";
-
 :root {
-  --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 body {
   color: var(--foreground);
+}
+
+/* Tailwind撤去前の見た目を保つため、初期化CSS（preflight）の画像・アイコンの指定だけ引き継ぐ
+   preflightと同じく@layerに入れ、img要素のwidth/height属性やMUIの指定より弱くしておく */
+@layer base {
+  img,
+  svg {
+    vertical-align: middle;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
 }
 @media print {
   header {
