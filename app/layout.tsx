@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className={mPlusRounded1c.variable}>
-      <body className="min-h-dvh flex flex-col">
+      <body>
         <Providers>
           <Navbar />
           <main style={{ flex: 1 }}>{children}</main>

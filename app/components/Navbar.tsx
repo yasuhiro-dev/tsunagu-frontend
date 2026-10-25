@@ -263,14 +263,23 @@ export default function Navbar() {
         position="static"
         sx={{ backgroundColor: "#ffffff", color: "primary.main" }}
       >
-        <Toolbar>
-          <Box sx={{ p: 1, display: "flex", alignItems: "center" }}>
+        <Toolbar sx={{ px: { xs: 1, md: 2 } }}>
+          {/* flexShrink: 0 でロゴが潰されて隣のメニューと重なるのを防ぐ */}
+          <Box
+            sx={{
+              p: { xs: 0, md: 1 },
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+            }}
+          >
             <Button component={Link} href="/">
               <Image
                 src="/images/tsunagu4.png"
                 alt="Tsunagu"
                 width={70}
                 height={70}
+                style={{ width: isMobile ? 44 : 70, height: "auto" }}
               />
               <Typography variant="h6">Tsunagu</Typography>
             </Button>
@@ -333,10 +342,28 @@ export default function Navbar() {
               gap: 1,
             }}
           >
-            <Box sx={{ p: 1, display: "flex", alignItems: "center" }}>
-              <Button variant="contained" component={Link} href="/">
-                <Typography variant="body1">
-                  <HomeIcon />
+            <Box
+              sx={{
+                p: { xs: 0, md: 1 },
+                display: "flex",
+                flexDirection: { xs: "column", sm: "column", md: "row" },
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {/* スマホ幅ではアイコンだけにして、文字の折り返しを防ぐ */}
+              <Button
+                variant="contained"
+                component={Link}
+                href="/"
+                aria-label="トップページ"
+                sx={{ minWidth: { xs: 40, md: 64 }, whiteSpace: "nowrap" }}
+              >
+                <HomeIcon />
+                <Typography
+                  variant="body1"
+                  sx={{ display: { xs: "none", md: "inline" }, ml: 0.5 }}
+                >
                   トップページ
                 </Typography>
               </Button>
@@ -360,11 +387,11 @@ export default function Navbar() {
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 1,
-                  mr: 2,
+                  gap: { xs: 0.5, md: 1 },
+                  mr: { xs: 0, md: 2 },
                   cursor: "pointer",
                   borderRadius: 2,
-                  px: 1,
+                  px: { xs: 0.5, md: 1 },
                   py: 0.5,
                   "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
                 }}
@@ -372,7 +399,10 @@ export default function Navbar() {
                 <Typography
                   variant="body2"
                   color="inherit"
-                  sx={{ fontSize: { xs: "8px", sm: "10.5px", md: "14px" } }}
+                  sx={{
+                    fontSize: { xs: "12px", md: "14px" },
+                    whiteSpace: "nowrap", // 名前が縦書きのように折り返されるのを防ぐ
+                  }}
                 >
                   {role === "teacher"
                     ? `${name} 先生`

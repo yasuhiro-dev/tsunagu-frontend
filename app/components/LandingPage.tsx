@@ -250,10 +250,11 @@ export default function LandingPage() {
   const isMobile = useMediaQuery("(max-width:600px)");
 
   const fontSizes = {
-    subheading: { xs: "14px", sm: "18px", md: "24px" }, //タイトル
-    caption: { xs: "14px", sm: "14px", md: "18px" }, // サブタイトル・チェック項目文など
-    body: { xs: "13px", sm: "13px", md: "14px" }, // 比較表の説明文など
-    lead: { xs: "15px", sm: "15px", md: "14px" }, // 「なぜ作ったのか」本文
+    title: { xs: "24px", sm: "24px", md: "34px" }, //大きいタイトル　h4
+    subheading: { xs: "14px", sm: "18px", md: "20px" }, //ミニタイトル　h6
+    caption: { xs: "20px", sm: "20px", md: "24px" }, // サブタイトル・h5
+    body: { xs: "11px", sm: "11px", md: "14px" }, // body2
+    lead: { xs: "15px", sm: "15px", md: "16px" }, // 指定なし 16px
   };
 
   //矢印の見た目を事前に設定
@@ -270,7 +271,7 @@ export default function LandingPage() {
         <ArrowForwardIcon
           sx={{
             color: "text.secondary",
-            fontSize: 20,
+            fontSize: { xs: 8, sm: 8, md: 20 },
             transform: { xs: "rotate(90deg)", md: "none" },
           }}
         />
@@ -279,8 +280,8 @@ export default function LandingPage() {
   }
 
   const numberCircleSx = {
-    width: 40,
-    height: 40,
+    width: { xs: 30, md: 40 },
+    height: { xs: 30, md: 40 },
     color: "common.white",
     borderRadius: "50%",
     display: "flex",
@@ -298,11 +299,11 @@ export default function LandingPage() {
         isLoading ? <CircularProgress size={20} /> : <PlayCircleIcon />
       }
       sx={{
-        px: 10, // 左右の余白
+        px: { xs: 8, md: 10 },
         py: 2,
-        fontSize: 18,
+        fontSize: { xs: 10, md: 18 },
         fontWeight: "bold",
-        minWidth: 400,
+        minWidth: { xs: 280, md: 400 },
       }}
       onClick={() => {
         handleSubmit(
@@ -332,19 +333,27 @@ export default function LandingPage() {
           sx={{
             p: 4,
             display: "flex",
-            alignItems: "center",
+            minWidth: 0,
+            alignItems: { xs: "stretch", sm: "stretch", md: "center" },
             gap: 6,
             flexDirection: { xs: "column", sm: "column", md: "row" },
           }}
         >
           {/* ヒーロー見出し */}
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <Typography
               variant="caption"
               sx={{
                 color: "text.secondary",
                 mb: 1,
-                fontSize: fontSizes.caption,
+                fontSize: fontSizes.subheading,
               }}
             >
               先生のための面談日程調整サービス
@@ -366,8 +375,7 @@ export default function LandingPage() {
                 sx={{
                   color: "text.secondary",
                   lineHeight: 2,
-
-                  fontSize: { xs: "15px", sm: "15px", md: "18px" },
+                  fontSize: { xs: "11px", sm: "11px", md: "18px" },
                 }}
               >
                 保護者の希望を集めて、面談表を自動で作成
@@ -376,7 +384,16 @@ export default function LandingPage() {
               </Typography>
             </Box>
             <Box>{demoStarttButton}</Box>
-            <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
+            {/* 簡略化フロー */}
+            <Box
+              sx={{
+                gap: 1,
+                mt: 2,
+                display: { xs: "grid", md: "flex" },
+                gridTemplateColumns: { xs: "repeat(3, 1fr)" },
+                rowGap: { xs: 2 },
+              }}
+            >
               {simpleWorkflows.map((simpleWorkflow, index) => {
                 const isLast = index === simpleWorkflows.length - 1;
                 return (
@@ -400,11 +417,22 @@ export default function LandingPage() {
                       >
                         {simpleWorkflow.number}
                       </Box>
-                      <Typography sx={{ whiteSpace: "nowrap" }}>
+                      <Typography
+                        sx={{
+                          whiteSpace: "nowrap",
+                          minWidth: { xs: 70, md: 30 },
+                        }}
+                      >
                         {simpleWorkflow.role}
                       </Typography>
                     </Box>
-                    <Box sx={{ mt: "10px", ml: 2 }}>
+                    <Box
+                      sx={{
+                        mt: "10px",
+                        ml: 2,
+                        display: { xs: "none", md: "block" },
+                      }}
+                    >
                       {!isLast && <FlowArrow />}
                     </Box>
                   </Box>
@@ -413,7 +441,11 @@ export default function LandingPage() {
             </Box>
             <Typography
               variant="body2"
-              sx={{ mt: 1.5, color: "text.secondary" }}
+              sx={{
+                mt: 1.5,
+                color: "text.secondary",
+                fontSize: fontSizes.body,
+              }}
             >
               担任の先生・保護者・教頭先生の立場を切り替えながら
               <br />
@@ -453,17 +485,23 @@ export default function LandingPage() {
             }}
           >
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Typography variant="h4" sx={{ px: 3 }}>
+              <Typography
+                variant="h4"
+                sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
+              >
                 Tsunaguで面談日程が決まるまで
               </Typography>
-              <Typography variant="body2" sx={{ px: 3 }}>
+              <Typography
+                variant="body2"
+                sx={{ px: 3, fontSize: fontSizes.body }}
+              >
                 デモでは、この6ステップを順番に体験できます。
               </Typography>
             </Box>
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
+                gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
                 flexDirection: { xs: "column", sm: "column", md: "row" },
                 justifyContent: "center",
                 gap: 2,
@@ -505,7 +543,7 @@ export default function LandingPage() {
                         </Box>
                         <Chip
                           sx={{
-                            minWidth: 80,
+                            minWidth: { xs: 50, sm: 50, md: 80 },
                             backgroundColor: workflow.color,
                             color: "common.white",
                             fontWeight: "bold",
@@ -514,7 +552,12 @@ export default function LandingPage() {
                         />
                       </Box>
 
-                      <Typography variant="h6">{workflow.title}</Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{ fontSize: fontSizes.subheading }}
+                      >
+                        {workflow.title}
+                      </Typography>
                       <Box
                         sx={{
                           display: "flex",
@@ -609,14 +652,17 @@ export default function LandingPage() {
                   px: 3,
                 }}
               >
-                <Typography variant="h4">
+                <Typography
+                  variant="h4"
+                  sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+                >
                   学校現場では、こんな調整が必要です
                 </Typography>
               </Box>
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: "row",
+                  flexDirection: { xs: "column", sm: "column", md: "row" },
                   gap: 2,
                   p: 3,
                   alignItems: "center",
@@ -681,7 +727,7 @@ export default function LandingPage() {
             <Box sx={{ px: 3 }}>
               <Typography
                 variant="h4"
-                sx={{ fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
               >
                 Tsunaguが自動で解決します。
               </Typography>
@@ -739,7 +785,7 @@ export default function LandingPage() {
                       <Typography
                         variant="h6"
                         sx={{
-                          fontSize: fontSizes.caption,
+                          fontSize: fontSizes.subheading,
                           whiteSpace: "pre-line",
                         }}
                       >
@@ -747,7 +793,10 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: "text.secondary" }}
+                        sx={{
+                          color: "text.secondary",
+                          fomtSize: fontSizes.body,
+                        }}
                       >
                         {step.description}
                       </Typography>
@@ -764,7 +813,10 @@ export default function LandingPage() {
         {/* ３つのrole(役割)の説明 */}
         <Box sx={{ p: 3, mb: 5 }}>
           <Paper elevation={4} sx={{ p: 2 }}>
-            <Typography variant="h4" sx={{ px: 3 }}>
+            <Typography
+              variant="h4"
+              sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
+            >
               担任と保護者の都合から、教頭先生が日程をつくります。
             </Typography>
             <Box
@@ -792,17 +844,32 @@ export default function LandingPage() {
                       p: 2,
                     }}
                   >
-                    <Typography variant="h5" sx={{ color: role.circleColor }}>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        color: role.circleColor,
+                        fontSize: fontSizes.caption,
+                      }}
+                    >
                       {role.title}
                     </Typography>
-                    <Typography>{role.description}</Typography>
-                    <Image
-                      src={role.image}
-                      alt={role.title}
-                      width={300}
-                      height={300}
-                      style={{ borderRadius: "50%" }}
-                    />
+                    <Typography
+                      sx={{ fontSize: fontSizes.lead, fontWeight: "bold" }}
+                    >
+                      {role.description}
+                    </Typography>
+                    <Box
+                      sx={{
+                        position: "relative",
+                        borderRadius: "50%",
+                        overflow: "hidden",
+                        width: "100%",
+                        maxWidth: 300,
+                        aspectRatio: "1 / 1",
+                      }}
+                    >
+                      <Image src={role.image} alt={role.title} fill />
+                    </Box>
 
                     {/* 書く役割のできることリスト */}
                     <Box
@@ -814,7 +881,10 @@ export default function LandingPage() {
                       }}
                     >
                       {role.items.map((item, itemIndex) => (
-                        <Typography key={itemIndex}>
+                        <Typography
+                          key={itemIndex}
+                          sx={{ fontSize: fontSizes.body }}
+                        >
                           <CheckCircleIcon sx={{ color: role.circleColor }} />
                           {item}
                         </Typography>
@@ -843,7 +913,11 @@ export default function LandingPage() {
           >
             <Typography
               variant="h4"
-              sx={{ px: 3, fontSize: { xs: "20px", sm: "26px", md: "34px" } }}
+              sx={{
+                px: 3,
+                fontSize: { xs: "20px", sm: "26px", md: "34px" },
+                fontWeight: "bold",
+              }}
             >
               実際に出力されるもの
             </Typography>
@@ -883,8 +957,15 @@ export default function LandingPage() {
                   <Image
                     src="/images/meeting-slots.png"
                     alt="面談表"
-                    fill
-                    style={{ objectFit: "contain", borderRadius: 8 }}
+                    width={1200}
+                    height={900}
+                    style={{
+                      objectFit: "contain",
+                      borderRadius: 8,
+                      width: "100%",
+                      height: "auto",
+                      display: "block",
+                    }}
                   />
                 </Paper>
               </Paper>
@@ -919,8 +1000,15 @@ export default function LandingPage() {
                   <Image
                     src="/images/gmail-response.png"
                     alt="通知メール"
-                    fill
-                    style={{ objectFit: "contain", borderRadius: 8 }}
+                    width={1200}
+                    height={900}
+                    style={{
+                      objectFit: "contain",
+                      borderRadius: 8,
+                      width: "100%",
+                      height: "auto",
+                      display: "block",
+                    }}
                   />
                 </Paper>
               </Paper>
@@ -935,8 +1023,8 @@ export default function LandingPage() {
               component="section"
               sx={{
                 p: 4,
-
                 display: "flex",
+                flexDirection: { xs: "column", sm: "column", md: "row" },
                 borderRadius: 5,
               }}
             >
@@ -945,7 +1033,8 @@ export default function LandingPage() {
                   variant="h4"
                   sx={{
                     mb: 2,
-                    fontSize: { xs: "20px", sm: "26px", md: "34px" },
+                    fontSize: fontSizes.title,
+                    fontWeight: "bold",
                   }}
                 >
                   なぜTsunaguを作ったのか
@@ -957,7 +1046,7 @@ export default function LandingPage() {
                     lineHeight: 2,
                     color: "text.secondary",
                     mb: 3,
-                    fontSize: fontSizes.caption,
+                    fontSize: fontSizes.lead,
                   }}
                 >
                   教員として働く中で、保護者面談の日程調整に多くの時間を取られる場面を見てきました。

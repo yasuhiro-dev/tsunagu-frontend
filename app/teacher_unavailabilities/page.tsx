@@ -170,7 +170,12 @@ export default function MeetingSlotPage() {
       <Box sx={{ p: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography variant="h5">面談できない日時 ({classRoom})</Typography>
+            <Typography
+              variant="h5"
+              sx={{ fontSize: { xs: "20px", sm: "20px", md: "24px" } }}
+            >
+              面談できない日時 ({classRoom})
+            </Typography>
             <GuideHelp page="teacher_unavailability" />
           </Box>
           {submitted && <NextStepButton page={"teacher_submitted"} />}
@@ -184,7 +189,12 @@ export default function MeetingSlotPage() {
           </Typography>
         </Box>
 
-        <Paper sx={{ display: "flex" }}>
+        <Paper
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "column", md: "row" },
+          }}
+        >
           <Box
             sx={{
               flex: 1,
@@ -192,7 +202,8 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              borderRight: 1,
+              borderRight: { xs: 0, md: 1 },
+              borderBottom: { xs: 1, md: 0 },
               borderColor: "divider",
             }}
           >
@@ -210,7 +221,8 @@ export default function MeetingSlotPage() {
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              borderRight: 1,
+              borderRight: { xs: 0, md: 1 },
+              borderBottom: { xs: 1, md: 0 },
               borderColor: "divider",
             }}
           >
