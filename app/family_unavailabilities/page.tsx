@@ -377,7 +377,7 @@ export default function FamilyUnavailability() {
                         variant="caption"
                         sx={{ color: "text.secondary" }}
                       >
-                        例：{formatDate(slots[0].start_at)}の 15:00〜15:15 と
+                        例：{formatDate(slots[24].start_at)}の 15:00〜15:15 と
                         15:15〜15:30
                       </Typography>
                     </Box>

@@ -955,7 +955,7 @@ export default function LandingPage() {
                   sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
                 >
                   <Image
-                    src="/images/meeting-slots.png"
+                    src="/images/pdf-export.webp"
                     alt="面談表"
                     width={1200}
                     height={900}
