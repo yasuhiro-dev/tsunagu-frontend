@@ -10,12 +10,23 @@ import Container from "@mui/material/Container";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { MeetingSlot, groupByDate } from "@/utils/dateUtils";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
+import Alert from "@mui/material/Alert";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import LinearProgress from "@mui/material/LinearProgress";
 import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
 import NextStepButton from "@/app/components/NextStepButton";
+import { useDemoMode } from "@/utils/useDemoMode";
+import { prepareGuestDemo } from "@/utils/demoLogin";
+import DialogActions from "@mui/material/DialogActions";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import Chip from "@mui/material/Chip";
+import { fetchTeacherReassign } from "@/utils/demoLogin";
+
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
   const router = useRouter();
@@ -28,9 +39,13 @@ export default function MeetingSlotPage() {
   const [childrenLength, setChildrenLength] = useState<number>(0);
   const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+  //提出を押したら、割り当てボタンを実行するようにする
+  const demoMode = useDemoMode();
 
   const classRoom = slots[0]?.class_room;
 
@@ -74,30 +89,74 @@ export default function MeetingSlotPage() {
 
   // 面談できる日時の提出の関数（教師）
   const teacherHandleSubmit = async () => {
-    const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots/bulk_update`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
+    setIsSubmitted(true);
+    try {
+      // ゲストログイン（free）のとき：割り当てをやり直して、ここで抜ける
+      if (demoMode === "free") {
+        try {
+          await fetchTeacherReassign(availableSlots);
+          await fetchSlots(); // 割り当て後の面談表を取り直す
+        } catch {
+          setAlertOpen(true);
+          setAlertSeverity("error");
+          setAlertMessage("提出に失敗しました。もう一度お試しください");
+          return;
+        } finally {
+          setDialogOpen(false);
+        }
+        setSubmitted(true);
+        setAlertOpen(true);
+        setAlertSeverity("success");
+        setAlertMessage(
+          "提出しました。提出内容で面談の割り当てをやり直しました",
+        );
+        return;
+      }
+
+      // それ以外：bulk_update で提出する
+      const res = await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots/bulk_update`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // 教師が選んだ面談できる日時をbodyにつける（それ以外の枠は面談不可になる）
+          body: JSON.stringify({ meeting_slot_ids: availableSlots }),
         },
-        // 教師が選んだ面談できる日時をbodyにつける（それ以外の枠は面談不可になる）
-        body: JSON.stringify({ meeting_slot_ids: availableSlots }),
-      },
-    );
-    const data = await res.json();
-    if (res.ok) {
-      setAlertOpen(true);
-      setAlertSeverity("success");
-      setAlertMessage("提出しました");
-      setSubmitted(true);
-      setAvailableSlots(toAvailableIds(data));
-      setShowSubmittedDialog(true);
-    } else {
-      setAlertOpen(true);
-      setAlertSeverity("error");
-      setAlertMessage(data.error);
+      );
+      const data = await res.json();
+
+      // bulk_update の結果を表示する
+      if (res.ok) {
+        setAlertOpen(true);
+        setAlertSeverity("success");
+        setAlertMessage("提出しました");
+        setSubmitted(true);
+        setDialogOpen(false);
+        setAvailableSlots(toAvailableIds(data));
+        if (demoMode === "guided") setShowSubmittedDialog(true);
+      } else {
+        setAlertOpen(true);
+        setAlertSeverity("error");
+        setAlertMessage(data.error);
+        setDialogOpen(false);
+      }
+    } finally {
+      setIsSubmitted(false); // どの道を通っても、最後に「提出中」を戻す
     }
+  };
+
+  //提出後面談表を取得するメソッド（ゲストログイン時）
+  const fetchSlots = async () => {
+    const res = await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`,
+      { method: "GET" },
+    );
+    if (!res.ok) throw new Error("データ取得に失敗しました");
+    const data = await res.json();
+    setslots(data);
+    setAvailableSlots(toAvailableIds(data));
   };
 
   useEffect(() => {
@@ -145,13 +204,6 @@ export default function MeetingSlotPage() {
   const requiredSlots = childrenLength;
   // 余裕度（プラスなら余裕あり、マイナスなら不足）
   const remainSlots = availableCount - requiredSlots;
-  // 枠の空きが余裕がないかの判定
-  const isShortage = availableCount < requiredSlots;
-  // 枠の空き具合
-  const fulfillmentRate =
-    requiredSlots === 0
-      ? 100
-      : Math.min((availableCount / requiredSlots) * 100, 100); //渡された複数の値のうち、一番小さいものを返す（ゲージが100を超えないように）
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -178,7 +230,9 @@ export default function MeetingSlotPage() {
             </Typography>
             <GuideHelp page="teacher_unavailability" />
           </Box>
-          {submitted && <NextStepButton page={"teacher_submitted"} />}
+          {submitted && demoMode === "guided" && (
+            <NextStepButton page={"teacher_submitted"} />
+          )}
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 3 }}>
           <Typography>
@@ -381,6 +435,59 @@ export default function MeetingSlotPage() {
             </Box>
           </Box>
         </Paper>
+        {/* 提出ボタンを押した時の確認ダイアログ */}
+        <Dialog open={dialogOpen}>
+          <Box sx={{ p: 3 }}>
+            <DialogTitle>この内容で提出しますか？</DialogTitle>
+            <DialogContent
+              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+            >
+              <DialogContentText>
+                提出後も、面談が入っていない枠は変更できます。
+              </DialogContentText>
+              <Alert severity={"success"} sx={{ gap: 1 }}>
+                今は「対応できる」を
+                <Box
+                  component="span"
+                  sx={{
+                    color: "success.main",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {" "}
+                  {availableCount} 枠{" "}
+                </Box>
+                選んでいます。
+              </Alert>
+              {demoMode === "free" && (
+                <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+                  <Chip
+                    label="ゲスト体験"
+                    size="small"
+                    sx={{ flexShrink: 0 }}
+                  />
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    提出と同時に面談の割り当てを実行します。
+                    <br />
+                    実際の運用では、教頭先生が実行します。
+                  </Typography>
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions sx={{ p: 3 }}>
+              <Button variant="outlined" onClick={() => setDialogOpen(false)}>
+                戻って修正する
+              </Button>
+              <Button
+                disabled={isSubmitted}
+                variant="contained"
+                onClick={teacherHandleSubmit}
+              >
+                {isSubmitted ? "提出中..." : "提出する"}
+              </Button>
+            </DialogActions>
+          </Box>
+        </Dialog>
 
         <Box
           sx={
@@ -395,7 +502,9 @@ export default function MeetingSlotPage() {
               date={date}
               dateSlots={dateSlots}
               isAvailable={(slot) => availableSlots.includes(slot.id)}
-              isDisabled={(slot) => slot.status === "reserved"}
+              isDisabled={(slot) =>
+                demoMode !== "free" && slot.status === "reserved"
+              }
               onClickSlot={teacherHandleClick}
               onSelectAll={teacherHandleSelectAll}
               onClearAll={teacherHandleClearAll}
@@ -407,16 +516,22 @@ export default function MeetingSlotPage() {
         </Box>
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
-            sx={{ mt: 3 }}
+            sx={{ mt: 3, width: 180 }}
             variant="contained"
-            disabled={remainSlots < 0 || submitted}
-            onClick={teacherHandleSubmit}
+            disabled={
+              remainSlots < 0 ||
+              (demoMode !== "free" && submitted) ||
+              isSubmitted
+            }
+            onClick={() => setDialogOpen(true)}
           >
             {remainSlots < 0
               ? "枠不足のため提出できません"
-              : submitted
-                ? "提出が完了しました"
-                : "上記の内容で提出する"}
+              : isSubmitted
+                ? "提出中..."
+                : demoMode !== "free" && submitted
+                  ? "提出が完了しました"
+                  : "上記の内容で提出する"}
           </Button>
         </Box>
       </Box>

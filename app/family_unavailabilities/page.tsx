@@ -33,6 +33,8 @@ import DemoGuide from "@/app/components/DemoGuide";
 import NextStepButton from "@/app/components/NextStepButton";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
+import { useDemoMode } from "@/utils/useDemoMode";
+
 export default function FamilyUnavailability() {
   const router = useRouter();
   const [slots, setSlots] = useState<MeetingSlot[]>([]);
@@ -40,6 +42,7 @@ export default function FamilyUnavailability() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [children, setChildren] = useState<Child[]>([]);
   const isMobile = useMediaQuery("(max-width:600px)");
   const [deadLine, setDeadLine] = useState<null | string>(null);
@@ -51,6 +54,8 @@ export default function FamilyUnavailability() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+  // ゲストログイン（free）かガイド付きデモ（guided）か
+  const demoMode = useDemoMode();
 
   // １日分を全て「参加できる」にする関数（保護者）
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
@@ -127,6 +132,17 @@ export default function FamilyUnavailability() {
     setBlockedSlotStartAt(data.map((slot: MeetingSlot) => slot.start_at));
   };
 
+  //デモ（保護者）が提出をした時に割り当て実行も行う
+  const fetchGestSubmitted = async () => {
+    const res = await fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/demo/assign`,
+      {
+        method: "POST",
+      },
+    );
+    if (!res.ok) throw new Error("割り当てに失敗しました");
+  };
+
   // 保護者の参加できる日時の提出
   const handleSubmit = async () => {
     const res = await fetchWithAuth(
@@ -136,19 +152,34 @@ export default function FamilyUnavailability() {
       },
     );
     const data = await res.json();
+
     if (res.ok) {
+      setIsSubmitting(true);
+      if (demoMode === "free") {
+        try {
+          await fetchGestSubmitted();
+        } catch {
+          setAlertOpen(true);
+          setAlertSeverity("error");
+          setAlertMessage("提出しました。ただし割り当てでエラーが発生しました");
+          setDialogOpen(false);
+          setSubmitted(true);
+          return;
+        }
+      }
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("提出しました");
       setDialogOpen(false);
       setSubmitted(true);
-      setShowSubmittedDialog(true);
+      if (demoMode === "guided") setShowSubmittedDialog(true);
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage(data.error);
       setDialogOpen(false);
     }
+    setIsSubmitting(false);
   };
 
   useEffect(() => {
@@ -306,13 +337,27 @@ export default function FamilyUnavailability() {
                 </>
               )}
             </Alert>
+            {demoMode === "free" && (
+              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+                <Chip label="ゲスト体験" size="small" sx={{ flexShrink: 0 }} />
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  提出と同時に面談の割り当てを実行します。
+                  <br />
+                  実際の運用では、教頭先生が実行します。
+                </Typography>
+              </Box>
+            )}
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
             <Button variant="outlined" onClick={() => setDialogOpen(false)}>
               戻って修正する
             </Button>
-            <Button variant="contained" onClick={handleSubmit}>
-              提出する
+            <Button
+              disabled={isSubmitting}
+              variant="contained"
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? "提出中..." : "提出する"}
             </Button>
           </DialogActions>
         </Box>
@@ -330,7 +375,7 @@ export default function FamilyUnavailability() {
             <Typography variant="h6">{headingText}</Typography>
             <GuideHelp page="family_availability" />
           </Box>
-          {submitted ? (
+          {submitted && demoMode === "guided" ? (
             <NextStepButton page={"family_submitted"} />
           ) : (
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>

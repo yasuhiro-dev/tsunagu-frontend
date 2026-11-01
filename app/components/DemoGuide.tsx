@@ -20,7 +20,9 @@ export const getGuideStorageKey = (page: DemoPage) => `demo-guide-seen:${page}`;
 // 親から page を受け取る
 export default function DemoGuide({ page, open, onClose }: Props) {
   // 受け取った pageで、文言を取り出して content に入れる
+
   const content = demoPageContent[page];
+
   const handleClose = () => {
     // sessionStorage に「案内を見た」と記録するときのキー名（pageごとに記録される）
     const storageKey = `demo-guide-seen:${page}`;
