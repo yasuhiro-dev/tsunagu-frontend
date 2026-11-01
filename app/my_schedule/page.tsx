@@ -26,6 +26,7 @@ import StepLabel from "@mui/material/StepLabel";
 import Link from "next/link";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import GuideHelp from "@/app/components/GuideHelp";
+import { useDemoMode } from "@/utils/useDemoMode";
 
 type Assignment = {
   id: number;
@@ -67,6 +68,8 @@ export default function MySchedulePage() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+  //ゲストログインの場合に、Step6のカードを出さない
+  const demoMode = useDemoMode();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -330,7 +333,7 @@ export default function MySchedulePage() {
             </CardContent>
           </Card>
         ))}
-        {isConfirmed && (
+        {isConfirmed && demoMode === "guided" && (
           <Card
             sx={{
               p: 2,

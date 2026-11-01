@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
+
 export type RedirectMap = {
   teacher: string;
   parent: string;
@@ -30,11 +32,10 @@ export const demoLogin = async (loginEmail: string, loginPassword: string) => {
 
 // デモ環境を初期状態に戻す（デモアカウントでログインした後に呼ぶ）
 export const resetDemo = async () => {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${process.env.NEXT_PUBLIC_API_URL}/api/v1/demo/reset`,
     {
       method: "POST",
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     },
   );
   if (!res.ok) throw new Error("デモ環境のリセットに失敗しました");
@@ -42,4 +43,26 @@ export const resetDemo = async () => {
   Object.keys(sessionStorage)
     .filter((key) => key.startsWith("demo-guide-seen:"))
     .forEach((key) => sessionStorage.removeItem(key));
+};
+//ログイン時に割り当て実行する
+export const prepareGuestDemo = async () => {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/demo/prepare_guest`,
+    {
+      method: "POST",
+    },
+  );
+  if (!res.ok) throw new Error("ゲスト用のデモ環境の準備に失敗しました");
+};
+//教師の再提出時に割り当てを再実行する
+export const fetchTeacherReassign = async (meetingSlotIds: number[]) => {
+  const res = await fetchWithAuth(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/demo/reassign`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ meeting_slot_ids: meetingSlotIds }),
+    },
+  );
+  if (!res.ok) throw new Error("提出に失敗しました");
 };

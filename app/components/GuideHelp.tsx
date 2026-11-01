@@ -4,6 +4,7 @@ import { HelpButton } from "@/app/components/HelpButton";
 import DemoGuide, { getGuideStorageKey } from "@/app/components/DemoGuide";
 import { DemoPage } from "@/app/components/demoGuideContent";
 import { useEffect, useState } from "react";
+import { useDemoMode } from "@/utils/useDemoMode";
 
 type Props = {
   page: DemoPage; //ページの種類の型
@@ -11,11 +12,14 @@ type Props = {
 
 export default function GuideHelp({ page }: Props) {
   const [open, setOpen] = useState(false);
+  const demoMode = useDemoMode();
   // まだ見ていなければ、最初の1回だけ自動で開く
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!sessionStorage.getItem(getGuideStorageKey(page))) setOpen(true);
-  }, [page]);
+    if (demoMode !== "guided") return;
+    if (!sessionStorage.getItem(getGuideStorageKey(page)))
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOpen(true);
+  }, [page, demoMode]);
 
   return (
     <>

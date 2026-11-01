@@ -28,7 +28,7 @@ import GuideHelp from "@/app/components/GuideHelp";
 import { alpha } from "@mui/material/styles";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
+import { useDemoMode } from "@/utils/useDemoMode";
 import TouchAppIcon from "@mui/icons-material/TouchApp";
 import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
@@ -95,6 +95,8 @@ export default function MeetingSlotPage() {
       available_start_at: string[]; //保護者が参加できると答えた時刻
     }[]
   >([]);
+  //ゲストログイン時に、保護者画面への遷移ボタンを消す
+  const demoMode = useDemoMode();
 
   //割り当てされている数（割り当て前にダイアログを表示しない）
   const assignCount = slots.filter((slot) => slot.assignment_id != null).length;
@@ -520,7 +522,7 @@ export default function MeetingSlotPage() {
                 >
                   {isDownload ? "ダウンロード中" : "PDFをダウンロード"}
                 </Button>
-                {assignCount > 0 ? (
+                {assignCount > 0 && demoMode === "guided" ? (
                   <Button
                     variant="contained"
                     color="success"
@@ -531,14 +533,16 @@ export default function MeetingSlotPage() {
                     次へ：保護者へメール送信
                   </Button>
                 ) : (
-                  <Button
-                    variant="outlined"
-                    startIcon={<ArrowBackIcon />}
-                    color="success"
-                    onClick={() => loginAsAdmin("/admin?tab=1")}
-                  >
-                    面談割り当て画面へ戻る
-                  </Button>
+                  demoMode === "guided" && (
+                    <Button
+                      variant="outlined"
+                      startIcon={<ArrowBackIcon />}
+                      color="success"
+                      onClick={() => loginAsAdmin("/admin?tab=1")}
+                    >
+                      面談割り当て画面へ戻る
+                    </Button>
+                  )
                 )}
               </Box>
             </Box>
