@@ -24,8 +24,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
-import Image from "next/image";
 import NextStepButton from "@/app/components/NextStepButton";
+import { useDemoMode } from "@/utils/useDemoMode";
+
 // 未連携教師オブジェクトの型
 type UnLinkedTeacher = {
   teacher_name: string;
@@ -60,6 +61,9 @@ export default function AssignmentNotification() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+
+  //nextButtonをゲストログイン時に非表示にする
+  const demoMode = useDemoMode();
   //未送信ユーザの詳細から数だけを取り出す
   const unNotifiedCount = unLinkedUser.length;
   //ページネーション（全部で何ページあるか）
@@ -92,8 +96,9 @@ export default function AssignmentNotification() {
           setAlertOpen(true);
           setAlertSeverity("success");
           setAlertMessage("メール送信が完了しました");
-          setShowSubmittedDialog(true);
-
+          if (demoMode === "guided") {
+            setShowSubmittedDialog(true);
+          }
           //ここに案内を呼ぶ形にすれば確認画面へ飛ぶことができる
         }
         if (latestCount === 0 || pollCount > 20) {
@@ -180,7 +185,9 @@ export default function AssignmentNotification() {
                 <Typography variant="h6">保護者への通知</Typography>
                 <GuideHelp page="admin_mail_send" />
               </Box>
-              {isDone && <NextStepButton page="assignment_notification" />}
+              {isDone && demoMode === "guided" && (
+                <NextStepButton page="assignment_notification" />
+              )}
             </Box>
 
             <Typography variant="body2">

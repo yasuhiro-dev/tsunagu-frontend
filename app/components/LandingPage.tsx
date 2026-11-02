@@ -121,14 +121,15 @@ export default function LandingPage() {
       role: "担任の先生",
       color: "primary.main",
       bgColor: "#e1edf8ff",
+      circleColor: "primary.main",
       path: "/meeting_slots",
       button_label: "担任の先生でログイン",
       reset: true,
       image: "/images/teacher.webp",
       items: [
-        "児童一覧・未提出者の確認",
-        "個別の手動割り当て",
-        "都合の悪い日時の登録",
+        "未割り当て児童の配置",
+        "面談枠の移動・入れ替え",
+        "面談できない日時の登録",
         "面談表のPDF出力",
       ],
     },
@@ -137,15 +138,16 @@ export default function LandingPage() {
       role: "保護者",
       color: "#d18a94",
       bgColor: "#fbebec",
+      circleColor: "#d18a94",
       path: "/family_unavailabilities",
       image: "/images/parent.webp",
       button_label: "保護者でログイン",
       reset: true,
       items: [
-        "都合のよい日時を提出",
-        "調整中の状況を確認",
-        "確定した面談日を確認",
-        "スマホ操作も可能",
+        "来校できる日時の提出",
+        "決まった面談日時の確認",
+        "カレンダーへの追加",
+        "スマホでも操作できる",
       ],
     },
     {
@@ -153,15 +155,16 @@ export default function LandingPage() {
       role: "教頭先生",
       color: "success.main",
       bgColor: "#e8f5ee",
+      circleColor: "success.main",
       image: "/images/admin.webp",
       path: "/admin?tab=1",
       button_label: "教頭先生でログイン",
-      reset: false,
+      reset: true,
       items: [
-        "担任・保護者の登録・編集",
-        "面談の一括自動割り当て",
-        "提出締切日の設定",
-        "割り当て状況の確認",
+        "面談日程の自動割り当て",
+        "割り当て結果の確認",
+        "保護者へメール一括送信",
+        "担任・保護者の管理",
       ],
     },
   ];
@@ -292,48 +295,6 @@ export default function LandingPage() {
     },
   ];
 
-  // 3つの立場の説明
-  const roleDescriptions = [
-    {
-      image: "/images/teacher.webp",
-      title: "担任の先生",
-      description: "自分の予定を確認・調整する",
-      items: [
-        "児童一覧・未提出者の確認",
-        "個別の手動割り当て",
-        "都合の悪い日時の登録",
-        "面談表のPDF出力",
-      ],
-      color: "#d6e4f0",
-      circleColor: "primary.main",
-    },
-    {
-      image: "/images/parent.webp",
-      title: "保護者",
-      description: "都合を伝え、日程を確認する",
-      items: [
-        "参加できる日時を選んで提出",
-        "調整中の状況を確認",
-        "確定した面談日を確認",
-        "スマホ操作も可能",
-      ],
-      color: "#fbebec",
-      circleColor: "#d18a94",
-    },
-    {
-      image: "/images/admin.webp",
-      title: "教頭先生",
-      description: "学校全体の面談日程をつくる",
-      items: [
-        "担任の先生・保護者情報の登録・編集",
-        "面談の一括自動割り当て",
-        "提出締切日の設定",
-        "クラス別の割り当て状況の可視化",
-      ],
-      color: "#e8f5ee",
-      circleColor: "success.main",
-    },
-  ];
   // モバイルの時（widthが600px以下の場合trueを返す）
   const isMobile = useMediaQuery("(max-width:600px)");
 
@@ -489,215 +450,248 @@ export default function LandingPage() {
             />
           </Box>
         </Box>
-        <Paper sx={{ p: 4, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box sx={{ display: "flex" }}>
-            <Chip label="まずはここから" />
-            <Box>
-              <Typography
-                variant="h4"
-                sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
-              >
-                ガイド付きデモで全体の流れを体験
-              </Typography>
-              <Typography sx={{ ml: 3 }}>
-                6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {/* デモスタートボタン */}
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-              {demoStarttButton}
-            </Box>
-            {/* 簡略化フロー */}
+        <Box sx={{ p: 3, mb: 2 }}>
+          <Box
+            sx={{
+              p: 3,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              backgroundColor: "#d6e4f0",
+              borderRadius: 5,
+              height: "auto",
+            }}
+          >
             <Box
               sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
                 gap: 1,
-                mt: 2,
-                display: { xs: "grid", md: "flex" },
-                gridTemplateColumns: { xs: "repeat(3, 1fr)" },
-                rowGap: { xs: 2 },
               }}
             >
-              {simpleWorkflows.map((simpleWorkflow, index) => {
-                const isLast = index === simpleWorkflows.length - 1;
-                return (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      flex: { md: 1 },
-                    }}
-                  >
+              <Chip
+                label="まずはここから"
+                color="primary"
+                size="small"
+                sx={{ mb: 1.5 }}
+              />
+              <Box>
+                <Typography
+                  variant="h4"
+                  sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
+                >
+                  ガイド付きデモで全体の流れを体験
+                </Typography>
+                <Typography sx={{ ml: 3 }}>
+                  6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {/* デモスタートボタン */}
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                {demoStarttButton}
+              </Box>
+              {/* 簡略化フロー */}
+              <Box
+                sx={{
+                  gap: 1,
+                  mt: 2,
+                  display: { xs: "grid", md: "flex" },
+                  gridTemplateColumns: { xs: "repeat(3, 1fr)" },
+                  rowGap: { xs: 2 },
+                }}
+              >
+                {simpleWorkflows.map((simpleWorkflow, index) => {
+                  const isLast = index === simpleWorkflows.length - 1;
+                  return (
                     <Box
+                      key={index}
                       sx={{
-                        flex: 1,
-                        textAlign: "center",
                         display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: 1,
+                        alignItems: "flex-start",
+                        flex: { md: 1 },
                       }}
                     >
                       <Box
                         sx={{
-                          ...numberCircleSx,
-                          bgcolor: simpleWorkflow.color,
+                          flex: 1,
+                          textAlign: "center",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 1,
                         }}
                       >
-                        {simpleWorkflow.number}
+                        <Box
+                          sx={{
+                            ...numberCircleSx,
+                            bgcolor: simpleWorkflow.color,
+                          }}
+                        >
+                          {simpleWorkflow.number}
+                        </Box>
+                        <Typography
+                          sx={{
+                            whiteSpace: "nowrap",
+                            minWidth: { xs: 70, md: 30 },
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {simpleWorkflow.role}
+                        </Typography>
+                        <Typography sx={{ whiteSpace: "nowrap" }}>
+                          {simpleWorkflow.description}
+                        </Typography>
                       </Box>
-                      <Typography
+                      <Box
                         sx={{
-                          whiteSpace: "nowrap",
-                          minWidth: { xs: 70, md: 30 },
-                          fontWeight: "bold",
+                          mt: "10px",
+                          ml: 2,
+                          display: { xs: "none", md: "block" },
                         }}
                       >
-                        {simpleWorkflow.role}
-                      </Typography>
-                      <Typography sx={{ whiteSpace: "nowrap" }}>
-                        {simpleWorkflow.description}
-                      </Typography>
+                        {!isLast && <FlowArrow />}
+                      </Box>
                     </Box>
-                    <Box
-                      sx={{
-                        mt: "10px",
-                        ml: 2,
-                        display: { xs: "none", md: "block" },
-                      }}
-                    >
-                      {!isLast && <FlowArrow />}
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          </Box>
-        </Paper>
-        {/* Tsunaguで面談日程が決まるまで */}
-        <Box
-          sx={{
-            mt: 2,
-            p: 3,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            backgroundColor: "#d6e4f0",
-            borderRadius: 5,
-            height: "auto",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: 1,
-            }}
-          >
-            <Chip label="ゲストログイン" />
-            <Typography
-              variant="h4"
-              sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
-            >
-              立場を選んで、自由に操作する
-            </Typography>
-            <Typography>
-              会員登録・パスワード不要。立場を選んでワンクリックでログインできます
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 2 }}>
-            {/* ゲストログインボタン */}
-            {guestLoginButtons.map((guest, index) => (
-              <Box
-                key={index}
-                sx={{
-                  backgroundColor: guest.bgColor,
-                  flex: 1,
-                  minWidth: 0,
-                  borderRadius: 5,
-                  p: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                }}
-              >
-                <Box sx={{ display: "flex" }}>
-                  <Box
-                    sx={{
-                      flex: 0.8,
-                      flexShrink: 0,
-                      alignSelf: "center",
-                    }}
-                  >
-                    <Image
-                      src={guest.image}
-                      alt={guest.role}
-                      width={130}
-                      height={100}
-                    />
-                  </Box>
-
-                  <Box component="ul" sx={{ pl: 2, my: 1, flex: 1 }}>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontSize: fontSizes.subheading, textAlign: "left" }}
-                    >
-                      {guest.role}
-                    </Typography>
-                    {/* map = ではなく map( で呼び出す */}
-                    {guest.items.map((item) => (
-                      // 1項目ごとに li を作る（「・」は書かない）
-                      <Typography
-                        component="li"
-                        key={item}
-                        variant="body2"
-                        sx={{ color: "text.secondary", textAlign: "left" }}
-                      >
-                        {item}
-                      </Typography>
-                    ))}
-                  </Box>
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      color: guest.color,
-                      borderColor: guest.color,
-                      fontWeight: "bold",
-                      gap: 1,
-                      p: 1,
-                    }}
-                    onClick={() =>
-                      handleSubmit(
-                        DEMO_ACCOUNTS[guest.roleKey].email,
-                        DEMO_ACCOUNTS[guest.roleKey].password,
-                        guest.path,
-                        guest.reset,
-                        "free",
-                      )
-                    }
-                  >
-                    {guest.button_label}
-                  </Button>
-                </Box>
+                  );
+                })}
               </Box>
-            ))}
+            </Box>
           </Box>
         </Box>
 
-        <Box sx={{ p: 3, mb: 5 }} ref={workflowRef}>
+        {/* Tsunaguで面談日程が決まるまで */}
+        <Box sx={{ p: 3, mb: 2 }}>
+          <Paper
+            sx={{ p: 4, display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                gap: 1,
+              }}
+            >
+              <Chip
+                label="ゲストログイン"
+                color="primary"
+                variant="outlined"
+                size="small"
+                sx={{
+                  mb: 1.5,
+                  bgcolor: "common.white",
+                  color: "text.secondary",
+                }}
+              />
+              <Typography
+                variant="h4"
+                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+              >
+                立場を選んで、自由に操作する
+              </Typography>
+              <Typography>
+                会員登録・パスワード不要。立場を選んでワンクリックでログインできます
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2 }}>
+              {/* ゲストログインボタン */}
+              {guestLoginButtons.map((guest, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    backgroundColor: guest.bgColor,
+                    flex: 1,
+                    minWidth: 0,
+                    borderRadius: 5,
+                    p: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                  }}
+                >
+                  <Box sx={{ display: "flex" }}>
+                    <Box
+                      sx={{
+                        flex: 0.5,
+                        flexShrink: 0,
+                        alignSelf: "center",
+                      }}
+                    >
+                      <Image
+                        src={guest.image}
+                        alt={guest.role}
+                        width={110}
+                        height={150}
+                      />
+                    </Box>
+
+                    <Box component="ul" sx={{ pl: 2, my: 1, flex: 1 }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: fontSizes.subheading,
+                          textAlign: "left",
+                        }}
+                      >
+                        {guest.role}
+                      </Typography>
+                      {/* map = ではなく map( で呼び出す */}
+                      {guest.items.map((item) => (
+                        // 1項目ごとに li を作る（「・」は書かない）
+                        <Typography
+                          key={item}
+                          variant="body1"
+                          sx={{ color: "text.secondary", textAlign: "left" }}
+                        >
+                          <CheckCircleIcon
+                            sx={{ color: guest.circleColor, fontSize: 15 }}
+                          />
+                          {item}
+                        </Typography>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        color: guest.color,
+                        borderColor: guest.color,
+                        fontWeight: "bold",
+                        gap: 1,
+                        p: 1,
+                      }}
+                      onClick={() =>
+                        handleSubmit(
+                          DEMO_ACCOUNTS[guest.roleKey].email,
+                          DEMO_ACCOUNTS[guest.roleKey].password,
+                          guest.path,
+                          guest.reset,
+                          "free",
+                        )
+                      }
+                    >
+                      {guest.button_label}
+                    </Button>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Paper>
+        </Box>
+
+        <Box sx={{ p: 3, mb: 2 }} ref={workflowRef}>
           <Box
             sx={{
               p: 3,
@@ -860,7 +854,7 @@ export default function LandingPage() {
         </Box>
 
         {/* 学校現場では、こんな調節が必要です */}
-        <Box sx={{ p: 3, mb: 5 }}>
+        <Box sx={{ p: 3, mb: 2 }}>
           <Paper elevation={4}>
             <Box
               sx={{
@@ -939,7 +933,7 @@ export default function LandingPage() {
         </Box>
 
         {/* tsunaguの割り当てロジックフロー */}
-        <Box sx={{ p: 3, mb: 5 }}>
+        <Box sx={{ p: 3, mb: 2 }}>
           <Box
             sx={{
               p: 3,
@@ -1037,106 +1031,12 @@ export default function LandingPage() {
           </Box>
         </Box>
 
-        {/* ３つのrole(役割)の説明 */}
-        <Box sx={{ p: 3, mb: 5 }}>
-          <Paper elevation={4} sx={{ p: 2 }}>
-            <Typography
-              variant="h4"
-              sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
-            >
-              担任と保護者の都合から、教頭先生が日程をつくります。
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "column", md: "row" },
-                p: 3,
-                justifyContent: "center",
-                gap: { xs: 1, md: 2 },
-              }}
-            >
-              {roleDescriptions.map((role, index) => {
-                return (
-                  // 役割の説明が書かれている箱
-                  <Box
-                    key={index}
-                    sx={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      backgroundColor: role.color,
-                      gap: 2,
-                      alignItems: "center",
-                      borderRadius: 5,
-                      p: 2,
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        color: role.circleColor,
-                        fontSize: fontSizes.caption,
-                      }}
-                    >
-                      {role.title}
-                    </Typography>
-                    <Typography
-                      sx={{ fontSize: fontSizes.lead, fontWeight: "bold" }}
-                    >
-                      {role.description}
-                    </Typography>
-                    <Box
-                      sx={{
-                        position: "relative",
-                        borderRadius: "50%",
-                        overflow: "hidden",
-                        width: "100%",
-                        maxWidth: 300,
-                        aspectRatio: "1 / 1",
-                      }}
-                    >
-                      <Image src={role.image} alt={role.title} fill />
-                    </Box>
-
-                    {/* 書く役割のできることリスト */}
-                    <Box
-                      sx={{
-                        textAlign: "left",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 1,
-                      }}
-                    >
-                      {role.items.map((item, itemIndex) => (
-                        <Typography
-                          key={itemIndex}
-                          sx={{ fontSize: fontSizes.body }}
-                        >
-                          <CheckCircleIcon sx={{ color: role.circleColor }} />
-                          {item}
-                        </Typography>
-                      ))}
-                    </Box>
-                  </Box>
-                );
-              })}
-            </Box>
-          </Paper>
-        </Box>
-
         {/* プレビュー */}
-        <Box sx={{ p: 3, mb: 5 }}>
-          <Box
+        <Box sx={{ p: 3, mb: 2 }}>
+          <Paper
+            elevation={4}
             id="output"
-            sx={{
-              scrollMarginTop: "80px",
-              borderRadius: 5,
-              display: "flex",
-              p: 3,
-
-              flexDirection: "column",
-              backgroundColor: "#d6e4f0",
-            }}
+            sx={{ p: 4, scrollMarginTop: "80px" }}
           >
             <Typography
               variant="h4"
@@ -1240,12 +1140,21 @@ export default function LandingPage() {
                 </Paper>
               </Paper>
             </Box>
-          </Box>
+          </Paper>
         </Box>
 
         {/* なぜTsunaguを作ったのか */}
-        <Box sx={{ p: 3, mb: 5 }}>
-          <Paper elevation={4} sx={{ p: 2 }}>
+        <Box sx={{ p: 3, mb: 2 }}>
+          <Box
+            sx={{
+              scrollMarginTop: "80px",
+              borderRadius: 5,
+              display: "flex",
+              p: 3,
+              flexDirection: "column",
+              backgroundColor: "#d6e4f0",
+            }}
+          >
             <Box
               component="section"
               sx={{
@@ -1272,7 +1181,7 @@ export default function LandingPage() {
                     maxWidth: 700,
                     lineHeight: 2,
                     color: "text.secondary",
-                    mb: 3,
+                    mb: 2,
                     fontSize: fontSizes.lead,
                   }}
                 >
@@ -1293,7 +1202,7 @@ export default function LandingPage() {
                 />
               </Box>
             </Box>
-          </Paper>
+          </Box>
         </Box>
       </Container>
     </>

@@ -445,12 +445,16 @@ export default function MeetingSlotPage() {
               <DialogContentText>
                 提出後も、面談が入っていない枠は変更できます。
               </DialogContentText>
-              <Alert severity={"success"} sx={{ gap: 1 }}>
+
+              <Alert
+                severity={remainSlots === 0 ? "warning" : "success"}
+                sx={{ gap: 1 }}
+              >
                 今は「対応できる」を
                 <Box
                   component="span"
                   sx={{
-                    color: "success.main",
+                    color: remainSlots === 0 ? "warning.main" : "success.main",
                     fontWeight: "bold",
                   }}
                 >
@@ -458,7 +462,13 @@ export default function MeetingSlotPage() {
                   {availableCount} 枠{" "}
                 </Box>
                 選んでいます。
+                {remainSlots === 0 && (
+                  <Box component="span" sx={{ display: "block", mt: 0.5 }}>
+                    必要な枠数ちょうどなので、余裕がありません。都合がつく枠があれば追加してください。
+                  </Box>
+                )}
               </Alert>
+
               {demoMode === "free" && (
                 <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
                   <Chip
@@ -516,7 +526,7 @@ export default function MeetingSlotPage() {
         </Box>
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
-            sx={{ mt: 3, width: 180 }}
+            sx={{ mt: 3, minWidth: 220, whiteSpace: "nowrap" }}
             variant="contained"
             disabled={
               remainSlots < 0 ||
