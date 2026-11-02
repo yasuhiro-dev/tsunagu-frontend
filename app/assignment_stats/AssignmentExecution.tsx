@@ -15,12 +15,12 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import DonutLargeIcon from "@mui/icons-material/DonutLarge";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
-import DemoGuide from "@/app/components/DemoGuide";
 import FlowStepper from "@/app/components/FlowStepper";
 import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
 import GuideHelp from "@/app/components/GuideHelp";
 import CircularProgress from "@mui/material/CircularProgress";
 import NextStepButton from "@/app/components/NextStepButton";
+import { useDemoMode } from "@/utils/useDemoMode";
 type Props = {
   scheduleId: number | null;
 };
@@ -64,6 +64,9 @@ export default function AssignmentExecution({ scheduleId }: Props) {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+
+  //nextButtonをゲストログイン時に非表示にする
+  const demoMode = useDemoMode();
 
   //棒グラフの見た目
   const chartSetting = {
@@ -177,7 +180,9 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                 <Typography variant="h6">面談の一括割り当て</Typography>
                 <GuideHelp page="admin_assignment" />
               </Box>
-              {hasResult && <NextStepButton page={"assignment_button"} />}
+              {hasResult && demoMode === "guided" && (
+                <NextStepButton page={"assignment_button"} />
+              )}
             </Box>
 
             <Typography>

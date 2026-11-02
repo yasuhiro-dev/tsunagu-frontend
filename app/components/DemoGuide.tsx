@@ -1,6 +1,10 @@
 "use client";
 
-import { DemoPage, demoPageContent } from "./demoGuideContent";
+import {
+  DemoPage,
+  demoPageContent,
+  freeGuideContent,
+} from "./demoGuideContent";
 import Typography from "@mui/material/Typography";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
@@ -11,6 +15,7 @@ import DialogActions from "@mui/material/DialogActions";
 import Box from "@mui/material/Box";
 import NextStepButton from "@/app/components/NextStepButton";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { useDemoMode } from "@/utils/useDemoMode";
 
 // 親コンポーネントからpageを受け取る時の型指定
 type Props = { page: DemoPage; open: boolean; onClose: () => void };
@@ -20,8 +25,12 @@ export const getGuideStorageKey = (page: DemoPage) => `demo-guide-seen:${page}`;
 // 親から page を受け取る
 export default function DemoGuide({ page, open, onClose }: Props) {
   // 受け取った pageで、文言を取り出して content に入れる
+  //ゲストログインようの案内ガイドを表示にする
+  const demoMode = useDemoMode();
 
-  const content = demoPageContent[page];
+  //ゲストログインかでも体験でのログインかで案内表示の内容を変更
+  const content =
+    (demoMode === "free" && freeGuideContent[page]) || demoPageContent[page];
 
   const handleClose = () => {
     // sessionStorage に「案内を見た」と記録するときのキー名（pageごとに記録される）

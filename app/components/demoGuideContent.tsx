@@ -238,3 +238,151 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     buttonCancel: "このまま見る",
   },
 };
+
+export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
+  teacher_unavailability: {
+    title: "面談できない日時の登録",
+    chip: "担任の先生の画面です",
+    color: "primary.main",
+    heading: "出張などで、面談に対応できない日時を登録する画面です",
+    steps: [
+      <>
+        ① 対応できない時間の<ButtonName>× 対応できない</ButtonName>
+        を押す
+      </>,
+      <>
+        ② 選び終わったら、画面の下にある
+        <ButtonName>上記の内容で提出する</ButtonName>を押す
+      </>,
+    ],
+    note: "※枠が足りないと提出できません。提出後も変更できます。",
+    buttonLabel: "使ってみる",
+  },
+
+  family_availability: {
+    title: "来校できる日時の提出",
+    chip: "保護者の画面です",
+    color: "#d18a94",
+    heading: "面談に参加できる日時を選ぶ画面です",
+    steps: [
+      <>
+        ① 来校できる時間の<ButtonName>○ 参加できる</ButtonName>を押す
+      </>,
+      <>
+        ② 選び終わったら、画面の下にある
+        <ButtonName>上記の内容で提出する</ButtonName>を押す
+      </>,
+    ],
+    note: "※6枠以上選んでおくと、面談日時が決まりやすくなります。",
+    buttonLabel: "使ってみる",
+  },
+
+  admin_assignment: {
+    title: "面談日程の自動割り当て",
+    chip: "教頭先生の画面です",
+    color: "success.main",
+    heading: "先生と保護者の希望から、面談日程を自動で決める画面です",
+    steps: [
+      <>
+        ① 画面の右にある<ButtonName>▶ 割り当てを実行する</ButtonName>を押す
+      </>,
+      <>② 「きょうだいの連続面談」と「全体割り当て率」で結果を確認する</>,
+      <>③ 自動で入らなかった児童は、学級名つきで一覧に表示されます</>,
+    ],
+    note: "※自動で入らなかった児童は、担任の先生が面談表で手動で割り当てます。",
+    buttonLabel: "使ってみる",
+  },
+
+  teacher_meeting_slots: {
+    title: "面談表",
+    chip: "担任の先生の画面です",
+    color: "primary.main",
+    heading: "決まった面談日程を確認・調整する画面です",
+    purpose: "自動で割り当てられなかった児童は、ここで手動で割り当てます。",
+    steps: [
+      <>
+        ① 空いている枠の<ButtonName>＋ 児童を割り当てる</ButtonName>
+        を押して、未割り当ての児童を選ぶ
+      </>,
+      <>② 面談表の児童をクリックすると、別の枠へ移動できます</>,
+    ],
+    note: "※きょうだいの連続面談を動かそうとすると、確認のメッセージが出ます。",
+    buttonLabel: "使ってみる",
+  },
+
+  assignment_before: {
+    title: "面談表",
+    chip: "担任の先生の画面です",
+    color: "primary.main",
+    heading: "まだ面談日程が決まっていません",
+    purpose:
+      "教頭先生が自動割り当てを実行すると、ここに面談表が表示されます。\n割り当て後は、この画面で日程の確認や手動での調整ができます。",
+    steps: [],
+    buttonLabel: "閉じる",
+  },
+
+  admin_mail_send: {
+    title: "保護者への通知",
+    chip: "教頭先生の画面です",
+    color: "success.main",
+    heading: "全クラスの面談日時を、保護者へまとめて知らせる画面です",
+    steps: [
+      <>
+        ① <ButtonName>届くメールの例を見る</ButtonName>
+        で、保護者に届くメールを確認する
+      </>,
+      <>
+        ② 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>
+        で、全クラスの保護者へ通知する
+      </>,
+    ],
+    buttonLabel: "使ってみる",
+  },
+
+  my_schedule: {
+    title: "面談日時の確認",
+    chip: "保護者の画面です",
+    color: "#d18a94",
+    heading: "決まった面談日時を確認する画面です",
+    steps: [
+      <>
+        ① 面談の日時を確認する（きょうだいの面談は、同じ日の続く時間に入ります）
+      </>,
+      <>
+        ② <ButtonName>カレンダーに追加</ButtonName>
+        で、自分のカレンダーに登録できます
+      </>,
+    ],
+    buttonLabel: "確認する",
+  },
+
+  // 保護者がまだ日時を提出していない
+  my_schedule_before_submit: {
+    title: "面談日時の決定前",
+    chip: "保護者の画面です",
+    color: "#d18a94",
+    heading: "まだ面談日時が決まっていません",
+    purpose:
+      "学校が面談日時を決めると、この画面に表示されます。\nまだ来校できる日時を提出していません。",
+    steps: [
+      <>① 来校できる日時を提出すると、その中から面談日時が決まります。</>,
+      <>② 締切までに提出しなかった場合は、学校が日時を決めます。</>,
+    ],
+    buttonLabel: "来校できる日時を提出する",
+    buttonUrl: "/family_unavailabilities",
+    nextDemoRole: "parent",
+    buttonCancel: "このまま見る",
+  },
+
+  // 提出は済んでいて、割り当てがまだ
+  my_schedule_before_assign: {
+    title: "面談日時の決定前",
+    chip: "保護者の画面です",
+    color: "#d18a94",
+    heading: "まだ面談日時が決まっていません",
+    purpose:
+      "日時の提出は完了しています。\n学校（教頭先生）が日程を決めると、ここに表示されます。",
+    steps: [],
+    buttonLabel: "閉じる",
+  },
+};
