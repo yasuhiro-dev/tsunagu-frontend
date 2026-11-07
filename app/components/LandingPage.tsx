@@ -29,7 +29,7 @@ export default function LandingPage() {
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<string | null>(null);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -40,11 +40,12 @@ export default function LandingPage() {
     redirectOverride: string | undefined, // 3つ目に渡された値は渡さなくてもいい
     reset: boolean, // 4つ目がtrueのときは、デモ環境を初期状態に戻してから遷移する
     mode: "guided" | "free", //5つ目がguideかfreeで案内を出すかを判定
+    roleLoading: string,
   ) => {
     try {
-      //apiが失敗しなければ実行
-      setIsLoading(true);
+      setIsLoading(roleLoading);
       const role = await demoLogin(loginEmail, loginPassword); //demoLoginに引数を渡し、roleが返ってくる
+      //apiが失敗しなければ実行
       if (mode === "free" && role === "teacher") {
         await prepareGuestDemo();
       } else if (reset) {
@@ -61,7 +62,7 @@ export default function LandingPage() {
       setRedirectTo(redirectOverride ?? redirectMap[role] ?? "/");
     } catch {
       //api失敗したら表示する
-      setIsLoading(false);
+      setIsLoading(null);
       setAlertOpen(true);
       setAlertSeverity("error");
       setAlertMessage("デモログインに失敗しました");
@@ -343,9 +344,13 @@ export default function LandingPage() {
     <Button
       size="large"
       variant="contained"
-      disabled={isLoading}
+      disabled={isLoading !== null}
       startIcon={
-        isLoading ? <CircularProgress size={20} /> : <PlayCircleIcon />
+        isLoading === "demo-start" ? (
+          <CircularProgress size={20} />
+        ) : (
+          <PlayCircleIcon />
+        )
       }
       sx={{
         px: { xs: 8, md: 10 },
@@ -361,10 +366,13 @@ export default function LandingPage() {
           "/teacher_unavailabilities",
           true,
           "guided",
+          "demo-start",
         );
       }}
     >
-      {isLoading ? "準備しています…" : "デモを体験する（約5分）"}
+      {isLoading === "demo-start"
+        ? "準備しています…"
+        : "デモを体験する（約5分）"}
     </Button>
   );
 
@@ -665,6 +673,7 @@ export default function LandingPage() {
                   >
                     <Button
                       variant="outlined"
+                      disabled={isLoading !== null}
                       sx={{
                         color: guest.color,
                         borderColor: guest.color,
@@ -679,10 +688,17 @@ export default function LandingPage() {
                           guest.path,
                           guest.reset,
                           "free",
+                          guest.roleKey,
                         )
                       }
                     >
-                      {guest.button_label}
+                      {isLoading === guest.roleKey ? (
+                        <>
+                          <CircularProgress size={20} /> 準備しています…
+                        </>
+                      ) : (
+                        guest.button_label
+                      )}
                     </Button>
                   </Box>
                 </Box>
@@ -799,6 +815,7 @@ export default function LandingPage() {
                       </Typography>
                       <Button
                         variant="outlined"
+                        disabled={isLoading !== null}
                         sx={{
                           fontSize: fontSizes.body,
                           fontWeight: "bold",
@@ -818,11 +835,18 @@ export default function LandingPage() {
                             DEMO_ACCOUNTS[workflow.roleKey].password,
                             workflow.path,
                             true,
-                            "guided",
+                            "free",
+                            workflow.number,
                           )
                         }
                       >
-                        この画面を見る
+                        {isLoading === workflow.number ? (
+                          <>
+                            <CircularProgress size={20} /> 準備しています…
+                          </>
+                        ) : (
+                          "この画面を見る"
+                        )}
                       </Button>
                     </Paper>
                     {/* 矢印 */}
