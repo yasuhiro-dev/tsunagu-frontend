@@ -13,12 +13,10 @@ import AlertSnackbar from "@/app/components/AlertSnackbar";
 import Alert from "@mui/material/Alert";
 import UnavailabilityCard from "@/app/components/UnavailabilityCard";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import LinearProgress from "@mui/material/LinearProgress";
 import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
 import NextStepButton from "@/app/components/NextStepButton";
 import { useDemoMode } from "@/utils/useDemoMode";
-import { prepareGuestDemo } from "@/utils/demoLogin";
 import DialogActions from "@mui/material/DialogActions";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -26,6 +24,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import Chip from "@mui/material/Chip";
 import { fetchTeacherReassign } from "@/utils/demoLogin";
+import { endTour } from "@/utils/startTour";
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -213,6 +212,13 @@ export default function MeetingSlotPage() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
+      <AlertSnackbar
+        open={remainSlots < 0}
+        severity="error"
+        message={`「対応できる」があと${Math.abs(remainSlots)}枠必要です`}
+        onClose={() => {}}
+      />
+
       <DemoGuide
         page="teacher_submitted"
         open={showSubmittedDialog}
@@ -244,6 +250,7 @@ export default function MeetingSlotPage() {
         </Box>
 
         <Paper
+          id="tour-teacher-unavailability-status"
           sx={{
             display: "flex",
             flexDirection: { xs: "column", sm: "column", md: "row" },
@@ -500,6 +507,7 @@ export default function MeetingSlotPage() {
         </Dialog>
 
         <Box
+          id="tour-teacher-button-area"
           sx={
             isMobile
               ? { display: "flex", flexDirection: "column", gap: 2 }
@@ -526,6 +534,7 @@ export default function MeetingSlotPage() {
         </Box>
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
+            id="tour-teacher-submit-button"
             sx={{ mt: 3, minWidth: 220, whiteSpace: "nowrap" }}
             variant="contained"
             disabled={
@@ -533,7 +542,10 @@ export default function MeetingSlotPage() {
               (demoMode !== "free" && submitted) ||
               isSubmitted
             }
-            onClick={() => setDialogOpen(true)}
+            onClick={() => {
+              endTour();
+              setDialogOpen(true);
+            }}
           >
             {remainSlots < 0
               ? "枠不足のため提出できません"
