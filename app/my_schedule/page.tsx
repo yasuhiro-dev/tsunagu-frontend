@@ -27,6 +27,7 @@ import Link from "next/link";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import GuideHelp from "@/app/components/GuideHelp";
 import { useDemoMode } from "@/utils/useDemoMode";
+import { endTour } from "@/utils/startTour";
 
 type Assignment = {
   id: number;
@@ -268,6 +269,7 @@ export default function MySchedulePage() {
       >
         {assignment.map((a, i) => (
           <Card
+            id="tour-parent-my-schedule-area"
             key={i}
             sx={{
               borderRadius: 3,
@@ -322,6 +324,7 @@ export default function MySchedulePage() {
               </Box>
               <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
                 <Button
+                  id="tour-parent-my-shedule-calendar"
                   variant="contained"
                   color="primary"
                   startIcon={<CalendarMonthIcon />}
@@ -335,6 +338,7 @@ export default function MySchedulePage() {
         ))}
         {isConfirmed && demoMode === "guided" && (
           <Card
+            id="tour-parent-my-schedule-finish"
             sx={{
               p: 2,
               flex: 1,
@@ -357,6 +361,7 @@ export default function MySchedulePage() {
               </Typography>
               <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 2 }}>
                 <Button
+                  onClick={() => endTour()}
                   sx={{ p: 2, fontWeight: "bold", fontSize: 14 }}
                   variant="outlined"
                   component={Link}
@@ -365,6 +370,7 @@ export default function MySchedulePage() {
                   トップページへ戻る
                 </Button>
                 <Button
+                  onClick={() => endTour()}
                   variant="contained"
                   color="success"
                   sx={{ p: 2, fontWeight: "bold", fontSize: 14 }}

@@ -181,7 +181,9 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                 <GuideHelp page="admin_assignment" />
               </Box>
               {hasResult && demoMode === "guided" && (
-                <NextStepButton page={"assignment_button"} />
+                <Box id="tour-admin-assignment-execution-next-button">
+                  <NextStepButton page={"assignment_button"} />
+                </Box>
               )}
             </Box>
 
@@ -241,6 +243,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
           >
             {/*割り当て完了ボタン */}
             <Button
+              id="admin-assignment-execution-button"
               variant={hasResult ? "outlined" : "contained"}
               fullWidth
               color="primary"
@@ -262,7 +265,11 @@ export default function AssignmentExecution({ scheduleId }: Props) {
             <Typography>(５秒ほどかかります)</Typography>
           </Box>
         </Paper>
-        <Paper sx={{ borderRadius: 2, p: 4 }}>
+
+        <Paper
+          id="admin-assignment-execution-siblings-result"
+          sx={{ borderRadius: 2, p: 4 }}
+        >
           {siblingAssignment && siblingAssignment.total > 0 && (
             <>
               <Typography
@@ -308,6 +315,7 @@ export default function AssignmentExecution({ scheduleId }: Props) {
         </Paper>
 
         <Box
+          id="admin-assignment-execution-assignment-result"
           sx={{
             display: "flex",
             flexDirection: { xs: "column", sm: "column", md: "row" },

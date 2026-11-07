@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
+import { endTour } from "@/utils/startTour";
+import { startTour } from "@/utils/startTour";
 
 type Props = {
   startAt: string;
@@ -34,6 +36,7 @@ export default function SlotAddPopover({
         onClick={() => {
           if (isEditing) return;
           setOpenSelect(true);
+          endTour();
         }}
       >
         <Box sx={{ color: "primary.main" }}>
@@ -51,10 +54,14 @@ export default function SlotAddPopover({
         startAt={startAt}
         open={openSelect}
         slotId={slotId}
-        onClose={() => setOpenSelect(false)}
+        onClose={() => {
+          setOpenSelect(false);
+          startTour("teacher_meeting_slots", 2);
+        }}
         onAdded={() => {
           setOpenSelect(false);
           onAdded();
+          startTour("teacher_meeting_slots", 2);
         }}
       />
     </>

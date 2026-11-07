@@ -34,6 +34,7 @@ import NextStepButton from "@/app/components/NextStepButton";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import { useDemoMode } from "@/utils/useDemoMode";
+import { endTour } from "@/utils/startTour";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -259,6 +260,7 @@ export default function FamilyUnavailability() {
     if (isPastDeadline) return "提出期限が過ぎました";
     if (submitted) return "提出が完了しました";
     if (availableSlots.length === 0) return "日時を選んでください";
+
     return "上記の内容で提出する";
   };
 
@@ -322,7 +324,7 @@ export default function FamilyUnavailability() {
               選んでいます。
               <br />
               {nonSiblingDouble ? (
-                "きょうだい2人を続けて組むには、同じ日に続けて2枠必要です"
+                "兄弟2人を続けて組むには、同じ日に続けて2枠必要です"
               ) : isEnough ? (
                 "自動で面談日時が決まりやすい状態です。"
               ) : (
@@ -385,6 +387,7 @@ export default function FamilyUnavailability() {
           )}
         </Box>
         <Alert
+          id="tour-parent-info"
           severity="info"
           sx={{ "& .MuiAlert-icon": { pt: "14px", fontSize: 20 } }}
         >
@@ -412,7 +415,7 @@ export default function FamilyUnavailability() {
                     />
                     <Box>
                       <Typography sx={{ fontSize: 15, lineHeight: 1.8 }}>
-                        きょうだいの面談を続けて組むため、
+                        兄弟の面談を続けて組むため、
                         <Box component="span" sx={{ fontWeight: "bold" }}>
                           同じ日に続けて2つ以上
                         </Box>
@@ -466,6 +469,7 @@ export default function FamilyUnavailability() {
         </Alert>
 
         <Box
+          id="tour-parent-button-area"
           sx={
             isMobile
               ? { display: "flex", flexDirection: "column", gap: 2 }
@@ -495,12 +499,16 @@ export default function FamilyUnavailability() {
         </Box>
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
+            id="tour-parent-submitted-button"
             sx={{ mt: 3 }}
             variant="contained"
             disabled={
               submitted || isPastDeadline || availableSlots.length === 0
             }
-            onClick={() => setDialogOpen(true)}
+            onClick={() => {
+              endTour();
+              setDialogOpen(true);
+            }}
           >
             {getSubmitted()}
           </Button>

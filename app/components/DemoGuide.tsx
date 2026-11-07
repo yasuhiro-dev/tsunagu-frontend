@@ -16,6 +16,7 @@ import Box from "@mui/material/Box";
 import NextStepButton from "@/app/components/NextStepButton";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useDemoMode } from "@/utils/useDemoMode";
+import { startTour } from "@/utils/startTour";
 
 // 親コンポーネントからpageを受け取る時の型指定
 type Props = { page: DemoPage; open: boolean; onClose: () => void };
@@ -37,6 +38,12 @@ export default function DemoGuide({ page, open, onClose }: Props) {
     const storageKey = `demo-guide-seen:${page}`;
     sessionStorage.setItem(storageKey, "1");
     onClose();
+  };
+
+  //「始める」を押した後の処理
+  const handleStartTour = () => {
+    handleClose();
+    startTour(page);
   };
 
   return (
@@ -110,7 +117,7 @@ export default function DemoGuide({ page, open, onClose }: Props) {
               color="success"
               sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
               endIcon={<ArrowForwardIcon />}
-              onClick={handleClose}
+              onClick={handleStartTour}
             >
               {content.buttonLabel}
             </Button>

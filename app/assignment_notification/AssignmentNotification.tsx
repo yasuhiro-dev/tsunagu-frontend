@@ -26,7 +26,8 @@ import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
 import NextStepButton from "@/app/components/NextStepButton";
 import { useDemoMode } from "@/utils/useDemoMode";
-
+import { startTour } from "@/utils/startTour";
+import { endTour } from "@/utils/startTour";
 // 未連携教師オブジェクトの型
 type UnLinkedTeacher = {
   teacher_name: string;
@@ -79,6 +80,7 @@ export default function AssignmentNotification() {
 
   // メール送信ボタンを押した時、assignment_notificationsにAPIを送る
   const handleClick = async () => {
+    endTour();
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignment_notifications`,
       {
@@ -186,7 +188,9 @@ export default function AssignmentNotification() {
                 <GuideHelp page="admin_mail_send" />
               </Box>
               {isDone && demoMode === "guided" && (
-                <NextStepButton page="assignment_notification" />
+                <Box id="tour-admin-assignment-notification-next-button">
+                  <NextStepButton page="assignment_notification" />
+                </Box>
               )}
             </Box>
 
@@ -278,10 +282,14 @@ export default function AssignmentNotification() {
                 本番では、担任のGmailから保護者へ、お子さんごとの面談日時が届きます。
               </Typography>
               <Button
+                id="tour-admin-assignment-notification-example"
                 variant="outlined"
                 size="small"
                 sx={{ mt: 1, p: 1 }}
-                onClick={() => setPreviewOpen(true)}
+                onClick={() => {
+                  endTour();
+                  setPreviewOpen(true);
+                }}
               >
                 届くメールの例を見る
               </Button>
@@ -302,6 +310,7 @@ export default function AssignmentNotification() {
             }}
           >
             <Button
+              id="tour-admin-assignment-notification-button"
               variant="contained"
               fullWidth
               color="primary"
@@ -330,7 +339,14 @@ export default function AssignmentNotification() {
         </Paper>
 
         {/* プレビューのダイアログ（レイアウトの外に出した） */}
-        <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)}>
+        <Dialog
+          id="tour-admin-assignment-notification-example"
+          open={previewOpen}
+          onClick={() => {
+            setPreviewOpen(false);
+            startTour("admin_mail_send", 1);
+          }}
+        >
           <DialogTitle>保護者に届くメールの例</DialogTitle>
           <DialogContent>
             {mailBody.length === 0 ? (

@@ -1,7 +1,6 @@
 import { RedirectMap } from "@/utils/demoLogin";
 import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
-import AddIcon from "@mui/icons-material/Add";
 
 export type DemoPage =
   | "teacher_unavailability"
@@ -169,11 +168,11 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
       "どのクラスも面談表の確認が終わった想定です。\n教頭先生が、全クラス分をまとめて送信します。",
     steps: [
       <>
-        ① 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>を押す
+        ① <ButtonName>届くメールの例を見る</ButtonName>
+        で、保護者に届くメールも確認できます
       </>,
       <>
-        ② <ButtonName>届くメールの例を見る</ButtonName>
-        で、保護者に届くメールも確認できます
+        ② 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>を押す
       </>,
     ],
     buttonLabel: "やってみる",
