@@ -62,13 +62,16 @@ export default function MeetingSlotPage() {
     // すでに選択しているもの(prev)を維持したまま、まだ選ばれていなかったものを新しく追加する処理
     setAvailableSlots((prev) => [...new Set([...prev, ...newIds])]);
   };
+  //ゲストの時は変更でき、通常の場合はreservedで変更できない
+  const isLocked = (slot: MeetingSlot) =>
+    demoMode !== "free" && slot.status === "reserved";
 
   // １日分を全て「面談できない」にする関数
   const teacherHandleClearAll = (dateSlots: MeetingSlot[]) => {
     // 今回解除したいものをremoveIdsとする（予約済みの枠は面談不可にできないので残す）
     const removeIds = dateSlots
       .filter((slot) => availableSlots.includes(slot.id))
-      .filter((slot) => slot.status !== "reserved")
+      .filter((slot) => !isLocked(slot))
       .map((slot) => slot.id);
     // すでに選択しているもの(prev)の中から、今回解除したいもの(removeIds)を取り除く
     setAvailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
@@ -520,9 +523,8 @@ export default function MeetingSlotPage() {
               date={date}
               dateSlots={dateSlots}
               isAvailable={(slot) => availableSlots.includes(slot.id)}
-              isDisabled={(slot) =>
-                demoMode !== "free" && slot.status === "reserved"
-              }
+              //ゲストログインの時はreservedになっていても変更可能
+              isDisabled={(slot) => isLocked(slot)}
               onClickSlot={teacherHandleClick}
               onSelectAll={teacherHandleSelectAll}
               onClearAll={teacherHandleClearAll}
