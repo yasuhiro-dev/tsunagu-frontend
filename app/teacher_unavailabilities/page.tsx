@@ -218,7 +218,7 @@ export default function MeetingSlotPage() {
       <AlertSnackbar
         open={remainSlots < 0}
         severity="error"
-        message={`「対応できる」があと${Math.abs(remainSlots)}枠必要です`}
+        message={`児童${requiredSlots}人分の枠が必要です。あと${Math.abs(remainSlots)}枠を「対応できる」にしてください。`}
         onClose={() => {}}
       />
 
@@ -250,6 +250,14 @@ export default function MeetingSlotPage() {
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             ※保護者の面談が決まっている枠は、『対応できない』にできません
           </Typography>
+          {demoMode === "free" && (
+            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+              <Chip label="ゲスト体験" size="small" sx={{ flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                ゲストでは、面談が決まっている枠も自由に変更できます
+              </Typography>
+            </Box>
+          )}
         </Box>
 
         <Paper

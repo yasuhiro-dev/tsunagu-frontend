@@ -41,6 +41,7 @@ type Violation = {
   kind: string; //どんな条件か
   detail: string; //具体的な説明
   name: string;
+  note?: string;
 };
 
 type ValidSlotsData = {
@@ -271,6 +272,7 @@ export default function MeetingSlotPage() {
         kind: "parent_unavailable",
         name: name,
         detail: `保護者の都合がつかない時間です`,
+        note: "※保護者の了承を得ている場合は、割り当てできます",
       });
     }
     //教師の不可日の時間が含まれている場合
@@ -279,6 +281,7 @@ export default function MeetingSlotPage() {
         kind: "teacher_unavailable",
         name: name,
         detail: "先生の都合がつかない時間です",
+        note: "※予定を調整できる場合は、割り当てできます",
       });
     }
     //兄弟の枠との関係
@@ -1470,84 +1473,14 @@ export default function MeetingSlotPage() {
               {/* 未割り当て児童を移動する際のダイアログを表示 */}
               <Box>
                 <Dialog open={unassignedGuideOpen}>
-                  <DialogTitle variant="h5">
-                    {selectedChild?.child_name}さんを割り当てます
+                  <DialogTitle variant="h5" sx={{ fontSize: 20 }}>
+                    {selectedChild?.child_name}さんを
+                    {formatDate(toSlot?.start_at ?? "")}
+                    {"  "}
+                    {formatTime(toSlot?.start_at ?? "")}
+                    に割り当てますか
                   </DialogTitle>
-                  <DialogContent>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: 3,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          backgroundColor: "#d6e4f0",
-                          gap: 1,
-                          p: 2,
-                          minWidth: 200,
-                          minHeight: 100,
-                          borderRadius: 2,
-                          textAlign: "center",
-                        }}
-                      >
-                        <Typography
-                          sx={{ color: "primary.main", fontWeight: "bold" }}
-                        >
-                          割り当てる児童
-                        </Typography>
-                        <Box sx={{ backgroundColor: "white", borderRadius: 2 }}>
-                          <Typography>{`${selectedChild?.child_name}さん`}</Typography>
-                        </Box>
-                      </Box>
 
-                      <ArrowForwardIcon
-                        sx={{
-                          minHeight: 100,
-                          color: "primary.main",
-                          fontSize: 30,
-                          transform: { xs: "rotate(90deg)", md: "none" },
-                        }}
-                      />
-
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          gap: 1,
-                          backgroundColor: "#e8f5ee",
-                          p: 2,
-                          minWidth: 200,
-                          minHeight: 100,
-                          borderRadius: 2,
-                          textAlign: "center",
-                        }}
-                      >
-                        <Typography
-                          sx={{ color: "success.main", fontWeight: "bold" }}
-                        >
-                          割り当て先の時間
-                        </Typography>
-                        <Box
-                          sx={{
-                            backgroundColor: "white",
-                            borderRadius: 2,
-                          }}
-                        >
-                          <Typography>
-                            {formatDate(toSlot?.start_at ?? "")}
-                            {"  "}
-                            {formatTime(toSlot?.start_at ?? "")}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </DialogContent>
                   <DialogContent>
                     {violations.length > 0 && (
                       <>
@@ -1569,6 +1502,7 @@ export default function MeetingSlotPage() {
                                 割り当てる前に、以下を確認してください
                               </AlertTitle>
                             </Box>
+
                             <Box
                               sx={{
                                 display: "flex",
@@ -1582,16 +1516,9 @@ export default function MeetingSlotPage() {
                                   sx={{ display: "flex", gap: 5 }}
                                   key={index}
                                 >
-                                  <Typography
-                                    variant="body2"
-                                    sx={{ fontWeight: "bold", width: 100 }}
-                                  >
-                                    {v.name}
-                                  </Typography>
                                   <Box
                                     sx={{
                                       color: "warning.dark",
-                                      backgroundColor: "#fff4e5",
                                       display: "flex",
                                       flexDirection: "column",
                                       gap: 1,
@@ -1605,11 +1532,13 @@ export default function MeetingSlotPage() {
                                     >
                                       {v.detail}
                                     </Typography>
-                                    <Typography variant="body2">
-                                      {v.kind === "parent_unavailable" &&
-                                        selectedChild &&
-                                        availabilityLabel(selectedChild)}
-                                    </Typography>
+                                    {v.kind === "parent_unavailable" && (
+                                      <Typography variant="body2">
+                                        {selectedChild &&
+                                          availabilityLabel(selectedChild)}
+                                      </Typography>
+                                    )}
+
                                     <Typography
                                       variant="caption"
                                       sx={{
@@ -1617,7 +1546,7 @@ export default function MeetingSlotPage() {
                                         color: "text.secondary",
                                       }}
                                     >
-                                      保護者に確認済みの場合は、このまま割り当ててください
+                                      {v.note}
                                     </Typography>
                                   </Box>
                                 </Box>
