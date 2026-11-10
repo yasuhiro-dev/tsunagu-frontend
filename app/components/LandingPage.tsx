@@ -24,6 +24,17 @@ import {
 } from "@/utils/demoLogin";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 
+// セクションの枠の共通設定（全セクションで余白と角の丸みを揃える）
+// state を使わない固定値なので、コンポーネントの外に置く
+const sectionSx = {
+  px: { xs: 3, md: 5 },
+  py: { xs: 3, md: 6 },
+  borderRadius: 5,
+  display: "flex",
+  flexDirection: "column",
+  gap: 3,
+} as const;
+
 export default function LandingPage() {
   const workflowRef = useRef<HTMLElement>(null);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
@@ -385,20 +396,19 @@ export default function LandingPage() {
           message={alertMessage}
           onClose={() => setAlertOpen(false)}
         />
-        {/* ヒーロー */}
-
+        {/* ヒーロー（枠がないので sectionSx は使わない） */}
         <Box
           sx={{
-            p: 2,
+            px: 3, // 下のセクションの枠の左端（24px）と揃える
+            py: 2,
             display: "flex",
             minWidth: 0,
-            alignItems: { xs: "stretch", sm: "stretch", md: "center" },
+            alignItems: { xs: "stretch", md: "center" },
             gap: 6,
-            flexDirection: { xs: "column", sm: "column", md: "row" },
+            flexDirection: { xs: "column", md: "row" },
           }}
         >
           {/* ヒーロー見出し */}
-
           <Box
             sx={{
               flex: 1,
@@ -443,11 +453,7 @@ export default function LandingPage() {
           </Box>
 
           {/* 兄弟連続画像 */}
-          <Box
-            sx={{
-              flex: 1.2,
-            }}
-          >
+          <Box sx={{ flex: 1.2 }}>
             <Image
               src="/images/LP-top.webp"
               alt="兄弟がいる家庭をまとめるイメージ"
@@ -458,18 +464,10 @@ export default function LandingPage() {
             />
           </Box>
         </Box>
+
+        {/* ガイド付きデモ */}
         <Box sx={{ p: 3, mb: 2 }}>
-          <Box
-            sx={{
-              p: 3,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              backgroundColor: "#d6e4f0",
-              borderRadius: 5,
-              height: "auto",
-            }}
-          >
+          <Box sx={{ ...sectionSx, backgroundColor: "#d6e4f0" }}>
             <Box
               sx={{
                 display: "flex",
@@ -484,17 +482,15 @@ export default function LandingPage() {
                 size="small"
                 sx={{ mb: 1.5 }}
               />
-              <Box>
-                <Typography
-                  variant="h4"
-                  sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
-                >
-                  ガイド付きデモで全体の流れを体験
-                </Typography>
-                <Typography sx={{ ml: 3 }}>
-                  6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
-                </Typography>
-              </Box>
+              <Typography
+                variant="h4"
+                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+              >
+                ガイド付きデモで全体の流れを体験
+              </Typography>
+              <Typography>
+                6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
+              </Typography>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -571,11 +567,9 @@ export default function LandingPage() {
           </Box>
         </Box>
 
-        {/* Tsunaguで面談日程が決まるまで */}
+        {/* ゲストログイン */}
         <Box sx={{ p: 3, mb: 2 }}>
-          <Paper
-            sx={{ p: 4, display: "flex", flexDirection: "column", gap: 2 }}
-          >
+          <Paper sx={sectionSx}>
             <Box
               sx={{
                 display: "flex",
@@ -707,29 +701,17 @@ export default function LandingPage() {
           </Paper>
         </Box>
 
+        {/* Tsunaguで面談日程が決まるまで */}
         <Box sx={{ p: 3, mb: 2 }} ref={workflowRef}>
-          <Box
-            sx={{
-              p: 3,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              backgroundColor: "#d6e4f0",
-              borderRadius: 5,
-              height: "auto",
-            }}
-          >
+          <Box sx={{ ...sectionSx, backgroundColor: "#d6e4f0" }}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography
                 variant="h4"
-                sx={{ px: 3, fontSize: fontSizes.title, fontWeight: "bold" }}
+                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
               >
                 Tsunaguで面談日程が決まるまで
               </Typography>
-              <Typography
-                variant="body2"
-                sx={{ px: 3, fontSize: fontSizes.body }}
-              >
+              <Typography variant="body2" sx={{ fontSize: fontSizes.body }}>
                 デモでは、この6ステップを順番に体験できます。
               </Typography>
             </Box>
@@ -737,8 +719,6 @@ export default function LandingPage() {
               sx={{
                 display: "grid",
                 gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-                flexDirection: { xs: "column", sm: "column", md: "row" },
-                justifyContent: "center",
                 gap: 2,
               }}
             >
@@ -753,12 +733,10 @@ export default function LandingPage() {
                       sx={{
                         display: "flex",
                         flexDirection: "column",
-                        minHeight: 300,
                         flex: 1,
                         minWidth: 0,
                         p: 2,
                         gap: 1,
-                        justifyContent: "flex-start",
                       }}
                     >
                       <Box
@@ -778,7 +756,7 @@ export default function LandingPage() {
                         </Box>
                         <Chip
                           sx={{
-                            minWidth: { xs: 50, sm: 50, md: 80 },
+                            minWidth: { xs: 50, md: 80 },
                             backgroundColor: workflow.color,
                             color: "common.white",
                             fontWeight: "bold",
@@ -813,44 +791,8 @@ export default function LandingPage() {
                       <Typography sx={{ fontSize: fontSizes.body }}>
                         {workflow.description}
                       </Typography>
-                      <Button
-                        variant="outlined"
-                        disabled={isLoading !== null}
-                        sx={{
-                          fontSize: fontSizes.body,
-                          fontWeight: "bold",
-                          p: 1,
-                          minWidth: 250,
-                          color: workflow.color,
-                          borderColor: workflow.color,
-                          "&:hover": {
-                            borderColor: workflow.color,
-                            backgroundColor: "action.hover",
-                          },
-                          mt: "auto",
-                        }}
-                        onClick={() =>
-                          handleSubmit(
-                            DEMO_ACCOUNTS[workflow.roleKey].email,
-                            DEMO_ACCOUNTS[workflow.roleKey].password,
-                            workflow.path,
-                            true,
-                            "free",
-                            workflow.number,
-                          )
-                        }
-                      >
-                        {isLoading === workflow.number ? (
-                          <>
-                            <CircularProgress size={20} /> 準備しています…
-                          </>
-                        ) : (
-                          "この画面を見る"
-                        )}
-                      </Button>
                     </Paper>
                     {/* 矢印 */}
-
                     {!isRowEnd && (
                       <Box
                         sx={{
@@ -871,117 +813,85 @@ export default function LandingPage() {
                 );
               })}
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
               {demoStarttButton}
             </Box>
           </Box>
         </Box>
 
-        {/* 学校現場では、こんな調節が必要です */}
+        {/* 学校現場では、こんな調整が必要です */}
         <Box sx={{ p: 3, mb: 2 }}>
-          <Paper elevation={4}>
+          <Paper elevation={4} sx={sectionSx}>
+            <Typography
+              variant="h4"
+              sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+            >
+              学校現場では、こんな調整が必要です
+            </Typography>
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                flex: 1,
-                height: "auto",
-                p: 3,
-                borderRadius: 5,
+                flexDirection: { xs: "column", md: "row" },
+                gap: 2,
+                alignItems: "center",
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  px: 3,
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
-                >
-                  学校現場では、こんな調整が必要です
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", sm: "column", md: "row" },
-                  gap: 2,
-                  p: 3,
-                  alignItems: "center",
-                }}
-              >
-                {teacherProblems.map((problem, index) => {
-                  return (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        minHeight: 200,
-                        flex: 1,
-                        borderRadius: 5,
-                        p: 2,
-                        gap: 2,
-                        backgroundColor: "#d6e4f0",
-                      }}
-                    >
-                      <Typography variant="h6" sx={{ textAlign: "center" }}>
-                        {problem.title}
-                      </Typography>
+              {teacherProblems.map((problem, index) => {
+                return (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      minHeight: 200,
+                      flex: 1,
+                      borderRadius: 5,
+                      p: 2,
+                      gap: 2,
+                      backgroundColor: "#d6e4f0",
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ textAlign: "center" }}>
+                      {problem.title}
+                    </Typography>
 
-                      <Image
-                        src={problem.image}
-                        alt={problem.title}
-                        width={300}
-                        height={300}
-                        style={{
-                          borderRadius: 10,
-                          width: "80%",
-                          height: "auto",
-                          aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
-                        }}
-                      />
-                      <Typography sx={{ textAlign: "center", width: 200 }}>
-                        {problem.description}
-                      </Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
+                    <Image
+                      src={problem.image}
+                      alt={problem.title}
+                      width={300}
+                      height={300}
+                      style={{
+                        borderRadius: 10,
+                        width: "80%",
+                        height: "auto",
+                        aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
+                      }}
+                    />
+                    <Typography sx={{ textAlign: "center", width: 200 }}>
+                      {problem.description}
+                    </Typography>
+                  </Box>
+                );
+              })}
             </Box>
           </Paper>
         </Box>
 
         {/* tsunaguの割り当てロジックフロー */}
         <Box sx={{ p: 3, mb: 2 }}>
-          <Box
-            sx={{
-              p: 3,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              backgroundColor: "#d6e4f0",
-              borderRadius: 5,
-              height: "auto",
-            }}
-          >
-            <Box sx={{ px: 3 }}>
-              <Typography
-                variant="h4"
-                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
-              >
-                Tsunaguが自動で解決します。
-              </Typography>
-            </Box>
+          <Box sx={{ ...sectionSx, backgroundColor: "#d6e4f0" }}>
+            <Typography
+              variant="h4"
+              sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+            >
+              Tsunaguが自動で解決します。
+            </Typography>
 
             <Box
               sx={{
                 display: "flex",
-                flexDirection: { xs: "column", sm: "column", md: "row" },
+                flexDirection: { xs: "column", md: "row" },
                 justifyContent: "center",
                 gap: 3,
               }}
@@ -1060,25 +970,26 @@ export default function LandingPage() {
           <Paper
             elevation={4}
             id="output"
-            sx={{ p: 4, scrollMarginTop: "80px" }}
+            sx={{ ...sectionSx, scrollMarginTop: "80px" }}
           >
-            <Typography
-              variant="h4"
-              sx={{
-                px: 3,
-                fontSize: { xs: "20px", sm: "26px", md: "34px" },
-                fontWeight: "bold",
-              }}
-            >
-              実際に出力されるもの
-            </Typography>
-            <Typography sx={{ px: 3 }}>※表示内容は例です</Typography>
+            {/* 見出しと注記はひとまとめにして、間隔を狭くする */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontSize: { xs: "20px", sm: "26px", md: "34px" },
+                  fontWeight: "bold",
+                }}
+              >
+                実際に出力されるもの
+              </Typography>
+              <Typography>※表示内容は例です</Typography>
+            </Box>
             <Box
               sx={{
                 display: "flex",
                 gap: 2,
-                mt: 2,
-                flexDirection: { xs: "column", sm: "column", md: "row" },
+                flexDirection: { xs: "column", md: "row" },
               }}
             >
               <Paper
@@ -1171,21 +1082,16 @@ export default function LandingPage() {
         <Box sx={{ p: 3, mb: 2 }}>
           <Box
             sx={{
-              scrollMarginTop: "80px",
-              borderRadius: 5,
-              display: "flex",
-              p: 3,
-              flexDirection: "column",
+              ...sectionSx,
               backgroundColor: "#d6e4f0",
+              scrollMarginTop: "80px",
             }}
           >
             <Box
               component="section"
               sx={{
-                p: 4,
                 display: "flex",
-                flexDirection: { xs: "column", sm: "column", md: "row" },
-                borderRadius: 5,
+                flexDirection: { xs: "column", md: "row" },
               }}
             >
               <Box sx={{ flex: 2 }}>
