@@ -257,7 +257,7 @@ export default function Navbar() {
     ? roleStyle[role]
     : {
         backgroundColor: "#ffffff",
-        color: "primary.main",
+        color: "#ffffff",
         label: "未ログイン",
       };
 
