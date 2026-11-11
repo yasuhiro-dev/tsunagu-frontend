@@ -35,11 +35,17 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import HomeIcon from "@mui/icons-material/Home";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import { Chip } from "@mui/material";
 
 type MenuItemType = {
   label: string;
   href: string;
   icon?: React.ReactNode;
+};
+type RoleStyleType = {
+  backgroundColor: string;
+  color: string;
+  label: string;
 };
 
 // サイドバーのList化(モバイル版)
@@ -76,6 +82,20 @@ const adminMenuItems = [
   { label: "割り当て管理", href: "/admin?tab=4", icon: <AssignmentIcon /> },
 ];
 
+//ナビバーの背景色や役割のラベル
+const roleStyle: Record<string, RoleStyleType> = {
+  teacher: {
+    backgroundColor: "#e3ecf7",
+    color: "primary.main",
+    label: "担任画面",
+  },
+  admin: {
+    backgroundColor: "#e6f2e9",
+    color: "success.main",
+    label: "教頭画面",
+  },
+  parent: { backgroundColor: "#f8e8e9", color: "#d18a94", label: "保護者画面" },
+};
 function MobileNavList({
   items,
   onItemClick,
@@ -233,6 +253,14 @@ export default function Navbar() {
   };
   const open = Boolean(anchorEl);
 
+  const style = role
+    ? roleStyle[role]
+    : {
+        backgroundColor: "#ffffff",
+        color: "primary.main",
+        label: "未ログイン",
+      };
+
   useEffect(() => {
     // localStorageはクライアントでしか読めないため、マウント後に同期する
 
@@ -257,11 +285,21 @@ export default function Navbar() {
     }, 1500);
   };
 
+  console.log("role", role);
+  console.log("style", style);
+  console.log(`10px solid ${style.color}`);
+
   return (
     <>
       <AppBar
         position="static"
-        sx={{ backgroundColor: "#ffffff", color: "primary.main" }}
+        sx={{
+          backgroundColor: "#ffff",
+          color: "primary.main",
+          borderTopWidth: "10px",
+          borderTopStyle: "solid",
+          borderTopColor: style.color,
+        }}
       >
         <Toolbar sx={{ px: { xs: 1, md: 2 } }}>
           {/* flexShrink: 0 でロゴが潰されて隣のメニューと重なるのを防ぐ */}
@@ -368,6 +406,14 @@ export default function Navbar() {
                 </Typography>
               </Button>
             </Box>
+            <Chip
+              label={style.label}
+              sx={{
+                fontWeight: "bold",
+                backgroundColor: style.backgroundColor,
+                color: style.color,
+              }}
+            />
             {mounted && role === null && (
               <Button
                 component={Link}
