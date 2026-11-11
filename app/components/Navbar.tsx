@@ -285,10 +285,6 @@ export default function Navbar() {
     }, 1500);
   };
 
-  console.log("role", role);
-  console.log("style", style);
-  console.log(`10px solid ${style.color}`);
-
   return (
     <>
       <AppBar
