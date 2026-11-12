@@ -72,6 +72,12 @@ export default function MySchedulePage() {
   //ゲストログインの場合に、Step6のカードを出さない
   const demoMode = useDemoMode();
 
+  //児童名・クラス名
+  const children = assignment.map((a) => ({
+    name: a.child_name,
+    classroom: a.class_name,
+  }));
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -231,6 +237,7 @@ export default function MySchedulePage() {
           {isConfirmed ? "決定のお知らせ" : waiting ? "調整中" : "提出のお願い"}
         </Typography>
         <GuideHelp
+          childName={children}
           page={
             assignment.length > 0
               ? "my_schedule"

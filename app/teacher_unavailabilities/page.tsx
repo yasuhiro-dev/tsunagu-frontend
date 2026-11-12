@@ -225,6 +225,7 @@ export default function MeetingSlotPage() {
       <DemoGuide
         page="teacher_submitted"
         open={showSubmittedDialog}
+        className={classRoom ?? undefined}
         onClose={() => setShowSubmittedDialog(false)}
       />
 
@@ -237,7 +238,10 @@ export default function MeetingSlotPage() {
             >
               面談できない日時 ({classRoom})
             </Typography>
-            <GuideHelp page="teacher_unavailability" />
+            <GuideHelp
+              page="teacher_unavailability"
+              className={classRoom ?? undefined}
+            />
           </Box>
           {submitted && demoMode === "guided" && (
             <NextStepButton page={"teacher_submitted"} />

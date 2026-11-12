@@ -120,6 +120,11 @@ function AdminContent() {
     "success",
   );
 
+  //クラス数
+  const classLength = classRooms.length;
+  //家庭数
+  const parentLength = parents.length;
+
   //URLからクエリ部分(?以降)だけを取り出す
   const searchParams = useSearchParams();
   // そのクエリの中からtabを取り出す（LPでtab=指定先を設定）
@@ -623,7 +628,11 @@ function AdminContent() {
                 }}
               >
                 <Box>
-                  <AssignmentExecution scheduleId={scheduleId} />
+                  <AssignmentExecution
+                    scheduleId={scheduleId}
+                    classLength={classLength}
+                    parentLength={parentLength}
+                  />
                 </Box>
               </Box>
             )}
@@ -640,7 +649,10 @@ function AdminContent() {
                 }}
               >
                 <Box>
-                  <AssignmentNotification />
+                  <AssignmentNotification
+                    classLength={classLength}
+                    parentLength={parentLength}
+                  />
                 </Box>
               </Box>
             )}
