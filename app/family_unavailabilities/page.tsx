@@ -125,7 +125,6 @@ export default function FamilyUnavailability() {
       },
     );
     const data = await res.json();
-    console.log("blocked_slots raw:", data);
     setBlockedSlotStartAt(data.map((slot: MeetingSlot) => slot.start_at));
   };
 
@@ -268,10 +267,9 @@ export default function FamilyUnavailability() {
   }
   //保護者の児童の情報
   const childrenText = children
-    .map((c) => `${c.name}（${c.classroom.join("・")}）`)
+    .map((c) => `${c.name}（${c.classroom}）`)
     .join("・");
 
-  console.log("children", children);
   return (
     <Container sx={{ p: 3 }}>
       <AlertSnackbar
