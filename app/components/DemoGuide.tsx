@@ -5,6 +5,8 @@ import {
   demoPageContent,
   freeGuideContent,
 } from "./demoGuideContent";
+import { useState, useEffect } from "react";
+import { getRole, getName } from "@/utils/auth";
 import Typography from "@mui/material/Typography";
 import Dialog from "@mui/material/Dialog";
 import Button from "@mui/material/Button";
@@ -17,14 +19,39 @@ import NextStepButton from "@/app/components/NextStepButton";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useDemoMode } from "@/utils/useDemoMode";
 import { startTour } from "@/utils/startTour";
+import Image from "next/image";
+
+export type Child = {
+  name: string;
+  classroom: string;
+};
 
 // 親コンポーネントからpageを受け取る時の型指定
-type Props = { page: DemoPage; open: boolean; onClose: () => void };
+type Props = {
+  page: DemoPage;
+  open: boolean;
+  onClose: () => void;
+  className?: string | null;
+  childName?: Child[];
+  classLength?: number;
+  parentLength?: number;
+};
 // sessionStorage に「案内を見た」と記録するときのキー名を作る（GuideHelpでも同じ形で使うから定義した）
 export const getGuideStorageKey = (page: DemoPage) => `demo-guide-seen:${page}`;
 
 // 親から page を受け取る
-export default function DemoGuide({ page, open, onClose }: Props) {
+export default function DemoGuide({
+  page,
+  open,
+  onClose,
+  className,
+  childName,
+  classLength,
+  parentLength,
+}: Props) {
+  const [role, setRole] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [name, setName] = useState<string | null>(null);
   // 受け取った pageで、文言を取り出して content に入れる
   //ゲストログインようの案内ガイドを表示にする
   const demoMode = useDemoMode();
@@ -46,33 +73,302 @@ export default function DemoGuide({ page, open, onClose }: Props) {
     startTour(page);
   };
 
-  return (
-    <Dialog sx={{ p: 1, mb: 3 }} onClose={handleClose} open={open}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "column", md: "row" },
-          alignItems: "center",
-        }}
-      >
-        <DialogTitle variant="h5">{content.title}</DialogTitle>
+  useEffect(() => {
+    // localStorageはクライアントでしか読めないため、マウント後に同期する
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+    setRole(getRole());
+    setName(getName());
+  }, []);
+  console.log("name", name);
 
-        <Chip
-          label={content.chip}
-          size="medium"
-          sx={{
-            fontSize: 18,
-            fontWeight: "bold",
-            backgroundColor: content.color,
-            color: "common.white",
-          }}
-        />
-      </Box>
+  return (
+    <Dialog sx={{ p: 1 }} onClose={handleClose} open={open}>
       <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Typography variant="h6">{content.heading}</Typography>
-        <Typography sx={{ whiteSpace: "pre-line" }}>
-          {content.purpose}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+
+            gap: 1,
+          }}
+        >
+          <DialogTitle
+            variant="h5"
+            sx={{
+              p: 0,
+              backgroundColor: content.backgroundColor,
+              borderRadius: 3,
+              alignSelf: "flex-start",
+              px: 1.5,
+            }}
+          >
+            {content.title}
+          </DialogTitle>
+          <Typography variant="h6">{content.heading}</Typography>
+        </Box>
+        {mounted && content.showIdentity === true && (
+          <Box>
+            {role === "teacher" && (
+              <Box
+                sx={{
+                  borderRadius: 2,
+                  display: "flex",
+                  backgroundColor: "#e3ecf7",
+                  p: 1,
+                  gap: 3,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box sx={{ flex: 3, display: "flex" }}>
+                  <Image
+                    src="/images/demo-login-dialog/teacher.png"
+                    alt="担任アイコン"
+                    width={100}
+                    height={80}
+                  />
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      flex: 2,
+                      gap: 2,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Chip
+                      label={content.chip}
+                      size="small"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        maxWidth: 180,
+                        backgroundColor: content.color,
+                        color: "common.white",
+                      }}
+                    />
+                    <Typography variant="h5">{name} 先生</Typography>
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    backgroundColor: "#ffff",
+                    p: 1,
+                    flex: 1,
+                    textAlign: "center",
+                    borderRadius: 2,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "primary.main", fontWeight: "bold" }}
+                  >
+                    担当学級
+                  </Typography>
+                  <Typography variant="h6">{className}</Typography>
+                </Box>
+              </Box>
+            )}
+            {role === "parent" && (
+              <Box
+                sx={{
+                  borderRadius: 2,
+                  display: "flex",
+                  backgroundColor: content.backgroundColor,
+                  p: 1,
+                  gap: 3,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box sx={{ display: "flex" }}>
+                  <Image
+                    src="/images/demo-login-dialog/parent.png"
+                    alt="担任アイコン"
+                    width={100}
+                    height={80}
+                  />
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+
+                      gap: 2,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Chip
+                      label={content.chip}
+                      size="small"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        maxWidth: 180,
+                        backgroundColor: content.color,
+                        color: "common.white",
+                      }}
+                    />
+                    <Typography variant="h5">{name} 様</Typography>
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    backgroundColor: "#ffff",
+                    p: 1,
+
+                    borderRadius: 2,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "primary.main",
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    お子様 (2人)
+                  </Typography>
+                  <>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      {childName?.map((c, index) => {
+                        const childImages = [
+                          "/images/demo-login-dialog/child-girl.png",
+                          "/images/demo-login-dialog/child-boy.png",
+                        ];
+                        return (
+                          <Box
+                            key={index}
+                            sx={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Image
+                              src={childImages[index % childImages.length]}
+                              alt=""
+                              width={48}
+                              height={48}
+                            />
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: "bold" }}
+                            >
+                              {c.name} さん ({c.classroom})
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </>
+                </Box>
+              </Box>
+            )}
+            {role === "admin" && (
+              <Box
+                sx={{
+                  borderRadius: 2,
+                  display: "flex",
+                  backgroundColor: content.backgroundColor,
+                  p: 1,
+                  gap: 3,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box sx={{ display: "flex" }}>
+                  <Image
+                    src="/images/demo-login-dialog/admin.png"
+                    alt="担任アイコン"
+                    width={100}
+                    height={30}
+                  />
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Chip
+                      label={content.chip}
+                      size="small"
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        maxWidth: 180,
+                        backgroundColor: content.color,
+                        color: "common.white",
+                      }}
+                    />
+                    <Typography variant="h5">教頭先生</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      backgroundColor: "#ffff",
+                      p: 1,
+                      borderRadius: 2,
+                      ml: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      担当範囲
+                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Image
+                        src="/images/demo-login-dialog/school.png"
+                        alt="学校アイコン"
+                        width={60}
+                        height={60}
+                      />
+                      <Typography variant="h5">学校全体</Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        fontSize: 14,
+                        alignItems: "center",
+                      }}
+                    >
+                      全
+                      <Typography variant="h6" sx={{ color: "primary.main" }}>
+                        {classLength}
+                      </Typography>
+                      クラス・
+                      <Typography variant="h6" sx={{ color: "primary.main" }}>
+                        {parentLength}
+                      </Typography>
+                      家庭
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        )}
+        {content.purpose && (
+          <Typography sx={{ whiteSpace: "pre-line" }}>
+            {content.purpose}
+          </Typography>
+        )}
+
         {content.steps && content.steps.length > 0 && (
           <Box
             sx={{
@@ -81,6 +377,15 @@ export default function DemoGuide({ page, open, onClose }: Props) {
               p: 2,
             }}
           >
+            <Chip
+              label="やること"
+              sx={{
+                backgroundColor: content.color,
+                color: "#ffff",
+                fontWeight: "bold",
+                mb: 1,
+              }}
+            />
             {content.steps?.map((step, index) => (
               <Typography sx={{ mb: 1 }} key={index}>
                 {step}

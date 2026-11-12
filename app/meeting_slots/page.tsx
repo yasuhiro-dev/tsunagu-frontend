@@ -571,6 +571,7 @@ export default function MeetingSlotPage() {
               open={guideOpen}
               onClose={() => setGuideOpen(false)}
               page="teacher_meeting_slots"
+              className={classRoom}
             />
           )}
           <Box
@@ -593,6 +594,7 @@ export default function MeetingSlotPage() {
                       ? "teacher_meeting_slots"
                       : "assignment_before"
                   }
+                  className={classRoom}
                 />
               </Box>
 

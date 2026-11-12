@@ -23,6 +23,8 @@ import NextStepButton from "@/app/components/NextStepButton";
 import { useDemoMode } from "@/utils/useDemoMode";
 type Props = {
   scheduleId: number | null;
+  classLength?: number;
+  parentLength?: number;
 };
 type UnassignedChild = {
   id: number;
@@ -37,13 +39,18 @@ type SiblingAssignment = {
   total: number;
   success: number;
 };
+
 const EmptyResult = () => (
   <Typography color="text.secondary" sx={{ textAlign: "center", py: 4 }}>
     割り当て実行後に表示されます。
   </Typography>
 );
 
-export default function AssignmentExecution({ scheduleId }: Props) {
+export default function AssignmentExecution({
+  scheduleId,
+  classLength,
+  parentLength,
+}: Props) {
   const router = useRouter();
   const isMobile = useMediaQuery("(max-width:600px)");
   const [classRates, setClassRates] = useState([]);
@@ -141,7 +148,6 @@ export default function AssignmentExecution({ scheduleId }: Props) {
       router.push("/login");
       return;
     }
-
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAssignmentStats();
   }, []);
@@ -178,7 +184,11 @@ export default function AssignmentExecution({ scheduleId }: Props) {
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography variant="h6">面談の一括割り当て</Typography>
-                <GuideHelp page="admin_assignment" />
+                <GuideHelp
+                  page="admin_assignment"
+                  classLength={classLength}
+                  parentLength={parentLength}
+                />
               </Box>
               {hasResult && demoMode === "guided" && (
                 <Box id="tour-admin-assignment-execution-next-button">
@@ -277,12 +287,12 @@ export default function AssignmentExecution({ scheduleId }: Props) {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
                 <FamilyRestroomIcon sx={{ color: "primary.main" }} />
-                きょうだいの連続面談
+                兄弟の連続面談
               </Typography>
               {hasResult ? (
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   <Typography>
-                    きょうだいがいる
+                    兄弟がいる
                     <Box
                       component="span"
                       sx={{

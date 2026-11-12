@@ -1,10 +1,5 @@
 "use client";
 
-type Child = {
-  name: string;
-  classroom: string[];
-};
-
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { useState, useEffect } from "react";
@@ -30,6 +25,7 @@ import Alert from "@mui/material/Alert";
 import DialogActions from "@mui/material/DialogActions";
 import GuideHelp from "@/app/components/GuideHelp";
 import DemoGuide from "@/app/components/DemoGuide";
+import { Child } from "@/app/components/DemoGuide";
 import NextStepButton from "@/app/components/NextStepButton";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
@@ -275,6 +271,7 @@ export default function FamilyUnavailability() {
     .map((c) => `${c.name}（${c.classroom.join("・")}）`)
     .join("・");
 
+  console.log("children", children);
   return (
     <Container sx={{ p: 3 }}>
       <AlertSnackbar
@@ -289,6 +286,7 @@ export default function FamilyUnavailability() {
         open={showSubmittedDialog}
         onClose={() => setShowSubmittedDialog(false)}
         page="family_submitted"
+        childName={children}
       />
       {/* 提出ボタンを押した時の確認ダイアログ */}
       <Dialog open={dialogOpen}>
@@ -375,7 +373,7 @@ export default function FamilyUnavailability() {
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography variant="h6">{headingText}</Typography>
-            <GuideHelp page="family_availability" />
+            <GuideHelp page="family_availability" childName={children} />
           </Box>
           {submitted && demoMode === "guided" ? (
             <NextStepButton page={"family_submitted"} />

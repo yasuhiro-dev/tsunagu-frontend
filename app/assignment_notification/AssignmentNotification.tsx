@@ -41,8 +41,15 @@ type UnLinkedUser = {
   parent_name: string;
   teacher_name: string;
 };
+type Props = {
+  classLength?: number;
+  parentLength?: number;
+};
 
-export default function AssignmentNotification() {
+export default function AssignmentNotification({
+  classLength,
+  parentLength,
+}: Props) {
   const router = useRouter();
   const [notifiedCount, setNotifiedCount] = useState(0);
   const [unNotified, setUnNotified] = useState(0);
@@ -164,6 +171,8 @@ export default function AssignmentNotification() {
     >
       <DemoGuide
         page="assignment_notification"
+        classLength={classLength}
+        parentLength={parentLength}
         open={showSubmittedDialog}
         onClose={() => setShowSubmittedDialog(false)}
       />
@@ -185,7 +194,11 @@ export default function AssignmentNotification() {
             >
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography variant="h6">保護者への通知</Typography>
-                <GuideHelp page="admin_mail_send" />
+                <GuideHelp
+                  page="admin_mail_send"
+                  classLength={classLength}
+                  parentLength={parentLength}
+                />
               </Box>
               {isDone && demoMode === "guided" && (
                 <Box id="tour-admin-assignment-notification-next-button">

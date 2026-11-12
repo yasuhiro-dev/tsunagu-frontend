@@ -24,7 +24,9 @@ export type DemoGuideContent = {
   steps?: ReactNode[];
   note?: string;
   color: string;
+  backgroundColor?: string;
   chip: string;
+  showIdentity: boolean;
   buttonLabel: string;
   buttonUrl?: string;
   buttonCancel?: string;
@@ -43,7 +45,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   teacher_unavailability: {
     title: "STEP 1 / 6 ",
     chip: "担任の先生の画面です",
+    showIdentity: true,
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     heading: "出張で、面談に対応できない日時を登録する画面です。",
     steps: [
       <>
@@ -60,7 +64,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   teacher_submitted: {
     title: "STEP 1 / 6 ",
     chip: "完了",
+    showIdentity: false,
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     heading: "面談できない日時を登録しました",
     purpose: "次は保護者が、来校できる日時を提出します。",
     steps: [],
@@ -72,7 +78,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   family_availability: {
     title: "STEP 2 / 6",
     chip: "保護者の画面です",
+    showIdentity: true,
     color: "#d18a94",
+    backgroundColor: "#f8e8e9",
     heading: "面談に参加できる日時を選んでみましょう",
     steps: [
       <>
@@ -91,6 +99,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   family_submitted: {
     title: "STEP 2 / 6",
     chip: "完了",
+    showIdentity: false,
     color: "#d18a94",
     heading: "来校できる日時の提出が完了しました。",
     purpose: "次は教頭先生が、面談日時を自動で割り当てます。",
@@ -104,19 +113,22 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   admin_assignment: {
     title: "STEP 3 / 6",
     chip: "教頭先生の画面です",
+    showIdentity: true,
     color: "success.main",
-    heading: "担任の先生と保護者の希望から、面談日程を自動で決めます",
+    backgroundColor: "#e6f2e9",
+    heading: "クラスをまたいで、面談日程をまとめて決めます",
     steps: [
       <>
         ① 画面の右にある<ButtonName>▶ 割り当てを実行する</ButtonName>を押す
       </>,
-      <>② 「きょうだいの連続面談」と「全体割り当て率」で結果を確認する</>,
+      <>② 「兄弟の連続面談」と「全体割り当て率」で結果を確認する</>,
     ],
     buttonLabel: "やってみる",
   },
   assignment_button: {
     title: "STEP 3 / 6",
     chip: "完了",
+    showIdentity: false,
     color: "success.main",
     heading: "自動割り当てが完了しました。",
     purpose: "次は担任の先生が、面談表を確認・調整します。",
@@ -129,7 +141,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   teacher_meeting_slots: {
     title: "STEP 4 / 6",
     chip: "担任の先生の画面です",
+    showIdentity: true,
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     heading: "自動で入らなかった児童を、手で割り当てましょう",
     purpose:
       "希望の枠がすでに埋まっていたため、保護者に電話で確認し\n「別の日でも大丈夫」と言われた想定です。",
@@ -149,7 +163,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   assignment_before: {
     title: "面談表",
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     chip: "担任の先生の画面です",
+    showIdentity: true,
     heading: "この画面はSTEP 4で使います",
     purpose: "まだ自動割り当てが実行されていないため、面談表は空の状態です。",
     steps: ["デモはSTEP 1から順番に進めると、流れがわかりやすくなります。"],
@@ -162,7 +178,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   admin_mail_send: {
     title: "STEP 5 / 6",
     chip: "教頭先生の画面です",
+    showIdentity: true,
     color: "success.main",
+    backgroundColor: "#e6f2e9",
     heading: "全クラスの面談日時を、保護者へまとめて知らせましょう",
     purpose:
       "どのクラスも面談表の確認が終わった想定です。\n教頭先生が、全クラス分をまとめて送信します。",
@@ -181,6 +199,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     title: "STEP 5 / 6",
     chip: "完了",
     color: "success.main",
+    showIdentity: false,
     heading: "通知の操作が完了しました",
     purpose: "次は保護者が、決まった面談日時を確認します。",
     buttonLabel: "次へ：保護者の画面",
@@ -191,6 +210,8 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   my_schedule: {
     title: "STEP 6 / 6",
     chip: "保護者の画面です",
+    backgroundColor: "#f8e8e9",
+    showIdentity: true,
     color: "#d18a94",
     heading: "決まった面談日時を確認しましょう",
 
@@ -208,6 +229,8 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   my_schedule_before_submit: {
     title: "面談日時の決定前",
     chip: "保護者の画面です",
+    backgroundColor: "#f8e8e9",
+    showIdentity: true,
     color: "#d18a94",
     heading: "まだ面談日時が決まっていません",
     purpose:
@@ -226,7 +249,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   my_schedule_before_assign: {
     title: "面談日時の決定前",
     chip: "保護者の画面です",
+    showIdentity: true,
     color: "#d18a94",
+    backgroundColor: "#f8e8e9",
     heading: "まだ面談日時が決まっていません",
     purpose:
       "日時の提出は完了しています。学校（教頭先生）が日程を決めると、\nここに表示されます。",
@@ -242,7 +267,9 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   teacher_unavailability: {
     title: "面談できない日時の登録",
     chip: "担任の先生の画面です",
+    showIdentity: true,
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     heading: "出張などで、面談に対応できない日時を登録する画面です",
     steps: [
       <>
@@ -261,7 +288,9 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   family_availability: {
     title: "来校できる日時の提出",
     chip: "保護者の画面です",
+    showIdentity: true,
     color: "#d18a94",
+    backgroundColor: "#f8e8e9",
     heading: "面談に参加できる日時を選ぶ画面です",
     steps: [
       <>
@@ -279,13 +308,15 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   admin_assignment: {
     title: "面談日程の自動割り当て",
     chip: "教頭先生の画面です",
+    showIdentity: true,
     color: "success.main",
-    heading: "先生と保護者の希望から、面談日程を自動で決める画面です",
+    backgroundColor: "#e6f2e9",
+    heading: "クラスをまたいで、面談日程をまとめて決めます",
     steps: [
       <>
         ① 画面の右にある<ButtonName>▶ 割り当てを実行する</ButtonName>を押す
       </>,
-      <>② 「きょうだいの連続面談」と「全体割り当て率」で結果を確認する</>,
+      <>② 「兄弟の連続面談」と「全体割り当て率」で結果を確認する</>,
       <>③ 自動で入らなかった児童は、学級名つきで一覧に表示されます</>,
     ],
     note: "※自動で入らなかった児童は、担任の先生が面談表で手動で割り当てます。",
@@ -295,7 +326,9 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   teacher_meeting_slots: {
     title: "面談表",
     chip: "担任の先生の画面です",
+    showIdentity: true,
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     heading: "決まった面談日程を確認・調整する画面です",
     purpose: "自動で割り当てられなかった児童は、ここで手動で割り当てます。",
     steps: [
@@ -305,14 +338,16 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
       </>,
       <>② 面談表の児童をクリックすると、別の枠へ移動できます</>,
     ],
-    note: "※きょうだいの連続面談を動かそうとすると、確認のメッセージが出ます。",
+    note: "※兄弟の連続面談を動かそうとすると、確認のメッセージが出ます。",
     buttonLabel: "使ってみる",
   },
 
   assignment_before: {
     title: "面談表",
     chip: "担任の先生の画面です",
+    showIdentity: true,
     color: "primary.main",
+    backgroundColor: "#e3ecf7",
     heading: "まだ面談日程が決まっていません",
     purpose:
       "教頭先生が自動割り当てを実行すると、ここに面談表が表示されます。\n割り当て後は、この画面で日程の確認や手動での調整ができます。",
@@ -323,7 +358,9 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   admin_mail_send: {
     title: "保護者への通知",
     chip: "教頭先生の画面です",
+    showIdentity: true,
     color: "success.main",
+    backgroundColor: "#e6f2e9",
     heading: "全クラスの面談日時を、保護者へまとめて知らせる画面です",
     steps: [
       <>
@@ -341,12 +378,12 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   my_schedule: {
     title: "面談日時の確認",
     chip: "保護者の画面です",
+    showIdentity: true,
     color: "#d18a94",
+    backgroundColor: "#f8e8e9",
     heading: "決まった面談日時を確認する画面です",
     steps: [
-      <>
-        ① 面談の日時を確認する（きょうだいの面談は、同じ日の続く時間に入ります）
-      </>,
+      <>① 面談の日時を確認する（兄弟の面談は、同じ日の続く時間に入ります）</>,
       <>
         ② <ButtonName>カレンダーに追加</ButtonName>
         で、自分のカレンダーに登録できます
@@ -359,7 +396,9 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   my_schedule_before_submit: {
     title: "面談日時の決定前",
     chip: "保護者の画面です",
+    showIdentity: true,
     color: "#d18a94",
+    backgroundColor: "#f8e8e9",
     heading: "まだ面談日時が決まっていません",
     purpose:
       "学校が面談日時を決めると、この画面に表示されます。\nまだ来校できる日時を提出していません。",
@@ -377,7 +416,9 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   my_schedule_before_assign: {
     title: "面談日時の決定前",
     chip: "保護者の画面です",
+    showIdentity: true,
     color: "#d18a94",
+    backgroundColor: "#f8e8e9",
     heading: "まだ面談日時が決まっていません",
     purpose:
       "日時の提出は完了しています。\n学校（教頭先生）が日程を決めると、ここに表示されます。",
