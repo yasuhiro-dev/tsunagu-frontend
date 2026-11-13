@@ -27,8 +27,8 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 // セクションの枠の共通設定（全セクションで余白と角の丸みを揃える）
 // state を使わない固定値なので、コンポーネントの外に置く
 const sectionSx = {
-  px: { xs: 3, md: 5 },
-  py: { xs: 3, md: 6 },
+  px: { xs: 1, md: 2 },
+  py: { xs: 1, md: 2 },
   borderRadius: 5,
   display: "flex",
   flexDirection: "column",
@@ -104,7 +104,7 @@ export default function LandingPage() {
       number: "3",
       role: "教頭",
       color: "success.main",
-      description: "自動割り当て",
+      description: "",
     },
     {
       number: "4",
@@ -139,7 +139,7 @@ export default function LandingPage() {
       reset: true,
       image: "/images/teacher.webp",
       items: [
-        "未割り当て児童の配置",
+        "未定の児童を手動で配置",
         "面談枠の移動・入れ替え",
         "面談できない日時の登録",
         "面談表のPDF出力",
@@ -173,8 +173,8 @@ export default function LandingPage() {
       button_label: "教頭先生でログイン",
       reset: true,
       items: [
-        "面談日程の自動割り当て",
-        "割り当て結果の確認",
+        "面談表の自動作成",
+        "決定状況をグラフで確認",
         "保護者へメール一括送信",
         "担任・保護者の管理",
       ],
@@ -186,11 +186,10 @@ export default function LandingPage() {
     {
       number: "1",
       roleKey: "teacher" as const,
-      role: "担任の先生",
+      role: "担任",
       color: "primary.main",
-      title: "面談できない日時を登録",
+      title: "面談できない\n日時を登録",
       image: "/images/workflows/teacher_availability.webp",
-      description: "学校側が対応できない日時を登録します。",
       path: "/teacher_unavailabilities",
       button_label: "先生の画面を見る",
     },
@@ -199,9 +198,8 @@ export default function LandingPage() {
       roleKey: "parent" as const,
       role: "保護者",
       color: "#d18a94",
-      title: "来校できる日時を提出",
+      title: "来校できる\n日時を提出",
       image: "/images/workflows/family_availability.webp",
-      description: "都合のいい日時を選んで提出します。",
       path: "/family_unavailabilities",
       button_label: "保護者の画面を見る",
     },
@@ -210,17 +208,16 @@ export default function LandingPage() {
       roleKey: "admin" as const,
       role: "教頭先生",
       color: "success.main",
-      title: "面談表の自動割り当てを実行",
+      title: "面談表を\n自動作成",
       image: "/images/workflows/admin_assignment.webp",
-      description: "希望と条件から面談日時を自動で決めます。",
       path: "/admin?tab=1",
       button_label: "教頭先生の画面を見る",
     },
     {
       number: "4",
-      role: "担任の先生",
+      role: "担任",
       roleKey: "teacher" as const,
-      title: "面談表を確認・調整",
+      title: "面談表を\n確認・調整",
       color: "primary.main",
       image: "/images/workflows/teacher_manual.webp",
       description: "面談表を確認し、必要なら調整します。",
@@ -232,7 +229,7 @@ export default function LandingPage() {
       roleKey: "admin" as const,
       role: "教頭先生",
       color: "success.main",
-      title: "保護者へメールを送信",
+      title: "保護者へ\nメールを送信",
       image: "/images/workflows/admin_mailer.webp",
       description: "決まった面談日時をメールで知らせます。",
       path: "/admin?tab=2",
@@ -242,7 +239,7 @@ export default function LandingPage() {
       number: "6",
       roleKey: "parent" as const,
       role: "保護者",
-      title: "決定した日時を確認",
+      title: "決定した\n日時を確認",
       color: "#d18a94",
       image: "/images/workflows/family_schedule.webp",
       description: "決まった面談日時をマイページで確認します。",
@@ -383,7 +380,7 @@ export default function LandingPage() {
     >
       {isLoading === "demo-start"
         ? "準備しています…"
-        : "デモを体験する（約5分）"}
+        : "まずはデモを体験する（約5分）"}
     </Button>
   );
 
@@ -400,7 +397,6 @@ export default function LandingPage() {
         <Box
           sx={{
             px: 3, // 下のセクションの枠の左端（24px）と揃える
-            py: 2,
             display: "flex",
             minWidth: 0,
             alignItems: { xs: "stretch", md: "center" },
@@ -437,11 +433,11 @@ export default function LandingPage() {
               </Typography>
             </Box>
 
-            <Box sx={{ mb: 1 }}>
+            <Box>
               <Typography
                 sx={{
                   color: "text.secondary",
-                  lineHeight: 2,
+                  lineHeight: 1.5,
                   fontSize: { xs: "11px", sm: "11px", md: "18px" },
                 }}
               >
@@ -457,8 +453,8 @@ export default function LandingPage() {
             <Image
               src="/images/LP-top.webp"
               alt="兄弟がいる家庭をまとめるイメージ"
-              width={1600}
-              height={800}
+              width={1500}
+              height={700}
               priority
               style={{ width: "100%", height: "auto" }}
             />
@@ -467,7 +463,12 @@ export default function LandingPage() {
 
         {/* ガイド付きデモ */}
         <Box sx={{ p: 3, mb: 2 }}>
-          <Box sx={{ ...sectionSx, backgroundColor: "#d6e4f0" }}>
+          <Box
+            sx={{
+              ...sectionSx,
+              backgroundColor: "#d6e4f0",
+            }}
+          >
             <Box
               sx={{
                 display: "flex",
@@ -476,12 +477,6 @@ export default function LandingPage() {
                 gap: 1,
               }}
             >
-              <Chip
-                label="まずはここから"
-                color="primary"
-                size="small"
-                sx={{ mb: 1.5 }}
-              />
               <Typography
                 variant="h4"
                 sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
@@ -494,74 +489,118 @@ export default function LandingPage() {
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              {/* デモスタートボタン */}
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
-                {demoStarttButton}
-              </Box>
-              {/* 簡略化フロー */}
+              {/* Tsunaguで面談日程が決まるまで */}
+
               <Box
                 sx={{
-                  gap: 1,
-                  mt: 2,
-                  display: { xs: "grid", md: "flex" },
-                  gridTemplateColumns: { xs: "repeat(3, 1fr)" },
-                  rowGap: { xs: 2 },
+                  gap: 2,
+                  display: "flex",
                 }}
               >
-                {simpleWorkflows.map((simpleWorkflow, index) => {
-                  const isLast = index === simpleWorkflows.length - 1;
+                {workflows.map((workflow, index) => {
+                  const isRowEnd = index === 5;
                   return (
                     <Box
-                      key={index}
+                      key={workflow.number}
                       sx={{
+                        position: "relative",
                         display: "flex",
-                        alignItems: "flex-start",
-                        flex: { md: 1 },
+                        flex: 1,
+                        minWidth: 0,
                       }}
                     >
-                      <Box
+                      <Paper
                         sx={{
-                          flex: 1,
-                          textAlign: "center",
                           display: "flex",
                           flexDirection: "column",
-                          alignItems: "center",
+
+                          maxWidth: 160,
+                          maxHeight: 250,
+                          p: 2,
                           gap: 1,
                         }}
                       >
                         <Box
                           sx={{
-                            ...numberCircleSx,
-                            bgcolor: simpleWorkflow.color,
+                            display: "flex",
+                            gap: 2,
+                            alignItems: "center",
                           }}
                         >
-                          {simpleWorkflow.number}
+                          <Box
+                            sx={{
+                              ...numberCircleSx,
+                              backgroundColor: workflow.color,
+                            }}
+                          >
+                            {workflow.number}
+                          </Box>
+                          <Chip
+                            sx={{
+                              minWidth: { xs: 50, md: 80 },
+                              backgroundColor: workflow.color,
+                              color: "common.white",
+                              fontWeight: "bold",
+                            }}
+                            label={workflow.role}
+                          />
                         </Box>
+
                         <Typography
                           sx={{
-                            whiteSpace: "nowrap",
-                            minWidth: { xs: 70, md: 30 },
                             fontWeight: "bold",
+                            fontSize: fontSizes.subheading,
+                            whiteSpace: "pre-line",
+                            textAlign: "center",
                           }}
                         >
-                          {simpleWorkflow.role}
+                          {workflow.title}
                         </Typography>
-                        <Typography sx={{ whiteSpace: "nowrap" }}>
-                          {simpleWorkflow.description}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          mt: "10px",
-                          ml: 2,
-                          display: { xs: "none", md: "block" },
-                        }}
-                      >
-                        {!isLast && <FlowArrow />}
-                      </Box>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            height: 120,
+                            width: "100%",
+                            position: "relative",
+                          }}
+                        >
+                          <Image
+                            src={workflow.image}
+                            alt={workflow.title}
+                            fill
+                            style={{ objectFit: "contain" }}
+                          />
+                        </Box>
+                      </Paper>
+                      {/* 矢印 */}
+                      {!isRowEnd && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            bottom: 0, // 上から下まで、カードと同じ高さにする
+                            right: -25,
+                            display: { xs: "none", md: "flex" },
+                            alignItems: "center", // その中で、縦の真ん中に置く
+                            zIndex: 1,
+                            "& svg": {
+                              fontSize: 40,
+                              color: "primary.main",
+                            },
+                          }}
+                        >
+                          <FlowArrow />
+                        </Box>
+                      )}
                     </Box>
                   );
                 })}
+              </Box>
+
+              {/* デモスタートボタン */}
+              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                {demoStarttButton}
               </Box>
             </Box>
           </Box>
@@ -699,124 +738,6 @@ export default function LandingPage() {
               ))}
             </Box>
           </Paper>
-        </Box>
-
-        {/* Tsunaguで面談日程が決まるまで */}
-        <Box sx={{ p: 3, mb: 2 }} ref={workflowRef}>
-          <Box sx={{ ...sectionSx, backgroundColor: "#d6e4f0" }}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <Typography
-                variant="h4"
-                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
-              >
-                Tsunaguで面談日程が決まるまで
-              </Typography>
-              <Typography variant="body2" sx={{ fontSize: fontSizes.body }}>
-                デモでは、この6ステップを順番に体験できます。
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-                gap: 2,
-              }}
-            >
-              {workflows.map((workflow, index) => {
-                const isRowEnd = index % 3 === 2;
-                return (
-                  <Box
-                    key={workflow.number}
-                    sx={{ position: "relative", display: "flex" }}
-                  >
-                    <Paper
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        flex: 1,
-                        minWidth: 0,
-                        p: 2,
-                        gap: 1,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: "flex",
-                          gap: 2,
-                          alignItems: "center",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            ...numberCircleSx,
-                            backgroundColor: workflow.color,
-                          }}
-                        >
-                          {workflow.number}
-                        </Box>
-                        <Chip
-                          sx={{
-                            minWidth: { xs: 50, md: 80 },
-                            backgroundColor: workflow.color,
-                            color: "common.white",
-                            fontWeight: "bold",
-                          }}
-                          label={workflow.role}
-                        />
-                      </Box>
-
-                      <Typography
-                        variant="h6"
-                        sx={{ fontSize: fontSizes.subheading }}
-                      >
-                        {workflow.title}
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          height: 120,
-                          width: "100%",
-                          position: "relative",
-                        }}
-                      >
-                        <Image
-                          src={workflow.image}
-                          alt={workflow.title}
-                          fill
-                          style={{ objectFit: "contain" }}
-                        />
-                      </Box>
-
-                      <Typography sx={{ fontSize: fontSizes.body }}>
-                        {workflow.description}
-                      </Typography>
-                    </Paper>
-                    {/* 矢印 */}
-                    {!isRowEnd && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: 0,
-                          bottom: 0, // 上から下まで、カードと同じ高さにする
-                          right: -25,
-                          display: { xs: "none", md: "flex" },
-                          alignItems: "center", // その中で、縦の真ん中に置く
-                          zIndex: 1,
-                          "& svg": { fontSize: 40, color: "primary.main" },
-                        }}
-                      >
-                        <FlowArrow />
-                      </Box>
-                    )}
-                  </Box>
-                );
-              })}
-            </Box>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
-              {demoStarttButton}
-            </Box>
-          </Box>
         </Box>
 
         {/* 学校現場では、こんな調整が必要です */}

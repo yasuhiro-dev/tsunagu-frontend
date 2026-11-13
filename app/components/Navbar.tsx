@@ -65,7 +65,7 @@ const teacherMenuItems = [
 const parentMenuItems = [
   { label: "面談の決定日", href: "/my_schedule", icon: <EventAvailableIcon /> },
   {
-    label: "面談できる日時",
+    label: "来校できる日時",
     href: "/family_unavailabilities",
     icon: <EditCalendarIcon />,
   },
@@ -297,11 +297,10 @@ export default function Navbar() {
           borderTopColor: style.color,
         }}
       >
-        <Toolbar sx={{ px: { xs: 1, md: 2 } }}>
+        <Toolbar sx={{ px: { xs: 1, md: 2 }, minHeight: { xs: 40, md: 40 } }}>
           {/* flexShrink: 0 でロゴが潰されて隣のメニューと重なるのを防ぐ */}
           <Box
             sx={{
-              p: { xs: 0, md: 1 },
               display: "flex",
               alignItems: "center",
               flexShrink: 0,
@@ -311,8 +310,8 @@ export default function Navbar() {
               <Image
                 src="/images/tsunagu4.png"
                 alt="Tsunagu"
-                width={70}
-                height={70}
+                width={50}
+                height={50}
                 style={{ width: isMobile ? 44 : 70, height: "auto" }}
               />
               <Typography variant="h6">Tsunagu</Typography>
