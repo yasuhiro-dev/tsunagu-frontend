@@ -259,7 +259,7 @@ export default function FamilyUnavailability() {
     return "上記の内容で提出する";
   };
 
-  let headingText = "面談に参加できる日時のボタンを押してください";
+  let headingText = "来校できる日時のボタンを押してください";
   if (submitted === true) {
     headingText = "提出済みのため変更できません";
   } else if (isPastDeadline) {
