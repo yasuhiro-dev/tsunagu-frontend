@@ -300,8 +300,8 @@ export default function AssignmentNotification({
                 size="small"
                 sx={{ mt: 1, p: 1 }}
                 onClick={() => {
-                  endTour();
                   setPreviewOpen(true);
+                  endTour();
                 }}
               >
                 届くメールの例を見る
@@ -356,8 +356,10 @@ export default function AssignmentNotification({
           id="tour-admin-assignment-notification-example"
           open={previewOpen}
           onClick={() => {
+            if (demoMode === "guided") {
+              startTour("admin_mail_send", 1);
+            }
             setPreviewOpen(false);
-            startTour("admin_mail_send", 1);
           }}
         >
           <DialogTitle>保護者に届くメールの例</DialogTitle>
