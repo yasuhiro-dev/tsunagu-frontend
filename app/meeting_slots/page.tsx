@@ -7,8 +7,8 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import Tooltip from "@mui/material/Tooltip";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import SlotAddPopover from "../components/meeting_slots/SlotAddPopover";
 import Container from "@mui/material/Container";
 import { MeetingSlot, formatDate, formatTime } from "@/utils/dateUtils";
 import Drawer from "@mui/material/Drawer";
@@ -955,7 +955,7 @@ export default function MeetingSlotPage() {
                               >
                                 電話で別の日時を確認し、
                                 <br />
-                                空き枠「＋」から入れましょう
+                                選んでから空き枠をクリック
                               </Typography>
                             </>
                           )}
@@ -1034,6 +1034,7 @@ export default function MeetingSlotPage() {
                     {allDates.map((date) => {
                       const cell = matrix[time][date];
                       const assignmentId = cell.assignment_id;
+                      const noAssignId = !assignmentId; //空き枠
                       const isSelectId = fromAssignmentId !== null; //選択していない場合true
                       const hasUnassigned = unassignedChildren.length > 0; //未割り当て児童がいる場合
                       const isFrom =
@@ -1082,6 +1083,7 @@ export default function MeetingSlotPage() {
                         // 何も選んでいない
                         return isBlockedWhileIdle;
                       })();
+
                       return (
                         <Box
                           key={date}
@@ -1108,13 +1110,14 @@ export default function MeetingSlotPage() {
                               ? "not-allowed" //上の条件のうち１つでも当てはまれば指がバツになる
                               : "pointer", // マウスを乗せたとき、指マークになる
 
-                            "&:hover": isBlocked
-                              ? {} // 前の分岐が選択していない場合（true）、何も変えない
-                              : {
-                                  // 前の分岐が選択している場合（false）、色をつける
-                                  backgroundColor: "#d6e4f0",
-                                  boxShadow: isBlocked ? "0" : "3", //  ホバー時に、薄く影がつく
-                                },
+                            "&:hover":
+                              isBlocked || noAssignId
+                                ? {} // 前の分岐が選択していない場合（true）、何も変えない
+                                : {
+                                    // 前の分岐が選択している場合（false）、色をつける
+                                    backgroundColor: "#d6e4f0",
+                                    boxShadow: isBlocked ? "0" : "3", //  ホバー時に、薄く影がつく
+                                  },
 
                             minHeight: "80px",
                             borderRadius: 1,
@@ -1224,45 +1227,41 @@ export default function MeetingSlotPage() {
                               )}
                             </Box>
                           ) : (
-                            <Box
-                              id="tour-teacher-meeting-slos-add-popbar"
-                              sx={{
-                                textAlign: "center",
-                                minHeight: "30px",
-                              }}
+                            <Tooltip
+                              title={
+                                selectedChild
+                                  ? ""
+                                  : "先に一覧から児童を選んでください"
+                              }
                             >
-                              {/* 空きに児童を追加する */}
+                              <Box
+                                id="tour-teacher-meeting-slos-add-popbar"
+                                sx={{
+                                  textAlign: "center",
+                                  minHeight: "78px",
+                                }}
+                              >
+                                {/* 空きに児童を追加する */}
 
-                              {selectedChild ? (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    color: "primary.main",
-                                    alignItems: "center",
-                                    pt: 0.25,
-                                    gap: 0.5,
-                                  }}
-                                >
-                                  <AddIcon />
-                                  <Typography variant="caption">
-                                    {selectedChild.child_name}さんを割り当てる
-                                  </Typography>
-                                </Box>
-                              ) : (
-                                unassignedChildren.length !== 0 && //未割り当て児童がいる場合
-                                cell.status !== "blocked" && ( //教師が対応不可を選んでいない場合
-                                  <Box>
-                                    <SlotAddPopover
-                                      onAdded={() => fetchChildData()}
-                                      isEditing={isEditing}
-                                      startAt={cell.start_at}
-                                      slotId={cell.id}
-                                    ></SlotAddPopover>
+                                {selectedChild && (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      color: "primary.main",
+                                      alignItems: "center",
+                                      pt: 0.25,
+                                      gap: 0.5,
+                                    }}
+                                  >
+                                    <AddIcon />
+                                    <Typography variant="caption">
+                                      {selectedChild.child_name}さんを割り当てる
+                                    </Typography>
                                   </Box>
-                                )
-                              )}
-                            </Box>
+                                )}
+                              </Box>
+                            </Tooltip>
                           )}
                         </Box>
                       );
