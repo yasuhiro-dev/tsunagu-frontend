@@ -82,6 +82,52 @@ type UnassignedChildren = {
   submitted: boolean;
   available_start_at: string[]; //保護者が参加できると答えた時刻
 };
+//兄弟情報を取得
+const getSiblingsInfo = (data: ValidSlotsData | null) => {
+  //兄弟の開始時刻
+  const startAt = data?.siblings_start_at[0];
+  //兄弟の面談表
+  const slots = data?.siblings_meeting_schedule[0]?.[0]?.slots;
+  if (!startAt || !slots) return null;
+  //兄弟のクラス名
+  const siblingClassRoom =
+    data?.siblings_meeting_schedule[0]?.[0]?.class_room_name;
+  //兄弟の面談表から、時刻と一致するものを取り出す
+  const siblingSlot = slots?.find(
+    (slot) => new Date(slot.start_at).getTime() === new Date(startAt).getTime(),
+  );
+  //兄弟名
+  const siblingName = siblingSlot?.child_name;
+  return { name: siblingName, classRoom: siblingClassRoom, startAt };
+};
+//特別支援情報を取得
+const getSupportInfo = (
+  data: ValidSlotsData | null,
+  currentClassRoom: string | null,
+) => {
+  //特支の開始時刻
+  const startAt = data?.own_support_start_at[0];
+  //特支の面談表(通常級ではないクラスを取得)
+  const supportClassRoom = data?.own_support_meeting_schedule.find(
+    (o) => o.class_room_name !== currentClassRoom,
+  );
+  if (!startAt || !supportClassRoom) return null;
+  //支援の面談表から、時刻と一致するものを取り出す
+  const supportSlot = supportClassRoom.slots.find(
+    (slot) => new Date(slot.start_at).getTime() === new Date(startAt).getTime(),
+  );
+
+  //特支の児童名
+  const supportName = supportSlot?.child_name;
+  //特支の担任名
+  const supportTeacher = supportClassRoom.teacher_name;
+  return {
+    name: supportName,
+    classRoom: supportClassRoom.class_room_name,
+    teacher: supportTeacher,
+    startAt,
+  };
+};
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -104,6 +150,7 @@ export default function MeetingSlotPage() {
   const [unassignedChildren, setUnassignedChildren] = useState<
     UnassignedChildren[]
   >([]);
+
   //ゲストログイン時に、保護者画面への遷移ボタンを消す
   const demoMode = useDemoMode();
 
@@ -139,6 +186,10 @@ export default function MeetingSlotPage() {
   );
   //ドロワーから面談表を取得する
   const [drawerData, setDrawerData] = useState<ValidSlotsData | null>(null);
+  //兄弟の情報をコンポーネントから取得する→これをgetSiblingsInfoで呼ぶ
+  const siblingInfo = getSiblingsInfo(validSlotsData);
+  //特支の情報をコンポーネントから取得する→これをgetSupportInfoで呼ぶ
+  const supportInfo = getSupportInfo(validSlotsData, classRoom);
 
   // 書類アイコン：面談情報を取得してドロワーを開く
   const DrawerHandleClick = async (id: number) => {
@@ -146,7 +197,7 @@ export default function MeetingSlotPage() {
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`,
       { method: "GET", headers: { "Content-Type": "application/json" } },
     );
-    const data = await res.json();
+    const data: ValidSlotsData = await res.json();
     setDrawerData(data);
     setIsOpen(true);
   };
@@ -320,6 +371,9 @@ export default function MeetingSlotPage() {
     ) ?? null;
   const toSlot = slots.find((slot) => slot.id === toSlotId) ?? null; //移動先（空枠も含まれるのでslot.id）
 
+  // 選んでいる児童の名前（入れ替え中 or 未割り当て児童の選択中）
+  const selectedName = fromSlot?.child_name ?? selectedChild?.child_name;
+
   // 面談slot編集・編集完了
   const handleReassign = async () => {
     const res = await fetchWithAuth(
@@ -351,7 +405,6 @@ export default function MeetingSlotPage() {
       if (fromSlot == null || toSlotId == null) {
         return;
       }
-
       setHighlightedSlotIds([fromSlot.id, toSlotId]);
     } else {
       setAlertOpen(true);
@@ -359,6 +412,7 @@ export default function MeetingSlotPage() {
       setAlertMessage("変更できませんでした");
     }
   };
+
   // 本当に実行していいかを確認
   const handleApplyChange = async () => {
     if (fromAssignmentId === null || toSlotId === null) {
@@ -698,7 +752,6 @@ export default function MeetingSlotPage() {
                     同じ児童をもう一度押すと取消
                   </Typography>
                 </Box>
-
                 <Box
                   sx={{
                     display: "flex",
@@ -736,38 +789,20 @@ export default function MeetingSlotPage() {
                     flexItem
                   />
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Chip
-                      label="兄弟"
-                      color="success"
-                      size="small"
+                    <Box
                       sx={{
-                        height: 16,
-                        fontSize: "9px",
-                        "& .MuiChip-label": { px: 0.5 },
+                        width: 14,
+                        height: 14,
+                        borderRadius: 0.5,
+                        backgroundColor: "success.light",
+                        border: "1px solid",
+                        borderColor: "divider",
                       }}
                     />
-                    兄弟の面談
+                    <Typography variant="caption">
+                      選んだ児童の兄弟・特支の面談（連続した時間帯が基本）
+                    </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Chip
-                      label="特支"
-                      size="small"
-                      color="success"
-                      sx={{
-                        height: 16,
-                        fontSize: "9px",
-                        "& .MuiChip-label": { px: 0.5 },
-                      }}
-                    />
-                    特別支援学級の面談
-                  </Box>
-                  <Typography
-                    variant="caption"
-                    color="success"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    ※兄弟・特別支援の面談は連続した時間帯に配置されます
-                  </Typography>
                 </Box>
               </Alert>
             ) : (
@@ -1092,6 +1127,8 @@ export default function MeetingSlotPage() {
                           }}
                           sx={{
                             position: "relative",
+                            display: "flex", // ← 追加
+                            flexDirection: "column",
                             backgroundColor: (theme) =>
                               isFrom
                                 ? alpha(theme.palette.primary.main, 0.2) // 移動元
@@ -1105,7 +1142,6 @@ export default function MeetingSlotPage() {
                             flex: 1,
 
                             minWidth: "120px",
-
                             cursor: isBlocked
                               ? "not-allowed" //上の条件のうち１つでも当てはまれば指がバツになる
                               : "pointer", // マウスを乗せたとき、指マークになる
@@ -1132,38 +1168,6 @@ export default function MeetingSlotPage() {
                                 : "divider",
                           }}
                         >
-                          {isSiblingSlot && (
-                            <Chip
-                              label="兄弟"
-                              size="small"
-                              color="success"
-                              sx={{
-                                position: "absolute",
-                                top: 4,
-                                right: 4,
-                                height: 16,
-
-                                fontSize: "12px",
-                                "& .MuiChip-label": { px: 0.5 },
-                              }}
-                            />
-                          )}
-                          {isSupportSlot && (
-                            <Chip
-                              label="特支"
-                              size="small"
-                              color="success"
-                              sx={{
-                                position: "absolute",
-                                top: 4,
-                                right: isSiblingSlot ? 36 : 4,
-                                height: 16,
-                                fontSize: "12px",
-                                "& .MuiChip-label": { px: 0.5 },
-                              }}
-                            />
-                          )}
-
                           {cell?.child_name ? (
                             <Box
                               sx={{
@@ -1262,6 +1266,54 @@ export default function MeetingSlotPage() {
                                 )}
                               </Box>
                             </Tooltip>
+                          )}
+                          {isSiblingSlot && (
+                            <Box
+                              sx={{
+                                position: "relative",
+                                display: "flex", // ← 追加
+                                flexDirection: "column", // ← 追加
+                                bottom: 1,
+                                width: 145,
+                                backgroundColor: "#e8f5ee",
+                                color: "success.dark",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{ display: "block", lineHeight: 1.2 }}
+                              >
+                                {selectedName}さんの兄弟
+                              </Typography>
+                              <Typography variant="body2">
+                                {siblingInfo && siblingInfo.classRoom}{" "}
+                                {siblingInfo && siblingInfo.name}
+                              </Typography>
+                            </Box>
+                          )}
+                          {isSupportSlot && (
+                            <Box
+                              sx={{
+                                position: "relative",
+                                display: "flex",
+                                flexDirection: "column",
+                                bottom: 1,
+                                width: 145,
+                                backgroundColor: "#e8f5ee",
+                                color: "success.dark",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{ display: "block", lineHeight: 1.2 }}
+                              >
+                                {selectedName}さんの特支面談
+                              </Typography>
+                              <Typography variant="body2">
+                                {supportInfo && supportInfo.classRoom} (
+                                {supportInfo && supportInfo.teacher}先生)
+                              </Typography>
+                            </Box>
                           )}
                         </Box>
                       );
