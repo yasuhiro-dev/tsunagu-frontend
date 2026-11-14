@@ -31,6 +31,7 @@ import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import { useDemoMode } from "@/utils/useDemoMode";
 import { endTour } from "@/utils/startTour";
+import { maxConsecutiveInDay } from "@/utils/consecutiveSlots";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -52,6 +53,7 @@ export default function FamilyUnavailability() {
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+
   // ゲストログイン（free）かガイド付きデモ（guided）か
   const demoMode = useDemoMode();
 
@@ -221,7 +223,6 @@ export default function FamilyUnavailability() {
     // 保護者が提出しているか(utilsファイル)
     const familyId = decodeToken(token).family_id;
     fetchFamilySubmitted(familyId).then((data) => {
-      console.log("family data:", data);
       setSubmitted(data.submitted);
       setChildren(data.children);
       setIsLoaded(true);
@@ -249,10 +250,37 @@ export default function FamilyUnavailability() {
   const now = new Date();
   const deadLineDate = deadLine !== null ? new Date(deadLine) : null;
   const isPastDeadline = deadLineDate !== null && now > deadLineDate;
+  //推奨の枠数
   const RECOMMEND_SLOTS = 6;
+  //選択している枠数
   const selectedCount = availableSlots.length;
+  //推奨に達しているか判定
   const isEnough = selectedCount >= RECOMMEND_SLOTS;
   const nonSiblingDouble = selectedCount < 2;
+
+  //兄弟の連続などの判定を調べる変数
+  //家庭が何枠必要かを調べる
+  const familySlotCount = children.flatMap((c) => c.classroom).length;
+  // 一番長い連続数を求める
+  let maxConsecutive = 0;
+  for (const dateSlots of Object.values(groupByDate(slots))) {
+    //日付ごとにまとめた枠を、1日分ずつ取り出す
+    //その日の枠をSlotの形にする
+    const daySlots = dateSlots.map((slot) => ({
+      //その日の枠1つ1つを、時刻と○かどうか（available）の形に作り直す
+      start_at: slot.start_at,
+      end_at: slot.end_at,
+      available: availableSlots.includes(slot.id),
+    }));
+    // まとめた1日分を関数に渡して判定してもらう
+    const count = maxConsecutiveInDay(daySlots);
+    // 新記録なら更新
+    if (maxConsecutive < count) {
+      maxConsecutive = count;
+    }
+  }
+  // 選択している枠が十分かどうか
+  const isConsecutiveEnough = maxConsecutive >= familySlotCount;
   const getSubmitted = () => {
     if (isPastDeadline) return "提出期限が過ぎました";
     if (submitted) return "提出が完了しました";
@@ -271,6 +299,16 @@ export default function FamilyUnavailability() {
   const childrenText = children
     .map((c) => `${c.name}（${c.classroom}）`)
     .join("・");
+
+  //提出時の時に複数人を持つ家庭とそうじゃない家庭で条件を分岐
+  let hintMessage: string | null = null;
+  if (!submitted && !isPastDeadline) {
+    if (familySlotCount > 1 && !isConsecutiveEnough) {
+      hintMessage = "※兄弟の場合、連続した枠を選んでください";
+    } else if (familySlotCount === 1 && availableSlots.length === 0) {
+      hintMessage = "※選んだ日時が足りません。ページ上部の案内をご確認ください";
+    }
+  }
 
   return (
     <Container sx={{ p: 3 }}>
@@ -465,7 +503,6 @@ export default function FamilyUnavailability() {
             )}
           </Stack>
         </Alert>
-
         <Box
           id="tour-parent-button-area"
           sx={
@@ -479,6 +516,7 @@ export default function FamilyUnavailability() {
               key={date}
               date={date}
               dateSlots={dateSlots}
+              //来校可能にした枠のid
               isAvailable={(slot) => availableSlots.includes(slot.id)}
               isDisabled={(slot) =>
                 submitted ||
@@ -501,7 +539,10 @@ export default function FamilyUnavailability() {
             sx={{ mt: 3 }}
             variant="contained"
             disabled={
-              submitted || isPastDeadline || availableSlots.length === 0
+              submitted ||
+              isPastDeadline ||
+              availableSlots.length === 0 ||
+              (!isConsecutiveEnough && familySlotCount > 1)
             }
             onClick={() => {
               endTour();
@@ -511,9 +552,9 @@ export default function FamilyUnavailability() {
             {getSubmitted()}
           </Button>
         </Box>
-        {!submitted && !isPastDeadline && availableSlots.length === 0 && (
+        {hintMessage && (
           <Typography variant="body2" sx={{ mt: 1, color: "text.secondary" }}>
-            ※選んだ日時が足りません。ページ上部の案内をご確認ください
+            {hintMessage}
           </Typography>
         )}
       </Box>
