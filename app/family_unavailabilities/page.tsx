@@ -38,6 +38,7 @@ export default function FamilyUnavailability() {
   const [availableSlots, setAvailableSlots] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false); //児童の情報の読み込み
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [children, setChildren] = useState<Child[]>([]);
@@ -223,6 +224,7 @@ export default function FamilyUnavailability() {
       console.log("family data:", data);
       setSubmitted(data.submitted);
       setChildren(data.children);
+      setIsLoaded(true);
     });
     // 他のfetchと依存関係がなく独立して実行できるため、Promise.all で並列に実行する
     const loadDeadline = async () => {
@@ -242,7 +244,7 @@ export default function FamilyUnavailability() {
     return (
       <p>データの読み込みに失敗しました。時間をおいて再度お試しください。</p>
     );
-  if (loading) return <p>読み込み中...</p>;
+  if (loading || !isLoaded) return <p>読み込み中...</p>;
 
   const now = new Date();
   const deadLineDate = deadLine !== null ? new Date(deadLine) : null;

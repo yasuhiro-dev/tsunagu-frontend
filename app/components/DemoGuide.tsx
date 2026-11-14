@@ -26,6 +26,16 @@ export type Child = {
   classroom: string;
 };
 
+//画像を先に読み込み
+const DEMO_IMAGES = {
+  teacher: "/images/demo-login-dialog/teacher.webp",
+  parent: "/images/demo-login-dialog/parent.webp",
+  admin: "/images/demo-login-dialog/admin.webp",
+  girl: "/images/demo-login-dialog/child-girl.webp",
+  boy: "/images/demo-login-dialog/child-boy.webp",
+  school: "/images/demo-login-dialog/school.webp",
+};
+
 // 親コンポーネントからpageを受け取る時の型指定
 type Props = {
   page: DemoPage;
@@ -79,8 +89,11 @@ export default function DemoGuide({
     setMounted(true);
     setRole(getRole());
     setName(getName());
+    Object.values(DEMO_IMAGES).forEach((src) => {
+      const img = new window.Image(); //画像を事前に読み込む箱を用意
+      img.src = src;
+    });
   }, []);
-  console.log("name", name);
 
   return (
     <Dialog sx={{ p: 1 }} onClose={handleClose} open={open}>
@@ -123,10 +136,10 @@ export default function DemoGuide({
               >
                 <Box sx={{ flex: 3, display: "flex" }}>
                   <Image
-                    src="/images/demo-login-dialog/teacher.png"
+                    src={DEMO_IMAGES.teacher}
                     alt="担任アイコン"
                     width={100}
-                    height={80}
+                    height={91}
                   />
 
                   <Box
@@ -187,10 +200,10 @@ export default function DemoGuide({
               >
                 <Box sx={{ display: "flex" }}>
                   <Image
-                    src="/images/demo-login-dialog/parent.png"
-                    alt="担任アイコン"
+                    src={DEMO_IMAGES.parent}
+                    alt="保護者アイコン"
                     width={100}
-                    height={80}
+                    height={91}
                   />
 
                   <Box
@@ -239,10 +252,7 @@ export default function DemoGuide({
                   <>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
                       {childName?.map((c, index) => {
-                        const childImages = [
-                          "/images/demo-login-dialog/child-girl.png",
-                          "/images/demo-login-dialog/child-boy.png",
-                        ];
+                        const childImages = [DEMO_IMAGES.girl, DEMO_IMAGES.boy];
                         return (
                           <Box
                             key={index}
@@ -286,10 +296,10 @@ export default function DemoGuide({
               >
                 <Box sx={{ display: "flex" }}>
                   <Image
-                    src="/images/demo-login-dialog/admin.png"
-                    alt="担任アイコン"
+                    src={DEMO_IMAGES.admin}
+                    alt="教頭アイコン"
                     width={100}
-                    height={30}
+                    height={91}
                   />
 
                   <Box
@@ -333,7 +343,7 @@ export default function DemoGuide({
                     </Typography>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Image
-                        src="/images/demo-login-dialog/school.png"
+                        src={DEMO_IMAGES.school}
                         alt="学校アイコン"
                         width={60}
                         height={60}
