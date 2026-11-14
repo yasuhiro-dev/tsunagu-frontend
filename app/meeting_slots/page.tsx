@@ -51,6 +51,14 @@ type ValidSlotsData = {
   siblings_meeting_schedule: MeetingSchedule[][]; //兄弟の面談表
   own_support_meeting_schedule: MeetingSchedule[]; //特別支援の面談表
 };
+//変更前の状態を保存する型
+type EditDialogInfo = {
+  fromStartAt: string;
+  fromName: string;
+  toStartAt: string;
+  toName: string;
+  isSwap: boolean;
+};
 
 // slotsの配列を、時間×日付の表形式に並び替え
 const buildMatrix = (slots: MeetingSlot[]) => {
@@ -141,6 +149,9 @@ export default function MeetingSlotPage() {
   const [violations, setViolations] = useState<Violation[]>([]); //違反していた項目
   const [guideOpen, setGuideOpen] = useState(false); //ハイライトガイド
   const [unassignedGuideOpen, setUnassignedGuideOpen] = useState(false);
+  const [editDialogInfo, setEditDialogInfo] = useState<EditDialogInfo | null>(
+    null,
+  );
   const [selectedChild, setSelectedChild] = useState<UnassignedChildren | null>(
     null,
   );
@@ -204,13 +215,8 @@ export default function MeetingSlotPage() {
 
   // 確認ダイアログでキャンセルを押したとき（移動・割り当て共通）
   const handleCancelDialog = () => {
-    setEditAlertOpen(false); // 移動のダイアログを閉じる
     setUnassignedGuideOpen(false); // 割り当てのダイアログを閉じる
-    setFromAssignmentId(null); // 移動元
-    setSelectedChild(null); // 未割り当て児童
-    setToSlotId(null); // 移動先・割り当て先
-    setValidSlotsData(null); // 色分け（不可日・兄弟・特支）
-    setViolations([]); // 警告
+    setEditAlertOpen(false); // 移動のダイアログを閉じる
   };
 
   //割り当て処理(未割り当て児童)
@@ -280,6 +286,7 @@ export default function MeetingSlotPage() {
         ? await fetchValidSlots(cell.assignment_id) // 移動先の児童のデータを取得
         : null; //もしいなければ何も返さない（情報がないため）
       endTour();
+      if (!fromSlot) return;
       setEditAlertOpen(true); //ダイアログが出される
       // １回目に選択した児童（移動元）を２回目に選択した児童の枠（移動先）に置いたらどうなるか
       const violationsA = checkPlacement(
@@ -300,6 +307,14 @@ export default function MeetingSlotPage() {
           : [];
       setValidSlotsData(null); //面談詳細をなくす
       setViolations([...violationsA, ...violationsB]); //2つのリストを1つに合体
+
+      setEditDialogInfo({
+        fromStartAt: fromSlot.start_at,
+        fromName: fromSlot.child_name,
+        toStartAt: cell.start_at,
+        toName: cell.child_name,
+        isSwap: Boolean(cell.assignment_id),
+      });
     }
   };
   //　兄弟/特支が連続（15分）かどうかを判断する関数
@@ -421,7 +436,6 @@ export default function MeetingSlotPage() {
     await handleReassign();
     setEditAlertOpen(false);
     handleCancelDialog();
-    setValidSlotsData(null);
   };
 
   // 面談不可日・兄弟関係を取得（childのid　未割り当て児童）
@@ -579,7 +593,6 @@ export default function MeetingSlotPage() {
     return `参加できる日時：${label}${times.length === 1 ? " のみ" : ""}`;
   };
   const isEditing = fromAssignmentId !== null;
-  const isToSlotExist = Boolean(toSlot?.assignment_id); //選択先がいる場合
   const isViolationExist = violations.length > 0;
   // 未割り当て児童が入れる空き枠があるか
   const hasOpenSlot = (child: (typeof unassignedChildren)[number]) =>
@@ -1324,10 +1337,25 @@ export default function MeetingSlotPage() {
 
               {/* 面談児童入れ替え時の案内表示 */}
               <Box>
-                <Dialog open={editAlertOpen} onClose={handleCancelDialog}>
+                <Dialog
+                  open={editAlertOpen}
+                  onClose={handleCancelDialog}
+                  slotProps={{
+                    transition: {
+                      onExited: () => {
+                        setFromAssignmentId(null); // 移動元
+                        setSelectedChild(null); // 未割り当て児童
+                        setToSlotId(null); // 移動先・割り当て先
+                        setValidSlotsData(null); // 色分け（不可日・兄弟・特支）
+                        setViolations([]); // 警告
+                        setEditDialogInfo(null); //入れ替え前の状態をリセット
+                      },
+                    },
+                  }}
+                >
                   <DialogTitle variant="h5">
                     {" "}
-                    {isToSlotExist
+                    {editDialogInfo?.isSwap
                       ? "以下の2人の面談時間を入れ替えます"
                       : "以下の児童の面談を、別の時間枠に移動します"}
                   </DialogTitle>
@@ -1360,15 +1388,15 @@ export default function MeetingSlotPage() {
                         </Typography>
                         <Box sx={{ backgroundColor: "white", borderRadius: 2 }}>
                           <Typography>
-                            {formatDate(fromSlot?.start_at ?? "")}
+                            {formatDate(editDialogInfo?.fromStartAt ?? "")}
                             {"  "}
-                            {formatTime(fromSlot?.start_at ?? "")}
+                            {formatTime(editDialogInfo?.fromStartAt ?? "")}
                           </Typography>
                         </Box>
 
-                        <Typography>{`${fromSlot?.child_name}さん`}</Typography>
+                        <Typography>{`${editDialogInfo?.fromName}さん`}</Typography>
                       </Box>
-                      {isToSlotExist ? (
+                      {editDialogInfo?.isSwap ? (
                         <SwapHorizIcon
                           sx={{
                             minHeight: 100,
@@ -1413,14 +1441,14 @@ export default function MeetingSlotPage() {
                           }}
                         >
                           <Typography>
-                            {formatDate(toSlot?.start_at ?? "")}
+                            {formatDate(editDialogInfo?.toStartAt ?? "")}
                             {"  "}
-                            {formatTime(toSlot?.start_at ?? "")}
+                            {formatTime(editDialogInfo?.toStartAt ?? "")}
                           </Typography>
                         </Box>
                         <Typography variant="body1">
-                          {toSlot?.child_name
-                            ? `${toSlot?.child_name}さん`
+                          {editDialogInfo?.toName
+                            ? `${editDialogInfo?.toName}さん`
                             : "空の枠"}
                         </Typography>
                       </Box>
@@ -1516,7 +1544,7 @@ export default function MeetingSlotPage() {
                     >
                       {isViolationExist
                         ? "このまま変更する"
-                        : isToSlotExist
+                        : editDialogInfo?.isSwap
                           ? "入れ替える"
                           : "変更する"}
                     </Button>
@@ -1525,7 +1553,21 @@ export default function MeetingSlotPage() {
               </Box>
               {/* 未割り当て児童を移動する際のダイアログを表示 */}
               <Box>
-                <Dialog open={unassignedGuideOpen}>
+                <Dialog
+                  open={unassignedGuideOpen}
+                  slotProps={{
+                    transition: {
+                      onExited: () => {
+                        setFromAssignmentId(null); // 移動元
+                        setSelectedChild(null); // 未割り当て児童
+                        setToSlotId(null); // 移動先・割り当て先
+                        setValidSlotsData(null); // 色分け（不可日・兄弟・特支）
+                        setViolations([]); // 警告
+                        setEditDialogInfo(null); //入れ替え前の状態をリセット
+                      },
+                    },
+                  }}
+                >
                   <DialogTitle variant="h5" sx={{ fontSize: 20 }}>
                     {selectedChild?.child_name}さんを
                     {formatDate(toSlot?.start_at ?? "")}
