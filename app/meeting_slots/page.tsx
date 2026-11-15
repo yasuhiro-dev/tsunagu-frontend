@@ -981,7 +981,7 @@ export default function MeetingSlotPage() {
                               variant="caption"
                               sx={{ display: "block", color: "success.dark" }}
                             >
-                              ✅希望の枠が空いています。面談表から割り当ててください
+                              ☑︎希望の枠が空いています。面談表から割り当ててください
                             </Typography>
                           ) : (
                             <>
@@ -992,7 +992,7 @@ export default function MeetingSlotPage() {
                                   color: "warning.dark",
                                 }}
                               >
-                                ⚠希望の枠は埋まっています
+                                ⚠︎希望の枠に空きがありません
                               </Typography>
                               <Typography
                                 variant="caption"

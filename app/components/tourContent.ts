@@ -95,7 +95,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       popover: {
         title: "自動で入らなかった児童",
         description:
-          "希望の日時が埋まっていた児童です。<br>まずはこの児童をクリック",
+          "希望の枠に空きがなかった児童です。<br>まずはこの児童をクリック",
       },
     },
     {
