@@ -103,7 +103,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       popover: {
         title: "空き枠の時間に入れる",
         description:
-          "保護者と相談して日時が決まったら、<br>その時間の「＋」から入れます。<br>※デモでは相談済みとして進めます",
+          "未割り当て児童を選んでから、<br>空き枠をクリックします。<br>※デモでは保護者と相談済みの想定です",
       },
     },
 
