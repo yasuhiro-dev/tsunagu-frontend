@@ -36,6 +36,7 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import { endTour } from "@/utils/startTour";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 
 type Violation = {
   kind: string; //どんな条件か
@@ -444,6 +445,7 @@ export default function MeetingSlotPage() {
       //1回目に選択した児童と２回目に選択した児童が同じなら
       setSelectedChild(null); //選択中を解除
       setValidSlotsData(null); //制約情報をなくす
+      setHighlightedSlotIds([]);
       return;
     }
     setSelectedChild(child); //今選択している児童を状態として保存
@@ -524,6 +526,7 @@ export default function MeetingSlotPage() {
       .then((res) => res.json())
       .then((data) => {
         setUnassignedChildren(data);
+        handleSelectChild(data[0]);
       });
   }, [router]);
 
@@ -592,6 +595,7 @@ export default function MeetingSlotPage() {
       .join("、");
     return `参加できる日時：${label}${times.length === 1 ? " のみ" : ""}`;
   };
+
   const isEditing = fromAssignmentId !== null;
   const isViolationExist = violations.length > 0;
   // 未割り当て児童が入れる空き枠があるか
@@ -616,6 +620,12 @@ export default function MeetingSlotPage() {
       .then((res) => res.json())
       .then((data) => setUnassignedChildren(data));
   };
+
+  //バーナーが３つあるため、今どのバナーを出すかを判定
+  const bannerMode = selectedChild ? "assign" : isEditing ? "move" : "normal";
+
+  //来校できない日
+  const unavailableSlot = validSlotsData?.unavailable_start_at;
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -708,55 +718,107 @@ export default function MeetingSlotPage() {
               </Box>
             </Box>
           </Box>
-          <Box id="tour-teacher-meeting-slots-info">
-            {selectedChild ? (
-              <Alert severity="info" sx={{ my: 2, height: 110 }}>
+          <Box id="tour-teacher-meeting-slots-info" sx={{ display: "grid" }}>
+            <Box
+              sx={{
+                gridArea: "1 / 1",
+                visibility: bannerMode === "assign" ? "visible" : "hidden",
+              }}
+            >
+              {/* 未割り当て児童を選択したときのバーナー */}
+              <Alert
+                severity="info"
+                sx={{
+                  my: 2,
+                }}
+              >
                 <Typography variant="h6">
-                  {selectedChild.child_name}
-                  さんを入れる枠をクリックしてください
+                  {selectedChild?.child_name}
+                  さんの面談の枠を決めてください
                 </Typography>
 
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <TouchAppIcon
-                    sx={{
-                      width: 14,
-                      height: 14,
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    {" "}
-                    空いている枠にだけ入れられます。もう一度カードを押すと取消
-                  </Typography>
-                </Box>
                 <Box
                   sx={{
                     display: "flex",
-                    flexWrap: "wrap",
-                    alignItems: "center",
-                    columnGap: 2,
-                    rowGap: 0.5,
-                    mt: 1,
-                    fontSize: "12px",
+                    flexDirection: "column",
+                    gap: 0.5,
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    {" "}
+                    ①
+                    希望の時間に入れられない場合は、保護者に電話で日時を相談してください
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    {" "}
+                    ② 空いている枠をクリックすると割り当てられます
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 1 }}>
                     <Box
                       sx={{
-                        width: 14,
-                        height: 14,
-                        borderRadius: 0.5,
-                        backgroundColor: (theme) =>
-                          alpha(theme.palette.warning.main, 0.4),
-                        border: "1px solid",
-                        borderColor: "divider",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        columnGap: 2,
+                        rowGap: 0.5,
+                        mt: 1,
+                        fontSize: "12px",
                       }}
-                    />
-                    担任または保護者の希望外の時間
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: 0.5,
+                            backgroundColor: (theme) =>
+                              alpha(theme.palette.warning.main, 0.4),
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        />
+                        担任または保護者の希望外の時間
+                      </Box>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                      }}
+                    >
+                      <TouchAppIcon sx={{ mt: 1, width: 14, height: 14 }} />{" "}
+                      <Typography
+                        variant="body2"
+                        sx={{ mt: 1, fontSize: "12px" }}
+                      >
+                        もう一度カードを押すと取消
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </Alert>
-            ) : isEditing ? (
-              <Alert severity="info" sx={{ my: 2, height: 110 }}>
+            </Box>
+            <Box
+              sx={{
+                gridArea: "1 / 1",
+                visibility: bannerMode === "move" ? "visible" : "hidden",
+              }}
+            >
+              {/* 選択後のバーナー */}
+              <Alert
+                severity="info"
+                sx={{
+                  my: 2,
+                  height: 110,
+                }}
+              >
                 <Typography variant="h6">
                   移動先をクリックしてください
                 </Typography>
@@ -818,7 +880,14 @@ export default function MeetingSlotPage() {
                   </Box>
                 </Box>
               </Alert>
-            ) : (
+            </Box>
+            {/* // 選択前のバーナー */}
+            <Box
+              sx={{
+                gridArea: "1 / 1",
+                visibility: bannerMode === "normal" ? "visible" : "hidden",
+              }}
+            >
               <Alert
                 severity="info"
                 sx={{
@@ -847,7 +916,7 @@ export default function MeetingSlotPage() {
                           height: 14,
                         }}
                       />
-                      <Typography variant="body2" sx={{ mt: 1 }}>
+                      <Typography variant="body2">
                         選んだ児童の、移動できない時間と、兄弟・特支の重なりが表示されます
                       </Typography>
                     </Box>
@@ -864,7 +933,11 @@ export default function MeetingSlotPage() {
                       }}
                     >
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
                       >
                         <Box
                           sx={{
@@ -885,7 +958,7 @@ export default function MeetingSlotPage() {
                   {/* 管理者画面へ遷移するボタン */}
                 </Box>
               </Alert>
-            )}
+            </Box>
           </Box>
 
           <Box
@@ -949,9 +1022,26 @@ export default function MeetingSlotPage() {
                               : "transparent", // 選択中は色を変える
                         }}
                       >
-                        <Typography variant="body2">
-                          {child.child_name}
-                        </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography variant="h6">
+                            {child.child_name}
+                          </Typography>
+                          {selectedChild?.id === child.id && (
+                            <Chip
+                              label={"選択中"}
+                              size="small"
+                              color="primary"
+                              sx={{ fontSize: 10 }}
+                            />
+                          )}
+                        </Box>
+
                         <Typography
                           variant="caption"
                           sx={{ color: "text.secondary" }}
@@ -1001,9 +1091,9 @@ export default function MeetingSlotPage() {
                                   color: "warning.dark",
                                 }}
                               >
-                                電話で別の日時を確認し、
+                                保護者に電話で相談し、
                                 <br />
-                                選んでから空き枠をクリック
+                                決まった時間の枠へ
                               </Typography>
                             </>
                           )}
@@ -1197,9 +1287,35 @@ export default function MeetingSlotPage() {
                                   gap: 0.5,
                                 }}
                               >
-                                <Typography variant="body1">
-                                  {cell.child_name}
-                                </Typography>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 2,
+                                  }}
+                                >
+                                  <Typography variant="body1">
+                                    {cell.child_name}
+                                  </Typography>
+
+                                  {unavailableSlot &&
+                                    selectedChild &&
+                                    !unavailableSlot.includes(
+                                      cell.start_at,
+                                    ) && (
+                                      <Chip
+                                        sx={{
+                                          fontSize: 12,
+                                        }}
+                                        color="primary"
+                                        size="small"
+                                        variant="outlined"
+                                        label={`${selectedChild.child_name}と希望が重複`}
+                                        icon={<PeopleAltOutlinedIcon />}
+                                      />
+                                    )}
+                                </Box>
+
                                 {isFrom && assignmentId && (
                                   <IconButton
                                     size="small"
@@ -1246,7 +1362,7 @@ export default function MeetingSlotPage() {
                           ) : (
                             <Tooltip
                               title={
-                                selectedChild
+                                selectedChild || unassignedChildren.length === 0
                                   ? ""
                                   : "先に一覧から児童を選んでください"
                               }
