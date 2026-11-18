@@ -37,6 +37,7 @@ import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import { endTour } from "@/utils/startTour";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import { teacherUnavailableBg } from "@/app/patterns";
 
 type Violation = {
   kind: string; //どんな条件か
@@ -626,6 +627,8 @@ export default function MeetingSlotPage() {
 
   //来校できない日
   const unavailableSlot = validSlotsData?.unavailable_start_at;
+  //選択しているか
+  const isSelectId = fromAssignmentId !== null;
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -773,17 +776,52 @@ export default function MeetingSlotPage() {
                         }}
                       >
                         <Box
+                          sx={(theme) => ({
+                            width: 14,
+                            height: 14,
+                            borderRadius: 0.5,
+                            backgroundColor: teacherUnavailableBg(theme, {
+                              lineWidth: 1,
+                              gap: 2,
+                              lineOpacity: 0.5,
+                            }),
+                            border: "1px solid",
+                            borderColor: "divider",
+                          })}
+                        />
+                        担任の先生の面談できない日時
+                      </Box>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        columnGap: 2,
+                        rowGap: 0.5,
+                        mt: 1,
+                        fontSize: "12px",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        <Box
                           sx={{
                             width: 14,
                             height: 14,
                             borderRadius: 0.5,
                             backgroundColor: (theme) =>
-                              alpha(theme.palette.warning.main, 0.4),
+                              alpha(theme.palette.primary.main, 0.4),
                             border: "1px solid",
                             borderColor: "divider",
                           }}
                         />
-                        担任または保護者の希望外の時間
+                        選んだ児童の希望日時
                       </Box>
                     </Box>
                     <Box
@@ -840,42 +878,69 @@ export default function MeetingSlotPage() {
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <Box
-                      sx={{
-                        minWidth: 14,
-                        minHeight: 14,
+                      sx={(theme) => ({
+                        width: 14,
+                        height: 14,
                         borderRadius: 0.5,
-                        backgroundColor: (theme) =>
-                          alpha(theme.palette.warning.main, 0.4),
+                        backgroundColor: teacherUnavailableBg(theme, {
+                          lineWidth: 1,
+                          gap: 2,
+                          lineOpacity: 0.5,
+                        }),
                         border: "1px solid",
                         borderColor: "divider",
-                      }}
+                      })}
                     />
-                    担任または保護者の希望外の時間（割り当ては可能）
+                    <Typography variant="caption">
+                      担任の先生の面談できない時間
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Box
+                      sx={(theme) => ({
+                        width: 14,
+                        height: 14,
+                        borderRadius: 0.5,
+                        backgroundColor: alpha(theme.palette.primary.main, 0.4),
+                        border: "1px solid",
+                        borderColor: "divider",
+                      })}
+                    />
+                    <Typography variant="caption">
+                      選んだ児童の希望日時
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Box
+                      sx={(theme) => ({
+                        width: 14,
+                        height: 14,
+                        borderRadius: 0.5,
+                        backgroundColor: alpha(
+                          theme.palette.secondary.main,
+                          0.4,
+                        ),
+                        border: "1px solid",
+                        borderColor: "divider",
+                      })}
+                    />
+                    <Typography variant="caption">
+                      選んだ児童の兄弟・特支の面談（連続した時間帯が基本）
+                    </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                     <DescriptionIcon
                       sx={{ fontSize: "16px", color: "primary.main" }}
                     />
-                    兄弟・特支の面談表を見る
-                  </Box>
-                  <Divider
-                    sx={{ borderColor: "text.secondary" }}
-                    orientation="vertical"
-                    flexItem
-                  />
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                    <Box
-                      sx={{
-                        width: 14,
-                        height: 14,
-                        borderRadius: 0.5,
-                        backgroundColor: "success.light",
-                        border: "1px solid",
-                        borderColor: "divider",
-                      }}
-                    />
                     <Typography variant="caption">
-                      選んだ児童の兄弟・特支の面談（連続した時間帯が基本）
+                      <Divider
+                        sx={{ borderColor: "text.secondary" }}
+                        orientation="vertical"
+                        flexItem
+                      />
+                      兄弟・特支の面談表を見る
                     </Typography>
                   </Box>
                 </Box>
@@ -940,15 +1005,18 @@ export default function MeetingSlotPage() {
                         }}
                       >
                         <Box
-                          sx={{
+                          sx={(theme) => ({
                             width: 14,
                             height: 14,
                             borderRadius: 0.5,
-                            backgroundColor: (theme) =>
-                              alpha(theme.palette.warning.main, 0.4),
+                            backgroundColor: teacherUnavailableBg(theme, {
+                              lineWidth: 1,
+                              gap: 2,
+                              lineOpacity: 0.5,
+                            }),
                             border: "1px solid",
                             borderColor: "divider",
-                          }}
+                          })}
                         />
                         担任の先生の面談できない時間
                       </Box>
@@ -1172,8 +1240,6 @@ export default function MeetingSlotPage() {
                     {allDates.map((date) => {
                       const cell = matrix[time][date];
                       const assignmentId = cell.assignment_id;
-                      const noAssignId = !assignmentId; //空き枠
-                      const isSelectId = fromAssignmentId !== null; //選択していない場合true
                       const hasUnassigned = unassignedChildren.length > 0; //未割り当て児童がいる場合
                       const isFrom =
                         fromAssignmentId !== null &&
@@ -1187,6 +1253,12 @@ export default function MeetingSlotPage() {
                         validSlotsData?.unavailable_start_at?.includes(
                           cell?.start_at,
                         ) ?? false;
+                      //割り当て児童の希望日
+                      const isPreferred = !isUnavailable && isSelectId;
+                      //未割り当て児童の希望日
+                      const unassignedIsPreferred =
+                        !isUnavailable && selectedChild;
+
                       // 兄弟の面談時間を取得
                       const isSiblingSlot =
                         validSlotsData?.siblings_start_at?.includes(
@@ -1208,7 +1280,6 @@ export default function MeetingSlotPage() {
                       // 何も選んでいないとき、押せない枠か
                       const isBlockedWhileIdle =
                         isUnavailableTime || isEmptyWithNoOneToAssign;
-
                       // 未割り当て児童を選択中か
                       const isSelectingUnassigned = selectedChild !== null;
 
@@ -1222,151 +1293,200 @@ export default function MeetingSlotPage() {
                         return isBlockedWhileIdle;
                       })();
 
-                      return (
-                        <Box
-                          key={date}
-                          onClick={() => {
-                            handleFromToSelect(cell);
-                          }}
-                          sx={{
-                            position: "relative",
-                            display: "flex", // ← 追加
-                            flexDirection: "column",
-                            backgroundColor: (theme) =>
-                              isFrom
-                                ? alpha(theme.palette.primary.main, 0.2) // 移動元
-                                : isUnavailable
-                                  ? alpha(theme.palette.warning.main, 0.15) // 保護者面談不可日
-                                  : isTeacherUnavailable
-                                    ? alpha(theme.palette.warning.main, 0.15) // 教師面談不可日
-                                    : isHighlighted
-                                      ? alpha(theme.palette.success.light, 0.4) // 変更決定後のハイライト
-                                      : "transparent", // 通常
-                            flex: 1,
-
-                            minWidth: "120px",
-                            cursor: isBlocked
-                              ? "not-allowed" //上の条件のうち１つでも当てはまれば指がバツになる
-                              : "pointer", // マウスを乗せたとき、指マークになる
-
-                            "&:hover":
-                              isBlocked || noAssignId
-                                ? {} // 前の分岐が選択していない場合（true）、何も変えない
-                                : {
-                                    // 前の分岐が選択している場合（false）、色をつける
-                                    backgroundColor: "#d6e4f0",
-                                    boxShadow: isBlocked ? "0" : "3", //  ホバー時に、薄く影がつく
-                                  },
-
-                            minHeight: "80px",
-                            borderRadius: 1,
-
-                            // 選択中の枠線
-                            border:
-                              isFrom || isTo ? "solid 2px " : "solid 1px ",
-                            borderColor: isFrom
-                              ? "primary.main"
-                              : isTo
-                                ? "warning.main"
-                                : "divider",
-                          }}
-                        >
-                          {cell?.child_name ? (
+                      //選択中の時の空き枠のツールチップ
+                      const tooltipText = () => {
+                        // 何も選んでいない：空き枠だけ案内（子がいる枠は押すと選べるので出さない）
+                        if (!selectedChild && !isSelectId)
+                          return assignmentId ? "" : "先に児童を選んでください";
+                        // 選んでいる子自身の枠（押すと取消）
+                        if (isFrom) return "";
+                        // 未割り当ての子を選択中：子がいる枠は押しても何も起きない
+                        if (selectedChild && assignmentId) return "";
+                        if (isTeacherUnavailable)
+                          return "担任の面談できない時間";
+                        if (isUnavailable) return "保護者の希望外（要相談）";
+                        return "";
+                      };
+                      //枠のラベル（未割り当てと割り当て済みで分岐）
+                      const slotLabel = () => {
+                        if (selectedChild && !isUnavailable)
+                          return (
                             <Box
                               sx={{
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: 1,
+                                color: "primary.main",
+                                alignItems: "center",
+                                pt: 0.25,
+                                gap: 0.5,
                               }}
                             >
-                              {/* 名前 + 書類アイコン（横並び） */}
+                              <AddIcon fontSize="small" />
+                              {selectedChild.child_name}さんを割り当てる
+                            </Box>
+                          );
+                        if (isSelectId && !isBlocked)
+                          return (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                color: "primary.main",
+                                alignItems: "center",
+                                pt: 0.25,
+                                gap: 0.5,
+                              }}
+                            >
+                              <AddIcon fontSize="small" />
+                              ここに入れる
+                            </Box>
+                          );
+                        return null;
+                      };
+
+                      return (
+                        <Tooltip key={date} title={tooltipText()} followCursor>
+                          <Box
+                            onClick={() => {
+                              handleFromToSelect(cell);
+                            }}
+                            sx={(theme) => ({
+                              position: "relative",
+                              display: "flex",
+                              flexDirection: "column",
+                              flex: 1,
+                              minWidth: "120px",
+                              minHeight: "80px",
+                              borderRadius: 1,
+                              backgroundColor: isFrom
+                                ? alpha(theme.palette.primary.main, 0.2) // 移動元
+                                : isPreferred || unassignedIsPreferred
+                                  ? alpha(theme.palette.primary.light, 0.25) // 保護者面談不可日()
+                                  : isHighlighted
+                                    ? alpha(theme.palette.success.light, 0.4) // 変更決定後のハイライト
+                                    : "transparent", // 通常
+                              // 教師面談不可日は、斜線を出す
+                              ...(isTeacherUnavailable &&
+                                teacherUnavailableBg(theme)),
+                              cursor: "pointer",
+                              //選択前と未割り当て＆割り当て時のホバー
+                              "&:hover":
+                                fromAssignmentId === null && !selectedChild
+                                  ? {}
+                                  : {
+                                      boxShadow: 3,
+                                      borderColor: "grey.500",
+                                    },
+
+                              // 選択中の枠線
+                              border:
+                                isFrom || isTo ? "solid 2px " : "solid 1px ",
+                              borderColor: isFrom
+                                ? "primary.main"
+                                : isTo
+                                  ? "warning.main"
+                                  : "divider",
+                            })}
+                          >
+                            {cell?.child_name ? (
                               <Box
                                 sx={{
                                   display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.5,
+                                  flexDirection: "column",
+                                  gap: 1,
                                 }}
                               >
+                                {/* 名前 + 書類アイコン（横並び） */}
                                 <Box
                                   sx={{
                                     display: "flex",
-                                    flexDirection: "column",
-                                    gap: 2,
+                                    alignItems: "center",
+                                    gap: 0.5,
                                   }}
                                 >
-                                  <Typography variant="body1">
-                                    {cell.child_name}
-                                  </Typography>
-
-                                  {unavailableSlot &&
-                                    selectedChild &&
-                                    !unavailableSlot.includes(
-                                      cell.start_at,
-                                    ) && (
-                                      <Chip
-                                        sx={{
-                                          fontSize: 12,
-                                        }}
-                                        color="primary"
-                                        size="small"
-                                        variant="outlined"
-                                        label={`${selectedChild.child_name}と希望が重複`}
-                                        icon={<PeopleAltOutlinedIcon />}
-                                      />
-                                    )}
-                                </Box>
-
-                                {isFrom && assignmentId && (
-                                  <IconButton
-                                    size="small"
-                                    sx={{ p: 0.25 }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      DrawerHandleClick(assignmentId);
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: 2,
                                     }}
                                   >
-                                    <DescriptionIcon
-                                      sx={{
-                                        fontSize: 16,
-                                        color: "primary.main",
+                                    <Typography variant="body1">
+                                      {cell.child_name}
+                                    </Typography>
+
+                                    {unavailableSlot &&
+                                      selectedChild &&
+                                      !unavailableSlot.includes(
+                                        cell.start_at,
+                                      ) && (
+                                        <Chip
+                                          sx={{
+                                            fontSize: 12,
+                                            height: "auto",
+                                            "& .MuiChip-label": {
+                                              whiteSpace: "normal",
+                                            },
+                                          }}
+                                          color="primary"
+                                          size="small"
+                                          variant="outlined"
+                                          label={
+                                            <>
+                                              {selectedChild.child_name}さんと
+                                              <br />
+                                              希望が重複
+                                            </>
+                                          }
+                                          icon={<PeopleAltOutlinedIcon />}
+                                        />
+                                      )}
+                                  </Box>
+
+                                  {isFrom && assignmentId && (
+                                    <IconButton
+                                      size="small"
+                                      sx={{ p: 0.25 }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        DrawerHandleClick(assignmentId);
                                       }}
-                                    />
-                                    <ChevronRightIcon
-                                      sx={{
-                                        fontSize: 16,
-                                        color: "primary.main",
-                                      }}
-                                    />
-                                  </IconButton>
+                                    >
+                                      <DescriptionIcon
+                                        sx={{
+                                          fontSize: 16,
+                                          color: "primary.main",
+                                        }}
+                                      />
+                                      <ChevronRightIcon
+                                        sx={{
+                                          fontSize: 16,
+                                          color: "primary.main",
+                                        }}
+                                      />
+                                    </IconButton>
+                                  )}
+                                </Box>
+
+                                {/* 希望日時未提出：セルの下端に固定 */}
+                                {cell.submitted === false && (
+                                  <Chip
+                                    variant="outlined"
+                                    label="希望日時未提出"
+                                    color="warning"
+                                    size="small"
+                                    sx={{
+                                      position: "absolute",
+                                      bottom: 2,
+                                      left: 4,
+                                      right: 4,
+                                      maxHeight: "15px",
+                                      fontSize: "caption",
+                                    }}
+                                  />
                                 )}
                               </Box>
-
-                              {/* 希望日時未提出：セルの下端に固定 */}
-                              {cell.submitted === false && (
-                                <Chip
-                                  variant="outlined"
-                                  label="希望日時未提出"
-                                  color="warning"
-                                  size="small"
-                                  sx={{
-                                    position: "absolute",
-                                    bottom: 2,
-                                    left: 4,
-                                    right: 4,
-                                    maxHeight: "15px",
-                                    fontSize: "caption",
-                                  }}
-                                />
-                              )}
-                            </Box>
-                          ) : (
-                            <Tooltip
-                              title={
-                                selectedChild || unassignedChildren.length === 0
-                                  ? ""
-                                  : "先に一覧から児童を選んでください"
-                              }
-                            >
+                            ) : (
                               <Box
                                 id="tour-teacher-meeting-slos-add-popbar"
                                 sx={{
@@ -1376,75 +1496,72 @@ export default function MeetingSlotPage() {
                               >
                                 {/* 空きに児童を追加する */}
 
-                                {selectedChild && (
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      color: "primary.main",
-                                      alignItems: "center",
-                                      pt: 0.25,
-                                      gap: 0.5,
-                                    }}
-                                  >
-                                    <AddIcon />
-                                    <Typography variant="caption">
-                                      {selectedChild.child_name}さんを割り当てる
-                                    </Typography>
-                                  </Box>
-                                )}
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    color: "primary.main",
+                                    alignItems: "center",
+                                    pt: 0.25,
+                                    gap: 0.5,
+                                  }}
+                                >
+                                  <Typography variant="caption">
+                                    {slotLabel()}
+                                  </Typography>
+                                </Box>
                               </Box>
-                            </Tooltip>
-                          )}
-                          {isSiblingSlot && (
-                            <Box
-                              sx={{
-                                position: "relative",
-                                display: "flex", // ← 追加
-                                flexDirection: "column", // ← 追加
-                                bottom: 1,
-                                width: 145,
-                                backgroundColor: "#e8f5ee",
-                                color: "success.dark",
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                sx={{ display: "block", lineHeight: 1.2 }}
+                            )}
+                            {isSiblingSlot && (
+                              <Box
+                                sx={{
+                                  backgroundColor: (theme) =>
+                                    alpha(theme.palette.secondary.main, 0.12),
+                                  color: "secondary.dark",
+                                  borderLeft: "3px solid",
+                                  borderColor: "secondary.main",
+                                  px: 0.5,
+                                  borderRadius: 0.5,
+                                }}
                               >
-                                {selectedName}さんの兄弟
-                              </Typography>
-                              <Typography variant="body2">
-                                {siblingInfo && siblingInfo.classRoom}{" "}
-                                {siblingInfo && siblingInfo.name}
-                              </Typography>
-                            </Box>
-                          )}
-                          {isSupportSlot && (
-                            <Box
-                              sx={{
-                                position: "relative",
-                                display: "flex",
-                                flexDirection: "column",
-                                bottom: 1,
-                                width: 145,
-                                backgroundColor: "#e8f5ee",
-                                color: "success.dark",
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                sx={{ display: "block", lineHeight: 1.2 }}
+                                <Typography
+                                  variant="caption"
+                                  sx={{ display: "block", lineHeight: 1.2 }}
+                                >
+                                  {selectedName}さんの兄弟
+                                </Typography>
+                                <Typography variant="caption">
+                                  {siblingInfo && siblingInfo.classRoom}{" "}
+                                  {siblingInfo && siblingInfo.name}
+                                </Typography>
+                              </Box>
+                            )}
+                            {isSupportSlot && (
+                              <Box
+                                sx={{
+                                  backgroundColor: (theme) =>
+                                    alpha(theme.palette.secondary.main, 0.12),
+                                  color: "secondary.dark",
+                                  borderLeft: "3px solid",
+                                  borderColor: "secondary.main",
+                                  px: 0.5,
+                                  borderRadius: 0.5,
+                                }}
                               >
-                                {selectedName}さんの特支面談
-                              </Typography>
-                              <Typography variant="body2">
-                                {supportInfo && supportInfo.classRoom} (
-                                {supportInfo && supportInfo.teacher}先生)
-                              </Typography>
-                            </Box>
-                          )}
-                        </Box>
+                                <Typography
+                                  variant="caption"
+                                  sx={{ display: "block", lineHeight: 1.2 }}
+                                >
+                                  {selectedName}さんの特支面談
+                                </Typography>
+                                <Typography variant="caption">
+                                  {supportInfo && supportInfo.classRoom} (
+                                  {supportInfo && supportInfo.teacher}先生)
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+                        </Tooltip>
                       );
                     })}
                   </Box>
