@@ -23,8 +23,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
-import GroupsIcon from "@mui/icons-material/Groups";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 
 type Child = {
   id: number;

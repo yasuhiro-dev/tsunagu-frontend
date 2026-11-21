@@ -6,10 +6,21 @@ import { demoLogin, DEMO_ACCOUNTS } from "@/utils/demoLogin";
 import { useRouter } from "next/navigation";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
 import { useState, useEffect } from "react";
+import { highlightSx } from "@/app/highlight";
 
-type Props = { page: DemoPage };
+type Props = {
+  page: DemoPage;
+  hasResult?: boolean;
+  isDone?: boolean;
+  submitted?: boolean;
+};
 
-export default function NextStepButton({ page }: Props) {
+export default function NextStepButton({
+  page,
+  hasResult,
+  isDone,
+  submitted,
+}: Props) {
   const content = demoPageContent[page];
   const router = useRouter();
   const [alertOpen, setAlertOpen] = useState(false);
@@ -59,7 +70,10 @@ export default function NextStepButton({ page }: Props) {
       <Button
         variant="contained"
         color="success"
-        sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+        sx={[
+          { p: 1, fontWeight: "bold", fontSize: 14 },
+          (hasResult || submitted || isDone) && highlightSx,
+        ]}
         endIcon={<ArrowForwardIcon />}
         onClick={() => {
           if (content.buttonUrl) {

@@ -21,6 +21,8 @@ import GuideHelp from "@/app/components/GuideHelp";
 import CircularProgress from "@mui/material/CircularProgress";
 import NextStepButton from "@/app/components/NextStepButton";
 import { useDemoMode } from "@/utils/useDemoMode";
+import { highlightSx } from "@/app/highlight";
+
 type Props = {
   scheduleId: number | null;
   classLength?: number;
@@ -192,7 +194,10 @@ export default function AssignmentExecution({
               </Box>
               {hasResult && demoMode === "guided" && (
                 <Box id="tour-admin-assignment-execution-next-button">
-                  <NextStepButton page={"assignment_button"} />
+                  <NextStepButton
+                    page={"assignment_button"}
+                    hasResult={hasResult}
+                  />
                 </Box>
               )}
             </Box>
@@ -260,11 +265,14 @@ export default function AssignmentExecution({
               onClick={handleClick}
               disabled={isAssigning}
               startIcon={isAssigning ? <CircularProgress size={20} /> : null}
-              sx={{
-                p: 2,
-                fontWeight: "bold",
-                fontSize: { xs: 12, md: 18 },
-              }}
+              sx={[
+                {
+                  p: 2,
+                  fontWeight: "bold",
+                  fontSize: { xs: 12, md: 18 },
+                },
+                !hasResult && demoMode === "guided" && highlightSx,
+              ]}
             >
               {isAssigning
                 ? "割り当て中"
