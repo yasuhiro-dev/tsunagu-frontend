@@ -51,8 +51,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     heading: "出張で、面談に対応できない日時を登録する画面です。",
     steps: [
       <>
-        ① 試しに好きな時間を2つ選んで、<ButtonName>× 対応できない</ButtonName>
-        を押す
+        ① 光っている<ButtonName>× 対応できない</ButtonName>を押す
       </>,
       <>
         ② 画面の一番下にある<ButtonName>上記の内容で提出する</ButtonName>を押す
@@ -84,15 +83,13 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     heading: "面談に参加できる日時を選んでみましょう",
     steps: [
       <>
-        ① 同じ日の続いた時間を2つ以上選んで、
-        <ButtonName>○ 参加できる</ButtonName>
-        を押す
+        ① <ButtonName>全て可能</ButtonName>を押して、1日分まとめて選ぶ
       </>,
       <>
         ② 画面の一番下にある<ButtonName>上記の内容で提出する</ButtonName>を押す
       </>,
     ],
-    note: "※6枠以上選んでおくと、面談日時が決まりやすくなります（デモは2つでOK）",
+    note: "※きょうだい2人分の面談を続けて組むため、同じ日の続いた時間が必要です",
     buttonLabel: "やってみる",
   },
 
@@ -146,11 +143,9 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     backgroundColor: "#e3ecf7",
     heading: "自動で入らなかった児童を、手で割り当てましょう",
     purpose:
-      "希望の枠がすでに埋まっていたため、保護者に電話で確認し\n「別の日でも大丈夫」と言われた想定です。",
+      "選択中の児童は、電話で相談して同じ日の別の時間に決まった想定です。",
     steps: [
-      <>
-        ① 空いている枠の<ButtonName>＋ 児童を割り当てる</ButtonName>を押す
-      </>,
+      <>① 光っている枠のどれかを押す</>,
       <>
         ② 終わったら、画面右上の
         <ButtonName>次へ：保護者へメール送信</ButtonName>を押す
@@ -186,13 +181,10 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
       "どのクラスも面談表の確認が終わった想定です。\n教頭先生が、全クラス分をまとめて送信します。",
     steps: [
       <>
-        ① <ButtonName>届くメールの例を見る</ButtonName>
-        で、保護者に届くメールも確認できます
-      </>,
-      <>
-        ② 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>を押す
+        ① 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>を押す
       </>,
     ],
+    note: "※デモでは送られません。中身は「届くメールの例を見る」で確認",
     buttonLabel: "やってみる",
   },
   assignment_notification: {
@@ -217,12 +209,8 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
 
     steps: [
       <>① 2人のお子さんの面談が、同じ日の続く時間になっているか確認する</>,
-      <>
-        ② <ButtonName>カレンダーに追加</ButtonName>
-        で、自分のカレンダーに登録もできます
-      </>,
     ],
-    note: "※これでデモは終わりです。お試しいただきありがとうございました。",
+    note: "※「カレンダーに追加」で、自分のカレンダーにも登録できます\n※これでデモは終わりです。お試しいただきありがとうございました。",
     buttonLabel: "確認する",
   },
   // 保護者がまだ日時を提出していない
@@ -332,13 +320,10 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
     heading: "決まった面談日程を確認・調整する画面です",
     purpose: "自動で割り当てられなかった児童は、ここで手動で割り当てます。",
     steps: [
-      <>
-        ① 空いている枠の<ButtonName>＋ 児童を割り当てる</ButtonName>
-        を押して、未割り当ての児童を選ぶ
-      </>,
-      <>② 面談表の児童をクリックすると、別の枠へ移動できます</>,
+      <>① 未割り当ての児童 → 空いている枠の順に押す</>,
+      <>② 移動するときは、割り当て済みの児童 → 移動先の順に押す</>,
     ],
-    note: "※兄弟の連続面談を動かそうとすると、確認のメッセージが出ます。",
+    note: "※きょうだいの連続面談を動かそうとすると、確認のメッセージが出ます。",
     buttonLabel: "使ってみる",
   },
 
@@ -364,14 +349,11 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
     heading: "全クラスの面談日時を、保護者へまとめて知らせる画面です",
     steps: [
       <>
-        ① <ButtonName>届くメールの例を見る</ButtonName>
-        で、保護者に届くメールを確認する
-      </>,
-      <>
-        ② 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>
+        ① 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>
         で、全クラスの保護者へ通知する
       </>,
     ],
+    note: "※デモでは送られません。中身は「届くメールの例を見る」で確認",
     buttonLabel: "使ってみる",
   },
 
@@ -383,12 +365,11 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
     backgroundColor: "#f8e8e9",
     heading: "決まった面談日時を確認する画面です",
     steps: [
-      <>① 面談の日時を確認する（兄弟の面談は、同じ日の続く時間に入ります）</>,
       <>
-        ② <ButtonName>カレンダーに追加</ButtonName>
-        で、自分のカレンダーに登録できます
+        ① 面談の日時を確認する（きょうだいの面談は、同じ日の続く時間に入ります）
       </>,
     ],
+    note: "※「カレンダーに追加」で、自分のカレンダーにも登録できます",
     buttonLabel: "確認する",
   },
 
