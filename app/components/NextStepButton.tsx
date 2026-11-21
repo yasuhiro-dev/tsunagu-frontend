@@ -17,9 +17,9 @@ type Props = {
 
 export default function NextStepButton({
   page,
-  hasResult,
-  isDone,
-  submitted,
+  hasResult = false,
+  isDone = false,
+  submitted = false,
 }: Props) {
   const content = demoPageContent[page];
   const router = useRouter();
