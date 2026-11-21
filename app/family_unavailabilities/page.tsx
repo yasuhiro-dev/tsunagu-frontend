@@ -32,6 +32,7 @@ import Chip from "@mui/material/Chip";
 import { useDemoMode } from "@/utils/useDemoMode";
 import { endTour } from "@/utils/startTour";
 import { maxConsecutiveInDay } from "@/utils/consecutiveSlots";
+import { highlightSx } from "@/app/highlight";
 
 export default function FamilyUnavailability() {
   const router = useRouter();
@@ -50,6 +51,7 @@ export default function FamilyUnavailability() {
   const [alertMessage, setAlertMessage] = useState("");
   const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [hasChanged, setHasChanged] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -75,7 +77,11 @@ export default function FamilyUnavailability() {
         },
       );
     }
-    setAvailableSlots((prev) => [...prev, ...newIds]);
+    setAvailableSlots((prev) => {
+      const next = [...prev, ...newIds];
+      return next;
+    });
+    setHasChanged(true);
   };
 
   // １日分を全て「参加できない」にする関数（保護者）
@@ -92,6 +98,7 @@ export default function FamilyUnavailability() {
       );
     }
     setAvailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
+    setHasChanged(true);
   };
 
   //１コマ分選択/選択解除の関数
@@ -104,6 +111,7 @@ export default function FamilyUnavailability() {
         },
       );
       setAvailableSlots((prev) => prev.filter((id) => id !== slotId));
+      setHasChanged(true);
     } else {
       await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
@@ -116,6 +124,7 @@ export default function FamilyUnavailability() {
         },
       );
       setAvailableSlots((prev) => [...prev, slotId]);
+      setHasChanged(true);
     }
   };
 
@@ -284,7 +293,8 @@ export default function FamilyUnavailability() {
   const getSubmitted = () => {
     if (isPastDeadline) return "提出期限が過ぎました";
     if (submitted) return "提出が完了しました";
-    if (availableSlots.length === 0) return "日時を選んでください";
+    if (availableSlots.length === 0 || !isConsecutiveEnough)
+      return "日時を選んでください";
 
     return "上記の内容で提出する";
   };
@@ -309,6 +319,9 @@ export default function FamilyUnavailability() {
       hintMessage = "※選んだ日時が足りません。ページ上部の案内をご確認ください";
     }
   }
+
+  //日付ごとにslotをまとめたもの
+  const dateentries = Object.entries(groupByDate(slots));
 
   return (
     <Container sx={{ p: 3 }}>
@@ -414,7 +427,7 @@ export default function FamilyUnavailability() {
             <GuideHelp page="family_availability" childName={children} />
           </Box>
           {submitted && demoMode === "guided" ? (
-            <NextStepButton page={"family_submitted"} />
+            <NextStepButton page={"family_submitted"} submitted={submitted} />
           ) : (
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
               {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
@@ -511,32 +524,44 @@ export default function FamilyUnavailability() {
               : { display: "flex", gap: 2 }
           }
         >
-          {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
-            <UnavailabilityCard
-              key={date}
-              date={date}
-              dateSlots={dateSlots}
-              //来校可能にした枠のid
-              isAvailable={(slot) => availableSlots.includes(slot.id)}
-              isDisabled={(slot) =>
-                submitted ||
-                isPastDeadline ||
-                blockedSlotStartAt.includes(slot.start_at)
-              }
-              onClickSlot={handleClick}
-              onSelectAll={handleSelectAll}
-              onClearAll={handleClearAll}
-              showBlockedNote={true}
-              isBlocked={(slot) => blockedSlotStartAt.includes(slot.start_at)}
-              availableLabel="参加できる"
-              unavailableLabel="参加できない"
-            />
-          ))}
+          {dateentries.map(([date, dateSlots], index) => {
+            const isLastDate = index === dateentries.length - 1; //日付の数-1する（最終日を取得）
+
+            return (
+              <UnavailabilityCard
+                key={date}
+                date={date}
+                isConsecutiveEnough={isConsecutiveEnough}
+                dateSlots={dateSlots}
+                isLastDate={isLastDate}
+                //来校可能にした枠のid
+                isAvailable={(slot) => availableSlots.includes(slot.id)}
+                isDisabled={(slot) =>
+                  submitted ||
+                  isPastDeadline ||
+                  blockedSlotStartAt.includes(slot.start_at)
+                }
+                onClickSlot={handleClick}
+                onSelectAll={handleSelectAll}
+                onClearAll={handleClearAll}
+                showBlockedNote={true}
+                isBlocked={(slot) => blockedSlotStartAt.includes(slot.start_at)}
+                availableLabel="参加できる"
+                unavailableLabel="参加できない"
+              />
+            );
+          })}
         </Box>
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
             id="tour-parent-submitted-button"
-            sx={{ mt: 3 }}
+            sx={[
+              { mt: 3 },
+              demoMode === "guided" &&
+                isConsecutiveEnough &&
+                !submitted &&
+                highlightSx,
+            ]}
             variant="contained"
             disabled={
               submitted ||

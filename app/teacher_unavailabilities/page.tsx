@@ -25,6 +25,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import Chip from "@mui/material/Chip";
 import { fetchTeacherReassign } from "@/utils/demoLogin";
 import { endTour } from "@/utils/startTour";
+import { highlightSx } from "@/app/highlight";
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -40,9 +41,11 @@ export default function MeetingSlotPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [hasChanged, setHasChanged] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
+
   //提出を押したら、割り当てボタンを実行するようにする
   const demoMode = useDemoMode();
 
@@ -61,6 +64,7 @@ export default function MeetingSlotPage() {
       .map((slot) => slot.id);
     // すでに選択しているもの(prev)を維持したまま、まだ選ばれていなかったものを新しく追加する処理
     setAvailableSlots((prev) => [...new Set([...prev, ...newIds])]);
+    setHasChanged(true);
   };
   //ゲストの時は変更でき、通常の場合はreservedで変更できない
   const isLocked = (slot: MeetingSlot) =>
@@ -75,6 +79,7 @@ export default function MeetingSlotPage() {
       .map((slot) => slot.id);
     // すでに選択しているもの(prev)の中から、今回解除したいもの(removeIds)を取り除く
     setAvailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
+    setHasChanged(true);
   };
 
   // １コマ分選択/選択解除の関数
@@ -83,9 +88,11 @@ export default function MeetingSlotPage() {
     if (availableSlots.includes(slotId)) {
       // すでに選択されている場合、解除する（＝すでに選択・今選択したものが一致している場合、外す）
       setAvailableSlots((prev) => prev.filter((id) => id !== slotId));
+      setHasChanged(true);
     } else {
       // 選択されていない場合、追加する
       setAvailableSlots((prev) => [...prev, slotId]);
+      setHasChanged(true);
     }
   };
 
@@ -207,6 +214,12 @@ export default function MeetingSlotPage() {
   // 余裕度（プラスなら余裕あり、マイナスなら不足）
   const remainSlots = availableCount - requiredSlots;
 
+  //slotの枠を１つだけハイライトにする
+  const highlightSlotId =
+    demoMode === "guided" && !hasChanged
+      ? slots.find((s) => s.status === "available")?.id
+      : undefined;
+
   return (
     <Container sx={{ mt: 4 }}>
       <AlertSnackbar
@@ -244,7 +257,7 @@ export default function MeetingSlotPage() {
             />
           </Box>
           {submitted && demoMode === "guided" && (
-            <NextStepButton page={"teacher_submitted"} />
+            <NextStepButton page={"teacher_submitted"} submitted={submitted} />
           )}
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 3 }}>
@@ -531,6 +544,7 @@ export default function MeetingSlotPage() {
         >
           {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
             <UnavailabilityCard
+              highlightSlotId={highlightSlotId}
               key={date}
               date={date}
               dateSlots={dateSlots}
@@ -549,7 +563,14 @@ export default function MeetingSlotPage() {
         <Box sx={isMobile ? { display: "flex", justifyContent: "center" } : {}}>
           <Button
             id="tour-teacher-submit-button"
-            sx={{ mt: 3, minWidth: 220, whiteSpace: "nowrap" }}
+            sx={[
+              { mt: 3, minWidth: 220, whiteSpace: "nowrap" },
+              demoMode === "guided" &&
+                hasChanged && //変更したらハイライトにする
+                !submitted && //提出したら消える
+                remainSlots >= 0 && //条件を満たさないとハイライトにしない
+                highlightSx,
+            ]}
             variant="contained"
             disabled={
               remainSlots < 0 ||

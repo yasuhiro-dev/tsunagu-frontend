@@ -9,8 +9,12 @@ import Typography from "@mui/material/Typography";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import Tooltip from "@mui/material/Tooltip";
+import { highlightSx } from "@/app/highlight";
 
 type UnavailabilityCardProps = {
+  isConsecutiveEnough?: boolean;
+  highlightSlotId?: number;
+  isLastDate?: boolean;
   date: string;
   dateSlots: MeetingSlot[];
   isAvailable: (slot: MeetingSlot) => boolean;
@@ -25,8 +29,10 @@ type UnavailabilityCardProps = {
 };
 
 export default function UnavailabilityCard({
+  highlightSlotId,
+  isLastDate = false,
+  isConsecutiveEnough = false,
   date,
-
   dateSlots,
   isAvailable,
   isDisabled,
@@ -52,6 +58,7 @@ export default function UnavailabilityCard({
             variant="outlined"
             size="small"
             onClick={() => onSelectAll(dateSlots)}
+            sx={[!isConsecutiveEnough && isLastDate && highlightSx]}
           >
             全て可能
           </Button>
@@ -75,8 +82,9 @@ export default function UnavailabilityCard({
           >
             {date}
           </Typography>
-          {dateSlots.map((slot) => (
-            <Box key={slot.id} sx={{ mb: 1 }}>
+
+          {dateSlots.map((slot, index) => (
+            <Box key={index} sx={{ mb: 1 }}>
               <Typography
                 sx={{
                   fontSize: "12px",
@@ -127,7 +135,7 @@ export default function UnavailabilityCard({
                           value="yes"
                         >
                           <Box
-                            sx={{ display: "flex", flexDirection: "column" }}
+                            sx={[{ display: "flex", flexDirection: "column" }]}
                           >
                             <Typography component="span">○</Typography>
                             <Typography
@@ -152,7 +160,10 @@ export default function UnavailabilityCard({
                           value="no"
                         >
                           <Box
-                            sx={{ display: "flex", flexDirection: "column" }}
+                            sx={[
+                              { display: "flex", flexDirection: "column" },
+                              slot.id === highlightSlotId && highlightSx,
+                            ]}
                           >
                             <Typography component="span">×</Typography>
                             <Typography

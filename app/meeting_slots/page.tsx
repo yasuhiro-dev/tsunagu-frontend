@@ -38,6 +38,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { endTour } from "@/utils/startTour";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import { teacherUnavailableBg } from "@/app/patterns";
+import { highlightSx } from "@/app/highlight";
 
 type Violation = {
   kind: string; //どんな条件か
@@ -629,6 +630,12 @@ export default function MeetingSlotPage() {
   const unavailableSlot = validSlotsData?.unavailable_start_at;
   //選択しているか
   const isSelectId = fromAssignmentId !== null;
+  //ハイライトを当てる空き枠を見つける
+  const highlightedSlots =
+    demoMode === "guided" &&
+    slots.filter((s) => s.status === "available").map((s) => s.id);
+  //未割り当て児童がいる場合;
+  const hasUnassigned = unassignedChildren.length > 0;
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -700,7 +707,10 @@ export default function MeetingSlotPage() {
                   <Button
                     variant="contained"
                     color="success"
-                    sx={{ p: 1, fontWeight: "bold", fontSize: 14 }}
+                    sx={[
+                      { p: 1, fontWeight: "bold", fontSize: 14 },
+                      !hasUnassigned && highlightSx,
+                    ]}
                     endIcon={<ArrowForwardIcon />}
                     onClick={() => loginAsAdmin("/admin?tab=2")}
                   >
@@ -783,7 +793,7 @@ export default function MeetingSlotPage() {
                             backgroundColor: teacherUnavailableBg(theme, {
                               lineWidth: 1,
                               gap: 2,
-                              lineOpacity: 0.5,
+                              lineOpacity: 1,
                             }),
                             border: "1px solid",
                             borderColor: "divider",
@@ -885,7 +895,7 @@ export default function MeetingSlotPage() {
                         backgroundColor: teacherUnavailableBg(theme, {
                           lineWidth: 1,
                           gap: 2,
-                          lineOpacity: 0.5,
+                          lineOpacity: 1,
                         }),
                         border: "1px solid",
                         borderColor: "divider",
@@ -1012,7 +1022,7 @@ export default function MeetingSlotPage() {
                             backgroundColor: teacherUnavailableBg(theme, {
                               lineWidth: 1,
                               gap: 2,
-                              lineOpacity: 0.5,
+                              lineOpacity: 1,
                             }),
                             border: "1px solid",
                             borderColor: "divider",
@@ -1240,7 +1250,6 @@ export default function MeetingSlotPage() {
                     {allDates.map((date) => {
                       const cell = matrix[time][date];
                       const assignmentId = cell.assignment_id;
-                      const hasUnassigned = unassignedChildren.length > 0; //未割り当て児童がいる場合
                       const isFrom =
                         fromAssignmentId !== null &&
                         assignmentId === fromAssignmentId; //このセルが選択元か
@@ -1271,6 +1280,8 @@ export default function MeetingSlotPage() {
                         ) ?? false;
                       //教師の面談不可日
                       const isTeacherUnavailable = cell?.status === "blocked";
+                      //空き枠（担任の不可日を除く）
+                      const isAvailable = cell?.status === "available";
                       // 保護者または担任の不可日か
                       const isUnavailableTime =
                         isUnavailable || isTeacherUnavailable;
@@ -1488,11 +1499,21 @@ export default function MeetingSlotPage() {
                               </Box>
                             ) : (
                               <Box
-                                id="tour-teacher-meeting-slos-add-popbar"
-                                sx={{
-                                  textAlign: "center",
-                                  minHeight: "78px",
-                                }}
+                                id={
+                                  isAvailable
+                                    ? "tour-teacher-meeting-slos-add-popbar"
+                                    : undefined
+                                }
+                                sx={[
+                                  {
+                                    textAlign: "center",
+                                    minHeight: "78px",
+                                  },
+                                  highlightedSlots && //空き枠
+                                    isAvailable && //空き枠（担任を除く）
+                                    hasUnassigned && //未割り当て児童がいない
+                                    highlightSx,
+                                ]}
                               >
                                 {/* 空きに児童を追加する */}
 

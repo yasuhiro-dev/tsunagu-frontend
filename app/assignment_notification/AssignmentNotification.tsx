@@ -28,6 +28,8 @@ import NextStepButton from "@/app/components/NextStepButton";
 import { useDemoMode } from "@/utils/useDemoMode";
 import { startTour } from "@/utils/startTour";
 import { endTour } from "@/utils/startTour";
+import { highlightSx } from "@/app/highlight";
+
 // 未連携教師オブジェクトの型
 type UnLinkedTeacher = {
   teacher_name: string;
@@ -202,7 +204,10 @@ export default function AssignmentNotification({
               </Box>
               {isDone && demoMode === "guided" && (
                 <Box id="tour-admin-assignment-notification-next-button">
-                  <NextStepButton page="assignment_notification" />
+                  <NextStepButton
+                    page="assignment_notification"
+                    isDone={isDone}
+                  />
                 </Box>
               )}
             </Box>
@@ -329,7 +334,10 @@ export default function AssignmentNotification({
               color="primary"
               onClick={handleClick}
               disabled={requested || isDone || unAvailable}
-              sx={{ p: 2, fontWeight: "bold", fontSize: { xs: 12, md: 18 } }}
+              sx={[
+                { p: 2, fontWeight: "bold", fontSize: { xs: 12, md: 18 } },
+                !isDone && !requested && demoMode === "guided" && highlightSx,
+              ]}
             >
               {isDone
                 ? "全て送信済みです"

@@ -28,6 +28,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import GuideHelp from "@/app/components/GuideHelp";
 import { useDemoMode } from "@/utils/useDemoMode";
 import { endTour } from "@/utils/startTour";
+import { highlightSx } from "@/app/highlight";
 
 type Assignment = {
   id: number;
@@ -380,7 +381,7 @@ export default function MySchedulePage() {
                   onClick={() => endTour()}
                   variant="contained"
                   color="success"
-                  sx={{ p: 2, fontWeight: "bold", fontSize: 14 }}
+                  sx={[{ p: 2, fontWeight: "bold", fontSize: 14 }, highlightSx]}
                   component={Link}
                   href="/#output"
                   endIcon={<ArrowForwardIcon />}
