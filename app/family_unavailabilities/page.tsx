@@ -517,7 +517,6 @@ export default function FamilyUnavailability() {
           </Stack>
         </Alert>
         <Box
-          id="tour-parent-button-area"
           sx={
             isMobile
               ? { display: "flex", flexDirection: "column", gap: 2 }
@@ -529,6 +528,7 @@ export default function FamilyUnavailability() {
 
             return (
               <UnavailabilityCard
+                parentTourId={"tour-parent-button-area"}
                 key={date}
                 date={date}
                 isConsecutiveEnough={isConsecutiveEnough}

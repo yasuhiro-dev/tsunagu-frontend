@@ -14,7 +14,8 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       element: "#tour-teacher-unavailability-status",
       popover: {
         title: "まず「余裕」を確認",
-        description: "この枠数まで「対応できない」に<br>できます。",
+        description:
+          "上の「余裕」の数までなら、</br>「対応できない」にしても大丈夫です。",
       },
     },
     {
