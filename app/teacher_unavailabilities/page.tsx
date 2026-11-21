@@ -278,7 +278,6 @@ export default function MeetingSlotPage() {
         </Box>
 
         <Paper
-          id="tour-teacher-unavailability-status"
           sx={{
             display: "flex",
             flexDirection: { xs: "column", sm: "column", md: "row" },
@@ -330,7 +329,10 @@ export default function MeetingSlotPage() {
 
             <Typography variant="body2">まだ割り当て可能な枠です</Typography>
           </Box>
-          <Box sx={{ display: "flex", flex: 3 }}>
+          <Box
+            id="tour-teacher-unavailability-status"
+            sx={{ display: "flex", flex: 3 }}
+          >
             <Box
               sx={{
                 flex: 1,
@@ -535,7 +537,6 @@ export default function MeetingSlotPage() {
         </Dialog>
 
         <Box
-          id="tour-teacher-button-area"
           sx={
             isMobile
               ? { display: "flex", flexDirection: "column", gap: 2 }
@@ -544,6 +545,7 @@ export default function MeetingSlotPage() {
         >
           {Object.entries(groupByDate(slots)).map(([date, dateSlots]) => (
             <UnavailabilityCard
+              tourId={"tour-teacher-button-area"}
               highlightSlotId={highlightSlotId}
               key={date}
               date={date}

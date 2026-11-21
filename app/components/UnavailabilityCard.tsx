@@ -12,6 +12,8 @@ import Tooltip from "@mui/material/Tooltip";
 import { highlightSx } from "@/app/highlight";
 
 type UnavailabilityCardProps = {
+  parentTourId?: string;
+  tourId?: string;
   isConsecutiveEnough?: boolean;
   highlightSlotId?: number;
   isLastDate?: boolean;
@@ -29,6 +31,8 @@ type UnavailabilityCardProps = {
 };
 
 export default function UnavailabilityCard({
+  parentTourId = undefined,
+  tourId = undefined,
   highlightSlotId,
   isLastDate = false,
   isConsecutiveEnough = false,
@@ -55,6 +59,7 @@ export default function UnavailabilityCard({
       >
         <Box sx={{ display: "flex", gap: 2, p: 2, justifyContent: "center" }}>
           <Button
+            id={isLastDate ? parentTourId : "undefined"}
             variant="outlined"
             size="small"
             onClick={() => onSelectAll(dateSlots)}
@@ -160,6 +165,9 @@ export default function UnavailabilityCard({
                           value="no"
                         >
                           <Box
+                            id={
+                              slot.id === highlightSlotId ? tourId : undefined
+                            }
                             sx={[
                               { display: "flex", flexDirection: "column" },
                               slot.id === highlightSlotId && highlightSx,
