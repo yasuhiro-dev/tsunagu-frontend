@@ -364,9 +364,6 @@ export default function AssignmentNotification({
           id="tour-admin-assignment-notification-example"
           open={previewOpen}
           onClick={() => {
-            if (demoMode === "guided") {
-              startTour("admin_mail_send", 1);
-            }
             setPreviewOpen(false);
           }}
         >
