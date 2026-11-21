@@ -13,8 +13,8 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     {
       element: "#tour-teacher-unavailability-status",
       popover: {
-        title: "まず必要な枠数を確認",
-        description: "あと何枠「対応できない」にできるかが、ここでわかります。",
+        title: "まず「余裕」を確認",
+        description: "この枠数まで「対応できない」に<br>できます。",
       },
     },
     {
@@ -22,14 +22,14 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       popover: {
         title: "対応できない日時を選ぶ",
         description:
-          "出張などで面談できない時間の</br>「× 対応できない」を押します",
+          "出張などで面談できない時間の<br>「× 対応できない」を押します",
       },
     },
     {
       element: "#tour-teacher-submit-button",
       popover: {
         title: "選び終わったら提出",
-        description: "提出後も、面談が入っていない枠は</br>変更できます。",
+        description: "提出後も、面談が入っていない枠は<br>変更できます。",
       },
     },
   ],
@@ -38,14 +38,14 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       element: "#tour-parent-info",
       popover: {
         title: "まず選び方を確認",
-        description: "「必須」と「目安」を読んでから</br>選びましょう。",
+        description: "同じ日に続けて2つ以上が必須です。",
       },
     },
     {
       element: "#tour-parent-button-area",
       popover: {
         title: "参加できる日時を選ぶ",
-        description: "都合のよい時間の「○ 参加できる」を</br>押します。",
+        description: "「全て可能」を押すと、<br>1日分まとめて選べます。",
       },
     },
     {
@@ -53,7 +53,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       popover: {
         title: "選び終わったら提出",
         description:
-          "提出後は変更できないので、選んだ日時を確かめてから押しましょう。",
+          "提出後は変更できません。選んだ日時を<br>確かめてから押しましょう。",
       },
     },
   ],
@@ -62,22 +62,23 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       element: "#admin-assignment-execution-button",
       popover: {
         title: "割り当てを実行する",
-        description: "担任と保護者の希望から、面談日程を自動で決めます。",
+        description: "担任と保護者の希望から、面談日程を<br>自動で決めます。",
       },
     },
     {
       element: "#admin-assignment-execution-siblings-result",
       popover: {
         title: "兄弟の連続面談",
-        description: "割り当て後、同じ日に続けて組めた家庭の数がここに出ます。",
+        description:
+          "割り当て後、同じ日に続けて組めた<br>家庭の数がここに出ます。",
       },
     },
     {
       element: "#admin-assignment-execution-assignment-result",
       popover: {
-        title: "全体の割り当て率",
+        title: "割り当ての結果",
         description:
-          "割り当て後、全体と学年別の割り当て率、自動で入らなかった児童がここに出ます。",
+          "実行後、全体・クラス別の割り当て率と、<br>入らなかった児童が出ます。",
       },
     },
     {
@@ -95,31 +96,30 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       popover: {
         title: "自動で入らなかった児童",
         description:
-          "希望の枠に空きがなかった児童です。<br>まずはこの児童をクリック",
+          "希望の枠に空きがない児童です。</br>電話で相談して枠を決めます。",
       },
     },
     {
       element: "#tour-teacher-meeting-slos-add-popbar",
       popover: {
         title: "空き枠の時間に入れる",
-        description:
-          "未割り当て児童を選んでから、<br>空き枠をクリックします。<br>※デモでは保護者と相談済みの想定です",
+        description: "空き枠を押すと、</br>「選択中」の児童が入ります。",
       },
     },
 
     {
       element: "#tour-teacher-meeting-slots-info",
       popover: {
-        title: "操作の案内はここに出ます",
+        title: "迷ったら上の案内を見る",
         description:
-          "選んだ内容に合わせて、<br>操作のしかたと色の意味が変わります。",
+          "選んだ児童に合わせて、</br>操作と色の意味が切り替わります。",
       },
     },
     {
       element: "#tour-teacher-meeting-slos-are",
       popover: {
-        title: "児童を別の時間に移す",
-        description: "移動したい児童 → 移動先の順に<br>クリックします。",
+        title: "割り当て済みの児童を動かす",
+        description: "必要なら、児童 → 移動先の順に<br>押して動かせます。",
       },
     },
   ],
@@ -135,15 +135,14 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       element: "#tour-admin-assignment-notification-button",
       popover: {
         title: "保護者にまとめて送信",
-        description:
-          "押すと、全クラスの保護者に<br>面談日時がまとめて届きます。",
+        description: "押すと、全クラスの保護者へ<br>一度に送信します。",
       },
     },
     {
-      element: "tour-admin-assignment-notification-next-button",
+      element: "#tour-admin-assignment-notification-next-button",
       popover: {
         title: "次は保護者の画面へ",
-        description: "送信後は、「次へ」で<br>保護者の画面へ進みます",
+        description: "送信後は、「次へ」で<br>保護者の画面へ進みます。",
       },
     },
   ],
@@ -165,9 +164,9 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     {
       element: "#tour-parent-my-schedule-finish",
       popover: {
-        title: "デモはここまでです",
+        title: "最後に出力例を確認",
         description:
-          "先生が印刷する面談表と、<br>保護者に届くメールを確認できます。",
+          "印刷用の面談表（PDF）と、<br>届くメールの見本が見られます。",
       },
     },
   ],
