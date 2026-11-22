@@ -2,20 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Alert from "@mui/material/Alert";
+import {
+  TextField,
+  Button,
+  Box,
+  Alert,
+  Card,
+  CardContent,
+  Typography,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  Divider,
+} from "@mui/material";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import InputAdornment from "@mui/material/InputAdornment";
-import IconButton from "@mui/material/IconButton";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Link from "next/link";
-import CircularProgress from "@mui/material/CircularProgress";
 import {
   demoLogin,
   resetDemo,
@@ -34,53 +37,34 @@ const guestLoginButtons = [
   {
     roleKey: "teacher" as const,
     role: "担任の先生",
-    color: "primary.main",
+    color: "primary.dark",
     bgColor: "#e1edf8ff",
     circleColor: "primary.main",
     path: "/meeting_slots",
-    button_label: "担任の先生でログイン",
+    button_label: "担任の先生で体験",
     reset: true,
-    image: "/images/teacher.webp",
-    items: [
-      "未割り当て児童の配置",
-      "面談枠の移動・入れ替え",
-      "面談できない日時の登録",
-      "面談表のPDF出力",
-    ],
   },
   {
     roleKey: "parent" as const,
     role: "保護者",
-    color: "#d18a94",
+    color: "#9c3d4a",
     bgColor: "#fbebec",
     circleColor: "#d18a94",
     path: "/family_unavailabilities",
     image: "/images/parent.webp",
-    button_label: "保護者でログイン",
+    button_label: "保護者で体験",
     reset: true,
-    items: [
-      "来校できる日時の提出",
-      "決まった面談日時の確認",
-      "カレンダーへの追加",
-      "スマホでも操作できる",
-    ],
   },
   {
     roleKey: "admin" as const,
     role: "教頭先生",
-    color: "success.main",
+    color: "success.dark",
     bgColor: "#e8f5ee",
     circleColor: "success.main",
     image: "/images/admin.webp",
     path: "/admin?tab=1",
-    button_label: "教頭先生でログイン",
+    button_label: "教頭先生で体験",
     reset: true,
-    items: [
-      "面談日程の自動割り当て",
-      "割り当て結果の確認",
-      "保護者へメール一括送信",
-      "担任・保護者の管理",
-    ],
   },
 ];
 
@@ -188,16 +172,7 @@ export default function LoginPage() {
         message={alertMessage}
         onClose={() => setAlertOpen(false)}
       />
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "url('/images/tsunagu.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.25,
-        }}
-      ></Box>
+
       <Box
         sx={{
           position: "relative",
@@ -273,12 +248,27 @@ export default function LoginPage() {
               <Button
                 variant="contained"
                 onClick={() => handleSubmit()}
-                fullWidth
                 disabled={isLoading !== null}
-                sx={{ mb: 3 }}
+                sx={{ mb: 1 }}
               >
                 {isLoading ? "ログイン中..." : "ログイン"}
               </Button>
+
+              <Box sx={{ textAlign: "center", mb: 3 }}>
+                <Typography variant="body2" sx={{ color: "#555" }}>
+                  アカウントをお持ちでない方は{" "}
+                </Typography>
+                <Link href="/register">ユーザー登録はこちら</Link>
+              </Box>
+              <Divider>または</Divider>
+              <Box>
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  アカウントなしで体験する
+                </Typography>
+                <Typography variant="caption">
+                  （デモ用のデータが入った画面をすぐ操作できます）
+                </Typography>
+              </Box>
 
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 {guestLoginButtons.map((guest, index) => (
@@ -286,9 +276,8 @@ export default function LoginPage() {
                     key={index}
                     sx={{
                       flex: 1,
-                      minWidth: 0,
                       borderRadius: 5,
-                      p: 1,
+                      mb: 2,
                       display: "flex",
                       flexDirection: "column",
                       gap: 1,
@@ -314,25 +303,18 @@ export default function LoginPage() {
                           <CircularProgress size={20} /> 準備しています…
                         </>
                       ) : (
-                        guest.button_label
+                        <>
+                          <Typography
+                            variant="body1"
+                            sx={{ color: guest.color }}
+                          >
+                            {guest.button_label}
+                          </Typography>
+                        </>
                       )}
                     </Button>
                   </Box>
                 ))}
-              </Box>
-
-              <Box sx={{ textAlign: "right" }}>
-                <Typography variant="body2" sx={{ color: "#555", mt: 3 }}>
-                  アカウントをお持ちでない方は{" "}
-                </Typography>
-                <Typography
-                  component="span"
-                  variant="body2"
-                  onClick={() => router.push("/register")}
-                  sx={{ color: "#1a3a5c", cursor: "pointer" }}
-                >
-                  ユーザー登録はこちら
-                </Typography>
               </Box>
             </Box>
           </CardContent>
