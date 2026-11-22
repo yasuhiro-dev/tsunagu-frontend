@@ -55,9 +55,9 @@ export default function MeetingSlotPage() {
   const toAvailableIds = (data: MeetingSlot[]) =>
     data.filter((slot) => slot.status !== "blocked").map((slot) => slot.id);
 
-  // １日分を全て「面談できる」にする関数
+  // １日分をすべて「面談できる」にする関数
   const teacherHandleSelectAll = (dateSlots: MeetingSlot[]) => {
-    // （）の引数は全て可能ボタンを押した時に渡される
+    // （）の引数はすべて可能ボタンを押した時に渡される
     // 今回選択したものをnewIdsとする
     const newIds = dateSlots
       .filter((slot) => !availableSlots.includes(slot.id)) //面談できるをまだ選んでいないslotに絞る
@@ -70,7 +70,7 @@ export default function MeetingSlotPage() {
   const isLocked = (slot: MeetingSlot) =>
     demoMode !== "free" && slot.status === "reserved";
 
-  // １日分を全て「面談できない」にする関数
+  // １日分をすべて「面談できない」にする関数
   const teacherHandleClearAll = (dateSlots: MeetingSlot[]) => {
     // 今回解除したいものをremoveIdsとする（予約済みの枠は面談不可にできないので残す）
     const removeIds = dateSlots
@@ -231,7 +231,7 @@ export default function MeetingSlotPage() {
       <AlertSnackbar
         open={remainSlots < 0}
         severity="error"
-        message={`児童${requiredSlots}人分の枠が必要です。あと${Math.abs(remainSlots)}枠を「対応できる」にしてください。`}
+        message={`児童${requiredSlots}人分の枠が必要です。あと${Math.abs(remainSlots)}枠を「面談できる」にしてください。`}
         onClose={() => {}}
       />
 
@@ -262,10 +262,10 @@ export default function MeetingSlotPage() {
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 3 }}>
           <Typography>
-            出張などで対応できない時間の『× 対応できない』を押してください
+            出張などで面談できない日時の「× 面談できない」を押してください
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            ※保護者の面談が決まっている枠は、『対応できない』にできません
+            ※保護者の面談が決まっている枠は、「面談できない」にできません
           </Typography>
           {demoMode === "free" && (
             <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
@@ -487,7 +487,7 @@ export default function MeetingSlotPage() {
                 severity={remainSlots === 0 ? "warning" : "success"}
                 sx={{ gap: 1 }}
               >
-                今は「対応できる」を
+                今は「面談できる」を
                 <Box
                   component="span"
                   sx={{
@@ -557,8 +557,8 @@ export default function MeetingSlotPage() {
               onSelectAll={teacherHandleSelectAll}
               onClearAll={teacherHandleClearAll}
               showBlockedNote={false}
-              availableLabel="対応できる"
-              unavailableLabel="対応できない"
+              availableLabel="面談できる"
+              unavailableLabel="面談できない"
             />
           ))}
         </Box>

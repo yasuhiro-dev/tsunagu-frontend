@@ -113,7 +113,7 @@ export default function UnassignedSelectDialog({
               `${selectedChild.child_name}さんを割り当てます` //未提出・希望日が通っている場合
             ) : (
               <>
-                {selectedChild.child_name}さんの保護者が参加できない時間です。
+                {selectedChild.child_name}さんの保護者が来校できない時間です。
                 <br />
                 割り当てる前に、保護者へ電話で都合を確認しましょう
               </>
@@ -130,7 +130,7 @@ export default function UnassignedSelectDialog({
           color={isAvailable ? "primary" : "warning"}
           disabled={!selectedId}
         >
-          {isAvailable ? "確定" : "割り当てる"}
+          {isAvailable ? "決定" : "割り当てる"}
         </Button>
       </DialogActions>
     </Dialog>

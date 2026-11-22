@@ -212,7 +212,7 @@ export default function AssignmentNotification({
             </Box>
 
             <Typography variant="body2">
-              確定した面談日程を、保護者へメールでお知らせします。
+              決定した面談日程を、保護者へメールでお知らせします。
               <br />
               面談表を調整した後に、内容を確認してから送信してください
             </Typography>
@@ -283,7 +283,7 @@ export default function AssignmentNotification({
                   >
                     {unNotified}件
                   </Box>
-                  の保護者にまだ送信していません。
+                  の面談のお知らせを、まだ送信していません。
                 </Typography>
               </>
             )}
@@ -339,7 +339,7 @@ export default function AssignmentNotification({
               ]}
             >
               {isDone
-                ? "全て送信済みです"
+                ? "すべて送信済みです"
                 : requested
                   ? "送信を開始しました"
                   : unAvailable
@@ -535,7 +535,7 @@ export default function AssignmentNotification({
               {!demoUser ? (
                 <>
                   <Typography>
-                    Google未連携の先生 {unLinkedTeacherCount}名
+                    Google未連携の先生 {unLinkedTeacherCount}人
                   </Typography>
 
                   <Typography>
@@ -590,7 +590,7 @@ export default function AssignmentNotification({
 
         <Paper sx={{ flex: 1 }}>
           <Typography variant="h6" sx={{ p: 2 }}>
-            未送信の保護者{" "}
+            未送信のお知らせ{" "}
             <Chip
               sx={{ backgroundColor: "#fbebec" }}
               label={`${unNotified}件`}

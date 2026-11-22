@@ -213,7 +213,7 @@ export default function LandingPage() {
     {
       title: "兄弟の調整",
       image: "/images/problems/siblings.webp",
-      description: "兄弟が別々な日になると何度も来校する必要がある",
+      description: "兄弟が別々な日になると\n何度も来校する必要がある",
       color: "#d6e4f0",
     },
     {
@@ -225,13 +225,13 @@ export default function LandingPage() {
     {
       title: "保護者の都合",
       image: "/images/problems/parent.webp",
-      description: "仕事や家庭の都合で来られない時間がある",
+      description: "仕事や家庭の都合で\n来られない時間がある",
       color: "#fbebec",
     },
     {
       title: "担任の先生の都合",
       image: "/images/problems/teacher.webp",
-      description: "出張が入っている日には実施できない",
+      description: "出張が入っている日には\n実施できない",
       color: "#d6e4f0",
     },
   ];
@@ -760,7 +760,13 @@ export default function LandingPage() {
                         aspectRatio: "16 / 10", //幅に対する高さの比率を、どの画像でも 16:9 に固定
                       }}
                     />
-                    <Typography sx={{ textAlign: "center", width: 200 }}>
+                    <Typography
+                      sx={{
+                        textAlign: "center",
+                        width: 200,
+                        whiteSpace: "pre-line",
+                      }}
+                    >
                       {problem.description}
                     </Typography>
                   </Box>

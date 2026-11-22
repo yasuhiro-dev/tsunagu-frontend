@@ -48,10 +48,10 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     showIdentity: true,
     color: "primary.main",
     backgroundColor: "#e3ecf7",
-    heading: "出張で、面談に対応できない日時を登録する画面です。",
+    heading: "出張で、面談できない日時を登録する画面です。",
     steps: [
       <>
-        ① 光っている<ButtonName>× 対応できない</ButtonName>を押す
+        ① 光っている<ButtonName>× 面談できない</ButtonName>を押す
       </>,
       <>
         ② 画面の一番下にある<ButtonName>上記の内容で提出する</ButtonName>を押す
@@ -80,16 +80,16 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     showIdentity: true,
     color: "#d18a94",
     backgroundColor: "#f8e8e9",
-    heading: "面談に参加できる日時を選んでみましょう",
+    heading: "来校できる日時を選んでみましょう",
     steps: [
       <>
-        ① <ButtonName>全て可能</ButtonName>を押して、1日分まとめて選ぶ
+        ① <ButtonName>すべて可能</ButtonName>を押して、1日分まとめて選ぶ
       </>,
       <>
         ② 画面の一番下にある<ButtonName>上記の内容で提出する</ButtonName>を押す
       </>,
     ],
-    note: "※きょうだい2人分の面談を続けて組むため、同じ日の続いた時間が必要です",
+    note: "※兄弟2人分の面談を続けて組むため、同じ日の続いた時間が必要です",
     buttonLabel: "やってみる",
   },
 
@@ -101,7 +101,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     heading: "来校できる日時の提出が完了しました。",
     purpose: "次は教頭先生が、面談日時を自動で割り当てます。",
     steps: [],
-    buttonLabel: "次へ:教頭先生の画面",
+    buttonLabel: "次へ：教頭先生の画面",
     buttonCancel: "閉じる",
     buttonUrl: "/admin?tab=1",
     nextDemoRole: "admin",
@@ -130,7 +130,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
     heading: "自動割り当てが完了しました。",
     purpose: "次は担任の先生が、面談表を確認・調整します。",
     steps: ["条件に合う枠がなかった児童は、次の画面で手動で割り当てます。"],
-    buttonLabel: "次へ:担任の先生の画面",
+    buttonLabel: "次へ：担任の先生の画面",
     buttonCancel: "閉じる",
     buttonUrl: "/meeting_slots",
     nextDemoRole: "teacher",
@@ -225,7 +225,7 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
       "学校が面談日時を決めると、この画面に表示されます。\nまだ来校できる日時を提出していません。",
     steps: [
       <>①来校できる日時を提出すると、その中から面談日時が決まります。</>,
-      <>②締切までに提出しなかった場合は、学校が日時を決めます。</>,
+      <>②締切日までに提出しなかった場合は、学校が日時を決めます。</>,
     ],
     buttonLabel: "来校できる日時を提出する",
     buttonUrl: "/family_unavailabilities",
@@ -258,10 +258,10 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
     showIdentity: true,
     color: "primary.main",
     backgroundColor: "#e3ecf7",
-    heading: "出張などで、面談に対応できない日時を登録する画面です",
+    heading: "出張などで、面談できない日時を登録する画面です",
     steps: [
       <>
-        ① 対応できない時間の<ButtonName>× 対応できない</ButtonName>
+        ① 面談できない時間の<ButtonName>× 面談できない</ButtonName>
         を押す
       </>,
       <>
@@ -279,10 +279,10 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
     showIdentity: true,
     color: "#d18a94",
     backgroundColor: "#f8e8e9",
-    heading: "面談に参加できる日時を選ぶ画面です",
+    heading: "来校できる日時を選ぶ画面です",
     steps: [
       <>
-        ① 来校できる時間の<ButtonName>○ 参加できる</ButtonName>を押す
+        ① 来校できる時間の<ButtonName>○ 来校できる</ButtonName>を押す
       </>,
       <>
         ② 選び終わったら、画面の下にある
@@ -294,7 +294,7 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
   },
 
   admin_assignment: {
-    title: "面談日程の自動割り当て",
+    title: "面談の一括割り当て",
     chip: "教頭先生の画面です",
     showIdentity: true,
     color: "success.main",
@@ -323,7 +323,7 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
       <>① 未割り当ての児童 → 空いている枠の順に押す</>,
       <>② 移動するときは、割り当て済みの児童 → 移動先の順に押す</>,
     ],
-    note: "※きょうだいの連続面談を動かそうとすると、確認のメッセージが出ます。",
+    note: "※兄弟の連続面談を動かそうとすると、確認のメッセージが出ます。",
     buttonLabel: "使ってみる",
   },
 
@@ -365,9 +365,7 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
     backgroundColor: "#f8e8e9",
     heading: "決まった面談日時を確認する画面です",
     steps: [
-      <>
-        ① 面談の日時を確認する（きょうだいの面談は、同じ日の続く時間に入ります）
-      </>,
+      <>① 面談の日時を確認する（兄弟の面談は、同じ日の続く時間に入ります）</>,
     ],
     note: "※「カレンダーに追加」で、自分のカレンダーにも登録できます",
     buttonLabel: "確認する",
@@ -385,7 +383,7 @@ export const freeGuideContent: Partial<Record<DemoPage, DemoGuideContent>> = {
       "学校が面談日時を決めると、この画面に表示されます。\nまだ来校できる日時を提出していません。",
     steps: [
       <>① 来校できる日時を提出すると、その中から面談日時が決まります。</>,
-      <>② 締切までに提出しなかった場合は、学校が日時を決めます。</>,
+      <>② 締切日までに提出しなかった場合は、学校が日時を決めます。</>,
     ],
     buttonLabel: "来校できる日時を提出する",
     buttonUrl: "/family_unavailabilities",

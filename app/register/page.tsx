@@ -176,9 +176,6 @@ export default function RegisterPage() {
       </Typography>
       <Card sx={{ width: 500, p: 2, boxShadow: 3, borderRadius: 3 }}>
         {apiError && <Alert severity="error">{apiError}</Alert>}
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          保護者登録
-        </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
           <TextField
             fullWidth
@@ -236,7 +233,7 @@ export default function RegisterPage() {
         </Box>
 
         <Typography variant="h6" sx={{ mt: 3 }}>
-          児童登録
+          児童の登録
         </Typography>
         {children.map((child, index) => (
           <Box key={index} sx={{ display: "flex", gap: 2, mb: 2 }}>

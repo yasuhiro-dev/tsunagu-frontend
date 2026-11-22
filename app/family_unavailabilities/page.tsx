@@ -59,7 +59,7 @@ export default function FamilyUnavailability() {
   // ゲストログイン（free）かガイド付きデモ（guided）か
   const demoMode = useDemoMode();
 
-  // １日分を全て「参加できる」にする関数（保護者）
+  // １日分をすべて「来校できる」にする関数（保護者）
   const handleSelectAll = async (dateSlots: MeetingSlot[]) => {
     const newIds = dateSlots
       .filter((slot) => !availableSlots.includes(slot.id))
@@ -84,7 +84,7 @@ export default function FamilyUnavailability() {
     setHasChanged(true);
   };
 
-  // １日分を全て「参加できない」にする関数（保護者）
+  // １日分をすべて「来校できない」にする関数（保護者）
   const handleClearAll = async (dateSlots: MeetingSlot[]) => {
     const removeIds = dateSlots
       .filter((slot) => availableSlots.includes(slot.id))
@@ -151,7 +151,7 @@ export default function FamilyUnavailability() {
     if (!res.ok) throw new Error("割り当てに失敗しました");
   };
 
-  // 保護者の参加できる日時の提出
+  // 保護者の来校できる日時の提出
   const handleSubmit = async () => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
@@ -291,7 +291,7 @@ export default function FamilyUnavailability() {
   // 選択している枠が十分かどうか
   const isConsecutiveEnough = maxConsecutive >= familySlotCount;
   const getSubmitted = () => {
-    if (isPastDeadline) return "提出期限が過ぎました";
+    if (isPastDeadline) return "締切日を過ぎました";
     if (submitted) return "提出が完了しました";
     if (availableSlots.length === 0 || !isConsecutiveEnough)
       return "日時を選んでください";
@@ -303,7 +303,7 @@ export default function FamilyUnavailability() {
   if (submitted === true) {
     headingText = "提出済みのため変更できません";
   } else if (isPastDeadline) {
-    headingText = "回答期間は終了しました";
+    headingText = "締切日を過ぎたため、提出できません";
   }
   //保護者の児童の情報
   const childrenText = children
@@ -355,7 +355,7 @@ export default function FamilyUnavailability() {
               }
               sx={{ gap: 1 }}
             >
-              今は「参加できる」を
+              今は「来校できる」を
               <Box
                 component="span"
                 sx={{
@@ -430,8 +430,8 @@ export default function FamilyUnavailability() {
             <NextStepButton page={"family_submitted"} submitted={submitted} />
           ) : (
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {/* 締め切り日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
-              回答締切：{deadLine !== null ? formatDate(deadLine) : null}
+              {/* 締切日がnullでないの場合表示され、nullの場合空文字(初期値がnullのため) */}
+              締切日：{deadLine !== null ? formatDate(deadLine) : null}
             </Typography>
           )}
         </Box>
@@ -446,7 +446,7 @@ export default function FamilyUnavailability() {
                 <Typography
                   sx={{ fontSize: { xs: 15, md: 18 }, lineHeight: 1.8 }}
                 >
-                  締切後、学校で
+                  締切日の後、学校で
                   <Box component="span" sx={{ fontWeight: "bold" }}>
                     {childrenText}
                   </Box>
@@ -507,7 +507,7 @@ export default function FamilyUnavailability() {
               </>
             ) : (
               <Box component="span">
-                参加できる日時を選んでください。
+                来校できる日時を選んでください。
                 <Box component="span" sx={{ fontWeight: "bold" }}>
                   多く選ぶほど
                 </Box>
@@ -546,8 +546,8 @@ export default function FamilyUnavailability() {
                 onClearAll={handleClearAll}
                 showBlockedNote={true}
                 isBlocked={(slot) => blockedSlotStartAt.includes(slot.start_at)}
-                availableLabel="参加できる"
-                unavailableLabel="参加できない"
+                availableLabel="来校できる"
+                unavailableLabel="来校できない"
               />
             );
           })}

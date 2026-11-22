@@ -25,8 +25,8 @@ const settingMessages = {
   circleColor: "primary.main",
   title: "設定するとどうなりますか",
   items: [
-    "締切日以降は、保護者が希望日の登録・変更ができなくなります。",
-    "締切日までに登録された希望日をもとに、面談の自動割り当てを行います。",
+    "締切日以降は、保護者が来校できる日時の登録・変更ができなくなります。",
+    "締切日までに登録された来校できる日時をもとに、面談の自動割り当てを行います。",
     "締切日は、後からいつでも変更できます。",
   ],
 };
@@ -40,7 +40,7 @@ export default function DeadlineSetting({ scheduleId }: Props) {
     "success",
   );
 
-  // 締め切り日の変更を表示する
+  // 締切日の変更を表示する
   const fetchEditDeadLine = async (scheduleId: number) => {
     const schedule = scheduleId;
     const res = await fetchWithAuth(
@@ -69,7 +69,7 @@ export default function DeadlineSetting({ scheduleId }: Props) {
         body: JSON.stringify({ deadline_at: editDeadLine }),
       },
     );
-    // 更新された締め切り日が返ってくる
+    // 更新された締切日が返ってくる
     const data = await res.json();
     if (res.ok) {
       setAlertOpen(true);
@@ -123,11 +123,11 @@ export default function DeadlineSetting({ scheduleId }: Props) {
           overflow: "auto",
         }}
       >
-        {/* 締め切りカレンダー（保護者の都合の悪い日） */}
+        {/* 締切日カレンダー（保護者の都合の悪い日） */}
         <Typography variant="h6">締切日の設定</Typography>
         <Box>
           <Typography variant="body2">
-            保護者が面談希望日を提出する期限を設定します。
+            保護者が来校できる日時を提出する締切日を設定します。
           </Typography>
         </Box>
         {/* カレンダーと設定の説明画面を横並び */}

@@ -65,14 +65,14 @@ export default function UnavailabilityCard({
             onClick={() => onSelectAll(dateSlots)}
             sx={[!isConsecutiveEnough && isLastDate && highlightSx]}
           >
-            全て可能
+            すべて可能
           </Button>
           <Button
             variant="outlined"
             size="small"
             onClick={() => onClearAll(dateSlots)}
           >
-            全て不可
+            すべて不可
           </Button>
         </Box>
         <CardContent>
@@ -112,7 +112,7 @@ export default function UnavailabilityCard({
               >
                 <ToggleButtonGroup
                   disabled={isDisabled(slot)}
-                  value={isAvailable(slot) ? "yes" : "no"} //参加できる枠に含まれているか
+                  value={isAvailable(slot) ? "yes" : "no"} //選択済みの枠に含まれているか
                   exclusive //どちらか１つ
                   size="small"
                   onChange={(_, newValue) => {
@@ -122,7 +122,9 @@ export default function UnavailabilityCard({
                 >
                   <Tooltip
                     title={
-                      isDisabled(slot) ? "面談確定済みのため変更できません" : ""
+                      isDisabled(slot)
+                        ? "面談が決定済みのため変更できません"
+                        : ""
                     }
                   >
                     <span>
@@ -193,7 +195,7 @@ export default function UnavailabilityCard({
                       visibility: isBlocked?.(slot) ? "visible" : "hidden",
                     }}
                   >
-                    担任の先生の都合により対応不可
+                    担任の先生の面談できない日時
                   </Typography>
                 )}
 

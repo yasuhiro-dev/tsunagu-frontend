@@ -64,7 +64,11 @@ const teacherMenuItems = [
   },
 ];
 const parentMenuItems = [
-  { label: "面談の決定日", href: "/my_schedule", icon: <EventAvailableIcon /> },
+  {
+    label: "面談の決定日時",
+    href: "/my_schedule",
+    icon: <EventAvailableIcon />,
+  },
   {
     label: "来校できる日時",
     href: "/family_unavailabilities",
@@ -79,8 +83,12 @@ const adminMenuItems = [
     href: "/admin?tab=2",
     icon: <PersonAddAlt1Icon />,
   },
-  { label: "保護者登録", href: "/admin?tab=3", icon: <GroupAddIcon /> },
-  { label: "割り当て管理", href: "/admin?tab=4", icon: <AssignmentIcon /> },
+  { label: "保護者の登録", href: "/admin?tab=3", icon: <GroupAddIcon /> },
+  {
+    label: "面談の一括割り当て",
+    href: "/admin?tab=4",
+    icon: <AssignmentIcon />,
+  },
 ];
 
 //ナビバーの背景色や役割のラベル
@@ -210,7 +218,7 @@ function ParentNavLinks({
         href="/my_schedule"
         color="inherit"
       >
-        面談の決定日
+        面談の決定日時
       </Button>
       <Button
         sx={{
@@ -227,7 +235,7 @@ function ParentNavLinks({
         startIcon={<EditCalendarIcon />}
         color="inherit"
       >
-        面談できる日時
+        来校できる日時
       </Button>
     </>
   );

@@ -203,7 +203,7 @@ export default function AssignmentExecution({
             </Box>
 
             <Typography>
-              保護者の希望日時・兄弟関係・支援学級などの条件を考慮して、担任の先生の空き枠に面談を自動で割り当てます。
+              保護者の来校できる日時・兄弟関係・支援学級などの条件を考慮して、担任の先生の空き枠に面談を自動で割り当てます。
             </Typography>
           </Box>
 
@@ -240,10 +240,10 @@ export default function AssignmentExecution({
           >
             <Typography variant="h6">割り当てを実行</Typography>
             <Typography>
-              希望日時が未提出でも割り当て対象になります。
+              来校できる日時が未提出でも割り当て対象になります。
             </Typography>
             {hasResult
-              ? `再実行すると、今の割り当て${assignCount}件はリセットされます。`
+              ? `再実行すると、今の割り当て（${assignCount}人分）はリセットされます。`
               : "結果を見てから、やり直すこともできます。"}
           </Box>
           <Box
@@ -398,7 +398,7 @@ export default function AssignmentExecution({
                           >
                             割り当て済み
                           </Typography>
-                          <Typography variant="h6">{assignCount}件</Typography>
+                          <Typography variant="h6">{assignCount}人</Typography>
                         </Box>
                       </Box>
                       {/* 未割り当て */}
@@ -421,7 +421,7 @@ export default function AssignmentExecution({
                             未割り当て
                           </Typography>
                           <Typography variant="h6">
-                            {unAssignCount}件
+                            {unAssignCount}人
                           </Typography>
                         </Box>
                       </Box>
@@ -442,7 +442,7 @@ export default function AssignmentExecution({
                           >
                             対象児童数
                           </Typography>
-                          <Typography variant="h6">{totalCount}件</Typography>
+                          <Typography variant="h6">{totalCount}人</Typography>
                         </Box>
                       </Box>
                     </Box>
@@ -454,14 +454,14 @@ export default function AssignmentExecution({
             )}
           </Paper>
           <Paper sx={{ p: 2, flex: 1, minWidth: 0 }}>
-            {/* 学年割り当て進捗状況 */}
+            {/* クラス別割り当て進捗状況 */}
             <Box>
               <Typography
                 variant="h6"
                 sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
               >
                 <BarChartIcon sx={{ color: "primary.main" }} />
-                学年別割り当て率
+                クラス別割り当て率
               </Typography>
 
               {hasResult && classRates ? (
