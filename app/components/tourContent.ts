@@ -15,15 +15,15 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       popover: {
         title: "まず「余裕」を確認",
         description:
-          "上の「余裕」の数までなら、</br>「対応できない」にしても大丈夫です。",
+          "上の「余裕」の数までなら、</br>「面談できない」にしても大丈夫です。",
       },
     },
     {
       element: "#tour-teacher-button-area",
       popover: {
-        title: "対応できない日時を選ぶ",
+        title: "面談できない日時を選ぶ",
         description:
-          "出張などで面談できない時間の<br>「× 対応できない」を押します",
+          "出張などで面談できない時間の<br>「× 面談できない」を押します",
       },
     },
     {
@@ -45,8 +45,8 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     {
       element: "#tour-parent-button-area",
       popover: {
-        title: "参加できる日時を選ぶ",
-        description: "「全て可能」を押すと、<br>1日分まとめて選べます。",
+        title: "来校できる日時を選ぶ",
+        description: "「すべて可能」を押すと、<br>1日分まとめて選べます。",
       },
     },
     {
@@ -63,7 +63,8 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
       element: "#admin-assignment-execution-button",
       popover: {
         title: "割り当てを実行する",
-        description: "担任と保護者の希望から、面談日程を<br>自動で決めます。",
+        description:
+          "担任と保護者が提出した日時から、<br>面談日程を自動で決めます。",
       },
     },
     {

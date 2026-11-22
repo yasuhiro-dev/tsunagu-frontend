@@ -7,7 +7,7 @@ import { M_PLUS_Rounded_1c } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "Tsunagu",
-  description: "学校向け面談自動スケジューリングシステム",
+  description: "学校向け面談日程調整サービス",
 };
 const mPlusRounded1c = M_PLUS_Rounded_1c({
   subsets: ["latin"],

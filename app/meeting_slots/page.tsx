@@ -91,7 +91,7 @@ type UnassignedChildren = {
   family_name: string;
   child_name_kana: string;
   submitted: boolean;
-  available_start_at: string[]; //保護者が参加できると答えた時刻
+  available_start_at: string[]; //保護者が来校できると答えた時刻
 };
 //兄弟情報を取得
 const getSiblingsInfo = (data: ValidSlotsData | null) => {
@@ -588,14 +588,14 @@ export default function MeetingSlotPage() {
   }
   // 未割り当て児童の欄に出す、保護者の希望（残った理由が分かるようにする）
   const availabilityLabel = (child: (typeof unassignedChildren)[number]) => {
-    if (!child.submitted) return "希望日時未提出";
+    if (!child.submitted) return "来校できる日時が未提出";
     const times = child.available_start_at;
     // 多いと欄からあふれるので、3枠までは日時を、それより多いときは件数を出す
-    if (times.length > 3) return `参加できる日時：${times.length}枠`;
+    if (times.length > 3) return `来校できる日時：${times.length}枠`;
     const label = times
       .map((t) => `${formatDate(t)} ${formatTime(t)}`)
       .join("、");
-    return `参加できる日時：${label}${times.length === 1 ? " のみ" : ""}`;
+    return `来校できる日時：${label}${times.length === 1 ? " のみ" : ""}`;
   };
 
   const isEditing = fromAssignmentId !== null;
@@ -686,7 +686,7 @@ export default function MeetingSlotPage() {
               </Box>
 
               <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                ※「希望日時未提出」の児童は、日時の制約なしとして割り当てられます
+                ※来校できる日時が未提出の児童は、日時の制約なしとして割り当てられます
               </Typography>
             </Box>
 
@@ -724,7 +724,7 @@ export default function MeetingSlotPage() {
                       color="success"
                       onClick={() => loginAsAdmin("/admin?tab=1")}
                     >
-                      面談割り当て画面へ戻る
+                      面談の一括割り当てへ戻る
                     </Button>
                   )
                 )}
@@ -831,7 +831,7 @@ export default function MeetingSlotPage() {
                             borderColor: "divider",
                           }}
                         />
-                        選んだ児童の希望日時
+                        選んだ児童の来校できる日時
                       </Box>
                     </Box>
                     <Box
@@ -902,7 +902,7 @@ export default function MeetingSlotPage() {
                       })}
                     />
                     <Typography variant="caption">
-                      担任の先生の面談できない時間
+                      担任の先生の面談できない日時
                     </Typography>
                   </Box>
 
@@ -918,7 +918,7 @@ export default function MeetingSlotPage() {
                       })}
                     />
                     <Typography variant="caption">
-                      選んだ児童の希望日時
+                      選んだ児童の来校できる日時
                     </Typography>
                   </Box>
 
@@ -1028,7 +1028,7 @@ export default function MeetingSlotPage() {
                             borderColor: "divider",
                           })}
                         />
-                        担任の先生の面談できない時間
+                        担任の先生の面談できない日時
                       </Box>
                     </Box>
                   </Box>
@@ -1314,7 +1314,7 @@ export default function MeetingSlotPage() {
                         // 未割り当ての子を選択中：子がいる枠は押しても何も起きない
                         if (selectedChild && assignmentId) return "";
                         if (isTeacherUnavailable)
-                          return "担任の面談できない時間";
+                          return "担任の先生の面談できない日時";
                         if (isUnavailable) return "保護者の希望外（要相談）";
                         return "";
                       };
@@ -1479,11 +1479,11 @@ export default function MeetingSlotPage() {
                                   )}
                                 </Box>
 
-                                {/* 希望日時未提出：セルの下端に固定 */}
+                                {/* 未提出：セルの下端に固定 */}
                                 {cell.submitted === false && (
                                   <Chip
                                     variant="outlined"
-                                    label="希望日時未提出"
+                                    label="未提出"
                                     color="warning"
                                     size="small"
                                     sx={{
@@ -2055,7 +2055,7 @@ export default function MeetingSlotPage() {
                                             : cell?.status === "reserved"
                                               ? "予約済"
                                               : cell?.status === "blocked"
-                                                ? "担任の先生の都合で不可"
+                                                ? "担任の先生の面談できない日時"
                                                 : "空き"}
                                           <Typography variant="body2">
                                             {cell.child_name}
@@ -2195,7 +2195,7 @@ export default function MeetingSlotPage() {
                                                   : cell?.status === "reserved"
                                                     ? "予約済"
                                                     : cell?.status === "blocked"
-                                                      ? "担任の先生の都合で不可"
+                                                      ? "担任の先生の面談できない日時"
                                                       : "空き"}
                                                 <Typography variant="body2">
                                                   {cell.child_name}

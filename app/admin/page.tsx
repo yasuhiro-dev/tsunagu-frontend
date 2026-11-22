@@ -610,7 +610,7 @@ function AdminContent() {
               sx={sidebarButtonStyle(6)}
               onClick={() => setTab(6)}
             >
-              保護者登録
+              保護者の登録
             </Button>
           </Box>
 
@@ -847,7 +847,7 @@ function AdminContent() {
                   </Table>
                 </TableContainer>
                 <Dialog open={open}>
-                  <DialogTitle>削除確認</DialogTitle>
+                  <DialogTitle>削除の確認</DialogTitle>
                   <DialogContent>本当に削除しますか？</DialogContent>
                   <DialogActions>
                     <Button onClick={() => setOpen(false)}>キャンセル</Button>
@@ -1252,7 +1252,7 @@ function AdminContent() {
                 {/* 保護者登録 */}
 
                 <Typography variant="h6" sx={{ mb: 1 }}>
-                  保護者登録
+                  保護者の登録
                 </Typography>
 
                 <Box
@@ -1316,7 +1316,7 @@ function AdminContent() {
 
                 {/* 児童登録 */}
                 <Typography variant="h6" sx={{ mt: 10 }}>
-                  児童登録
+                  児童の登録
                 </Typography>
                 {children.map((child, i) => (
                   <Box

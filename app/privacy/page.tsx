@@ -11,10 +11,10 @@ export default function PrivacyPolicyPage() {
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="body1">
-          運営者: Nakahara Yasuhiro（個人開発）
+          運営者：Nakahara Yasuhiro（個人開発）
         </Typography>
         <Typography variant="body1">
-          お問い合わせ先: tsunagu.app.support@gmail.com
+          お問い合わせ先：tsunagu.app.support@gmail.com
         </Typography>
       </Box>
 
@@ -79,9 +79,9 @@ export default function PrivacyPolicyPage() {
         本ポリシーに関するお問い合わせは、下記までご連絡ください。
         <br />
         <br />
-        お問い合わせ先: tsunagu.app.support@gmail.com
+        お問い合わせ先：tsunagu.app.support@gmail.com
         <br />
-        制定日: 2026年8月
+        制定日：2026年8月
       </Section>
     </Container>
   );

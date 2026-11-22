@@ -11,10 +11,10 @@ export default function TermsPage() {
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="body1">
-          運営者: Nakahara Yasuhiro（個人開発）
+          運営者：Nakahara Yasuhiro（個人開発）
         </Typography>
         <Typography variant="body1">
-          お問い合わせ先: tsunagu.app.support@gmail.com
+          お問い合わせ先：tsunagu.app.support@gmail.com
         </Typography>
       </Box>
 

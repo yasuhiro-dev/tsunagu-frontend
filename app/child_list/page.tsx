@@ -78,8 +78,7 @@ export default function ChildList() {
 
   // 提出・割り当て状況
   const getStatus = (child: Child) => {
-    if (!child.submitted)
-      return { label: "希望日時未提出", color: "error" as const };
+    if (!child.submitted) return { label: "未提出", color: "error" as const };
     if (!child.assigned)
       return { label: "未割り当て", color: "warning" as const };
     return { label: "予約済み", color: "success" as const };
@@ -164,7 +163,7 @@ export default function ChildList() {
                       }}
                     >
                       <Chip
-                        label={child.submitted ? "提出済み" : "希望日時未提出"}
+                        label={child.submitted ? "提出済み" : "未提出"}
                         color={child.submitted ? "success" : "error"}
                       />
                       <Chip
@@ -221,7 +220,7 @@ export default function ChildList() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <Typography>希望日時未提出</Typography>
+                          <Typography>未提出</Typography>
                           <Chip
                             variant="outlined"
                             color="error"

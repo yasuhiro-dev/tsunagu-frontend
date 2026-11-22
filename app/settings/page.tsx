@@ -30,7 +30,7 @@ export default function SettingPage() {
       });
   }, []);
 
-  // google認証をする
+  // Google認証をする
   async function handleClick() {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/connect`,
@@ -39,7 +39,7 @@ export default function SettingPage() {
       },
     );
     const data = await res.json();
-    // railsで設定した、google認証ページへ遷移する
+    // railsで設定した、Google認証ページへ遷移する
     window.location.href = data.url;
   }
   const router = useRouter();
@@ -80,11 +80,11 @@ export default function SettingPage() {
             >
               <CustomGoogleIcon size={30} />{" "}
             </Box>
-            googleカレンダー連携
+            Googleカレンダー連携
           </Typography>
 
           <Typography sx={{ mt: 2, mb: 3 }}>
-            googleカレンダーと連携すると、確定した面談の予定カレンダーに自動で追加できるようになります
+            Googleカレンダーと連携すると、決定した面談の予定をカレンダーに自動で追加できるようになります
           </Typography>
 
           <Box
@@ -107,7 +107,7 @@ export default function SettingPage() {
                 color="primary"
                 onClick={handleBackToMeetingSlot}
               >
-                面談スケジュール画面に戻る
+                面談表に戻る
               </Button>
             ) : (
               <Button
@@ -115,7 +115,7 @@ export default function SettingPage() {
                 color="primary"
                 onClick={handleBackToSchedule}
               >
-                面談決定画面に戻る
+                面談の決定日時に戻る
               </Button>
             )}
 
@@ -150,11 +150,11 @@ export default function SettingPage() {
               >
                 <CustomGoogleIcon size={30} />
               </Box>
-              googleカレンダー連携
+              Googleカレンダー連携
             </Typography>
 
             <Typography sx={{ mt: 2, mb: 3 }}>
-              googleカレンダーと連携すると、確定した面談の予定カレンダーに自動で追加できるようになります
+              Googleカレンダーと連携すると、決定した面談の予定をカレンダーに自動で追加できるようになります
             </Typography>
 
             <Box
@@ -172,7 +172,7 @@ export default function SettingPage() {
                 color="error"
               />
               <Button variant="contained" color="primary" onClick={handleClick}>
-                google連携をする
+                Google連携をする
               </Button>
             </Box>
           </Card>

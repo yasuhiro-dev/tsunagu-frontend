@@ -247,7 +247,7 @@ export default function DemoGuide({
                       textAlign: "center",
                     }}
                   >
-                    お子様 (2人)
+                    お子さん (2人)
                   </Typography>
                   <>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>

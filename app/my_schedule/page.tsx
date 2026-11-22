@@ -113,7 +113,7 @@ export default function MySchedulePage() {
       .finally(() => setLoading(false)); //成功しても失敗しても
   }, [router]);
 
-  // googleカレンダー連携のAPI
+  // Googleカレンダー連携のAPI
   const handleClick = async (assignmentId: number) => {
     const res = await fetchWithAuth(
       `${process.env.NEXT_PUBLIC_API_URL}/api/v1/google_auth/status`,
@@ -159,7 +159,7 @@ export default function MySchedulePage() {
     if (assignment.length > 0 && submitted === false && isPastDeadline) {
       return (
         <>
-          回答期限を過ぎたため、学校側で日程を決定いたしました。
+          締切日を過ぎたため、学校側で日程を決定いたしました。
           <br />
           ご都合が悪い場合は、学校までご連絡ください。
         </>
@@ -181,7 +181,7 @@ export default function MySchedulePage() {
       return (
         <Card sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
           <Typography component="div" variant="h6">
-            回答締め切り
+            締切日
           </Typography>
           <Typography component="div" variant="h4" color="primary">
             {deadLine !== null ? formatDate(deadLine) : ""}まで
@@ -292,7 +292,7 @@ export default function MySchedulePage() {
                 <Chip
                   icon={<FiberManualRecordIcon sx={{ fontSize: 10 }} />}
                   sx={{ mt: 2, mb: 2 }}
-                  label="確定しました"
+                  label="決定しました"
                   size="medium"
                   color="success"
                   variant="outlined"
@@ -304,7 +304,7 @@ export default function MySchedulePage() {
                   color="text.secondary"
                   sx={{ display: "block", mb: 2 }}
                 >
-                  ※特別支援学級に在籍するお子さまは、通常学級と支援学級で2回の面談枠があります
+                  ※特別支援学級に在籍するお子さんは、通常学級と支援学級で2回の面談枠があります
                 </Typography>
               )}
               <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
