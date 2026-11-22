@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, Fragment } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -23,6 +23,7 @@ import {
   prepareGuestDemo,
 } from "@/utils/demoLogin";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import FlowArrowConnector from "@/app/components/lp/FlowArrowConnector";
 
 // セクションの枠の共通設定（全セクションで余白と角の丸みを揃える）
 // state を使わない固定値なので、コンポーネントの外に置く
@@ -36,7 +37,6 @@ const sectionSx = {
 } as const;
 
 export default function LandingPage() {
-  const workflowRef = useRef<HTMLElement>(null);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -85,46 +85,6 @@ export default function LandingPage() {
       window.location.href = redirectTo;
     }
   }, [redirectTo]);
-
-  //ファーストビューの簡略ワークフロー
-  const simpleWorkflows = [
-    {
-      number: "1",
-      role: "担任",
-      color: "primary.main",
-      description: "不可日時を登録",
-    },
-    {
-      number: "2",
-      role: "保護者",
-      color: "#d18a94",
-      description: "希望日時を提出",
-    },
-    {
-      number: "3",
-      role: "教頭",
-      color: "success.main",
-      description: "",
-    },
-    {
-      number: "4",
-      role: "担任",
-      color: "primary.main",
-      description: "手動で微調整",
-    },
-    {
-      number: "5",
-      role: "教頭",
-      color: "success.main",
-      description: "メールで通知",
-    },
-    {
-      number: "6",
-      role: "保護者",
-      color: "#d18a94",
-      description: "決定日時を確認",
-    },
-  ];
 
   //ゲストログインボタン（役割ごと）
   const guestLoginButtons = [
@@ -280,27 +240,27 @@ export default function LandingPage() {
     {
       image: "/images/tsunagu-logic/group-family.webp",
       title: "兄弟を1家庭に\nまとめる",
-      description: "来校1回で済むよう、同日に続けて組みます",
+      description: "来校1回で済むよう\n同日に続けて組みます",
     },
     {
       image: "/images/tsunagu-logic/priority.webp",
-      title: "調整困難な家庭を優先",
-      description: "兄弟が多い・支援学級の家庭から決めます",
+      title: "調整困難な\n家庭を優先",
+      description: "兄弟が多い・支援学級の\n家庭から決めます",
     },
     {
       image: "/images/tsunagu-logic/reserch.webp",
       title: "条件に合う\n空き枠を探す",
-      description: "保護者と先生の都合が悪い日時を避けます",
+      description: "保護者と先生の都合が\n悪い日時を避けます",
     },
     {
       image: "/images/tsunagu-logic/assignment.webp",
-      title: "空き枠に自動で配置",
-      description: "見つかった枠に、1家庭ずつ入れます",
+      title: "空き枠に\n自動で配置",
+      description: "見つかった枠に\n1家庭ずつ入れます",
     },
     {
       image: "/images/tsunagu-logic/manual-assignment.webp",
       title: "入らなかった\n家庭を確認",
-      description: "面談表から、先生が手で配置します",
+      description: "面談表から\n先生が手で配置します",
     },
   ];
 
@@ -308,7 +268,7 @@ export default function LandingPage() {
   const isMobile = useMediaQuery("(max-width:600px)");
 
   const fontSizes = {
-    title: { xs: "24px", sm: "24px", md: "34px" }, //大きいタイトル　h4
+    title: { xs: "24px", sm: "24px", md: "30px" }, //大きいタイトル　h4
     subheading: { xs: "14px", sm: "18px", md: "20px" }, //ミニタイトル　h6
     caption: { xs: "20px", sm: "20px", md: "24px" }, // サブタイトル・h5
     body: { xs: "11px", sm: "11px", md: "14px" }, // body2
@@ -338,8 +298,8 @@ export default function LandingPage() {
   }
 
   const numberCircleSx = {
-    width: { xs: 30, md: 40 },
-    height: { xs: 30, md: 40 },
+    width: { xs: 30, md: 30 },
+    height: { xs: 30, md: 30 },
     color: "common.white",
     borderRadius: "50%",
     display: "flex",
@@ -425,7 +385,10 @@ export default function LandingPage() {
             <Box sx={{ mb: 1 }}>
               <Typography
                 variant="h3"
-                sx={{ fontSize: { xs: "26px", sm: "36px", md: "40px" } }}
+                sx={{
+                  fontSize: { xs: "26px", sm: "36px", md: "40px" },
+                  fontWeight: 700,
+                }}
               >
                 保護者面談の日程調整を
                 <br />
@@ -453,10 +416,10 @@ export default function LandingPage() {
             <Image
               src="/images/LP-top.webp"
               alt="兄弟がいる家庭をまとめるイメージ"
-              width={1500}
-              height={700}
+              width={1400}
+              height={600}
               priority
-              style={{ width: "100%", height: "auto" }}
+              style={{ width: "100%", height: 220 }}
             />
           </Box>
         </Box>
@@ -513,9 +476,8 @@ export default function LandingPage() {
                         sx={{
                           display: "flex",
                           flexDirection: "column",
-
                           maxWidth: 160,
-                          maxHeight: 250,
+                          maxHeight: 220,
                           p: 2,
                           gap: 1,
                         }}
@@ -549,7 +511,7 @@ export default function LandingPage() {
                         <Typography
                           sx={{
                             fontWeight: "bold",
-                            fontSize: fontSizes.subheading,
+                            fontSize: 17,
                             whiteSpace: "pre-line",
                             textAlign: "center",
                           }}
@@ -573,34 +535,43 @@ export default function LandingPage() {
                           />
                         </Box>
                       </Paper>
-                      {/* 矢印 */}
-                      {!isRowEnd && (
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            bottom: 0, // 上から下まで、カードと同じ高さにする
-                            right: -25,
-                            display: { xs: "none", md: "flex" },
-                            alignItems: "center", // その中で、縦の真ん中に置く
-                            zIndex: 1,
-                            "& svg": {
-                              fontSize: 40,
-                              color: "primary.main",
-                            },
-                          }}
-                        >
-                          <FlowArrow />
-                        </Box>
-                      )}
+
+                      {!isRowEnd && <FlowArrowConnector />}
                     </Box>
                   );
                 })}
               </Box>
 
               {/* デモスタートボタン */}
-              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  p: 2,
+                  position: "relative",
+                  mt: 2,
+                }}
+              >
                 {demoStarttButton}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    justifyContent: "center", // ボタンの左外側に出す
+                    top: -10,
+                    display: { xs: "none", md: "flex" }, // スマホでは非表示
+                    bgcolor: "#FFE38A",
+                    color: "primary.main",
+                    px: 2,
+                    py: 0.75,
+                    borderRadius: 999,
+                    fontSize: 14,
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                    boxShadow: 1,
+                  }}
+                >
+                  はじめての方へ
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -786,7 +757,7 @@ export default function LandingPage() {
                         borderRadius: 10,
                         width: "80%",
                         height: "auto",
-                        aspectRatio: "16 / 9", //幅に対する高さの比率を、どの画像でも 16:9 に固定
+                        aspectRatio: "16 / 10", //幅に対する高さの比率を、どの画像でも 16:9 に固定
                       }}
                     />
                     <Typography sx={{ textAlign: "center", width: 200 }}>
@@ -825,6 +796,7 @@ export default function LandingPage() {
                     {/* 「画像」「タイトル」「説明文」を囲んでいる */}
                     <Paper
                       sx={{
+                        position: "relative",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
@@ -872,13 +844,14 @@ export default function LandingPage() {
                         sx={{
                           color: "text.secondary",
                           fontSize: fontSizes.body,
+                          whiteSpace: "pre-line",
                         }}
                       >
                         {step.description}
                       </Typography>
+                      {/* 矢印 */}
+                      {!isLast && <FlowArrowConnector offset={32} />}
                     </Paper>
-                    {/* 矢印 */}
-                    {!isLast && <FlowArrow />}
                   </Fragment>
                 );
               })}
@@ -915,7 +888,7 @@ export default function LandingPage() {
             >
               <Paper
                 sx={{
-                  flex: 1,
+                  flex: 1.8,
                   minHeight: 550,
                   display: "flex",
                   flexDirection: "column",
@@ -935,13 +908,20 @@ export default function LandingPage() {
                 </Box>
                 <Paper
                   elevation={4}
-                  sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    flex: 1,
+                    mt: 1,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
                   <Image
                     src="/images/pdf-export.webp"
                     alt="面談表"
-                    width={1200}
-                    height={900}
+                    width={2200}
+                    height={1636}
                     style={{
                       objectFit: "contain",
                       borderRadius: 8,
@@ -955,7 +935,7 @@ export default function LandingPage() {
 
               <Paper
                 sx={{
-                  flex: 1,
+                  flex: 1.2,
                   display: "flex",
                   flexDirection: "column",
                   p: 3,
@@ -978,10 +958,17 @@ export default function LandingPage() {
                 </Box>
                 <Paper
                   elevation={4}
-                  sx={{ position: "relative", width: "100%", flex: 1, mt: 1 }}
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    flex: 1,
+                    mt: 1,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
                   <Image
-                    src="/images/gmail-response.png"
+                    src="/images/gmail-response.webp"
                     alt="通知メール"
                     width={1200}
                     height={900}
@@ -1041,7 +1028,9 @@ export default function LandingPage() {
                   学校特有の条件までは対応しきれていないのが実情です。
                   <br />
                   <br />
-                  調整に追われる時間を減らし、本来の子どもと向き合う時間を確保するために、Tsunaguを開発しました。
+                  調整に追われる時間を減らし、本来の子どもと向き合う時間を確保するために
+                  <br />
+                  Tsunaguを開発しました。
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>

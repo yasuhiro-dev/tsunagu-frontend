@@ -36,6 +36,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import EditCalendarIcon from "@mui/icons-material/EditCalendar";
 import { Chip } from "@mui/material";
+import { usePathname } from "next/navigation";
 
 type MenuItemType = {
   label: string;
@@ -252,6 +253,8 @@ export default function Navbar() {
     setAnchorEl(null);
   };
   const open = Boolean(anchorEl);
+  //現在表示しているpathを取得
+  const pathname = usePathname();
 
   const style = role
     ? roleStyle[role]
@@ -375,32 +378,35 @@ export default function Navbar() {
               gap: 1,
             }}
           >
-            <Box
-              sx={{
-                p: { xs: 0, md: 1 },
-                display: "flex",
-                flexDirection: { xs: "column", sm: "column", md: "row" },
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {/* スマホ幅ではアイコンだけにして、文字の折り返しを防ぐ */}
-              <Button
-                variant="contained"
-                component={Link}
-                href="/"
-                aria-label="トップページ"
-                sx={{ minWidth: { xs: 40, md: 64 }, whiteSpace: "nowrap" }}
+            {role !== null && (
+              <Box
+                sx={{
+                  p: { xs: 0, md: 1 },
+                  display: "flex",
+                  flexDirection: { xs: "column", sm: "column", md: "row" },
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <HomeIcon />
-                <Typography
-                  variant="body1"
-                  sx={{ display: { xs: "none", md: "inline" }, ml: 0.5 }}
+                {/* スマホ幅ではアイコンだけにして、文字の折り返しを防ぐ */}
+                <Button
+                  variant="text"
+                  component={Link}
+                  href="/"
+                  aria-label="トップページ"
+                  sx={{ minWidth: { xs: 40, md: 64 }, whiteSpace: "nowrap" }}
                 >
-                  トップページ
-                </Typography>
-              </Button>
-            </Box>
+                  <HomeIcon />
+                  <Typography
+                    variant="body1"
+                    sx={{ display: { xs: "none", md: "inline" }, ml: 0.5 }}
+                  >
+                    トップページ
+                  </Typography>
+                </Button>
+              </Box>
+            )}
+
             <Chip
               label={style.label}
               sx={{
@@ -409,8 +415,9 @@ export default function Navbar() {
                 color: style.color,
               }}
             />
-            {mounted && role === null && (
+            {mounted && role === null && pathname !== "/login" && (
               <Button
+                variant="outlined"
                 component={Link}
                 href="/login"
                 color="inherit"

@@ -26,7 +26,6 @@ import DemoGuide from "@/app/components/DemoGuide";
 import GuideHelp from "@/app/components/GuideHelp";
 import NextStepButton from "@/app/components/NextStepButton";
 import { useDemoMode } from "@/utils/useDemoMode";
-import { startTour } from "@/utils/startTour";
 import { endTour } from "@/utils/startTour";
 import { highlightSx } from "@/app/highlight";
 
