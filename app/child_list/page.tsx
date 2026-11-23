@@ -99,7 +99,7 @@ export default function ChildList() {
       setClassNames(data.class_names ?? []);
     };
     fetchChildren();
-  }, []);
+  }, [router]);
 
   const totalPerPages = useMemo(() => {
     return Math.ceil(serchChildren.length / itemsPerPage);

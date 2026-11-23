@@ -40,6 +40,15 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import { teacherUnavailableBg } from "@/app/patterns";
 import { highlightSx } from "@/app/highlight";
 
+type ChildAvailability = {
+  siblings_start_at: string[];
+  own_support_start_at: string[];
+  available_start_at: string[];
+  submitted: boolean;
+  support_info: { class_room: string; teacher: string } | null;
+  siblings_info: { name: string; class_room: string | null }[];
+};
+
 type Violation = {
   kind: string; //どんな条件か
   detail: string; //具体的な説明
@@ -94,51 +103,32 @@ type UnassignedChildren = {
   available_start_at: string[]; //保護者が来校できると答えた時刻
 };
 //兄弟情報を取得
-const getSiblingsInfo = (data: ValidSlotsData | null) => {
+const getSiblingsInfo = (data: ChildAvailability | null) => {
   //兄弟の開始時刻
   const startAt = data?.siblings_start_at[0];
-  //兄弟の面談表
-  const slots = data?.siblings_meeting_schedule[0]?.[0]?.slots;
-  if (!startAt || !slots) return null;
   //兄弟のクラス名
-  const siblingClassRoom =
-    data?.siblings_meeting_schedule[0]?.[0]?.class_room_name;
-  //兄弟の面談表から、時刻と一致するものを取り出す
-  const siblingSlot = slots?.find(
-    (slot) => new Date(slot.start_at).getTime() === new Date(startAt).getTime(),
-  );
+  const siblingClassRoom = data?.siblings_info[0]?.class_room;
   //兄弟名
-  const siblingName = siblingSlot?.child_name;
+  const siblingName = data?.siblings_info[0]?.name;
   return { name: siblingName, classRoom: siblingClassRoom, startAt };
 };
 //特別支援情報を取得
-const getSupportInfo = (
-  data: ValidSlotsData | null,
-  currentClassRoom: string | null,
-) => {
+const getSupportInfo = (data: ChildAvailability | null) => {
   //特支の開始時刻
   const startAt = data?.own_support_start_at[0];
-  //特支の面談表(通常級ではないクラスを取得)
-  const supportClassRoom = data?.own_support_meeting_schedule.find(
-    (o) => o.class_room_name !== currentClassRoom,
-  );
-  if (!startAt || !supportClassRoom) return null;
-  //支援の面談表から、時刻と一致するものを取り出す
-  const supportSlot = supportClassRoom.slots.find(
-    (slot) => new Date(slot.start_at).getTime() === new Date(startAt).getTime(),
-  );
-
-  //特支の児童名
-  const supportName = supportSlot?.child_name;
+  //特支のクラス名
+  const supportClassRoom = data?.support_info?.class_room;
   //特支の担任名
-  const supportTeacher = supportClassRoom.teacher_name;
+  const supportTeacher = data?.support_info?.teacher;
   return {
-    name: supportName,
-    classRoom: supportClassRoom.class_room_name,
+    classRoom: supportClassRoom,
     teacher: supportTeacher,
     startAt,
   };
 };
+// 保護者が来られない時刻か（未提出なら制約なし）
+const isParentUnavailable = (data: ChildAvailability | null, startAt: string) =>
+  !!data?.submitted && !data?.available_start_at.includes(startAt);
 
 export default function MeetingSlotPage() {
   const [slots, setslots] = useState<MeetingSlot[]>([]);
@@ -164,6 +154,10 @@ export default function MeetingSlotPage() {
   const [unassignedChildren, setUnassignedChildren] = useState<
     UnassignedChildren[]
   >([]);
+  //希望日などを取得
+  const [availabilityByChild, setAvailabilityByChild] = useState<
+    Record<string, ChildAvailability>
+  >({});
 
   //ゲストログイン時に、保護者画面への遷移ボタンを消す
   const demoMode = useDemoMode();
@@ -194,16 +188,25 @@ export default function MeetingSlotPage() {
   const [toSlotId, setToSlotId] = useState<null | number>(null);
   // slot移動時の警告
   const [editAlertOpen, setEditAlertOpen] = useState(false);
-  // 面談不可日・兄弟の面談表・特別支援の面談表（その児童の制約のリスト全部）
-  const [validSlotsData, setValidSlotsData] = useState<ValidSlotsData | null>(
-    null,
-  );
+  //変更ダイアログに変更した児童名を表示する設定
+  const fromSlot =
+    slots.find(
+      (slot) => slot.assignment_id === fromAssignmentId, //移動元（空枠を選ばないように児童がいるassignment_id/slot.idに合わせるため）
+    ) ?? null;
+  const toSlot = slots.find((slot) => slot.id === toSlotId) ?? null; //移動先（空枠も含まれるのでslot.id）
+  // 今選んでいる子のID（未割り当ての子 か、マスで選んだ子）
+  const selectedChildId = selectedChild?.id ?? fromSlot?.child_id;
+  // その子の制約（来校できる日時・兄弟・特支）を箱から取り出す（毎回の描画で計算し直す）
+  const validSlotsData =
+    selectedChildId != null
+      ? (availabilityByChild[String(selectedChildId)] ?? null)
+      : null;
   //ドロワーから面談表を取得する
   const [drawerData, setDrawerData] = useState<ValidSlotsData | null>(null);
   //兄弟の情報をコンポーネントから取得する→これをgetSiblingsInfoで呼ぶ
   const siblingInfo = getSiblingsInfo(validSlotsData);
   //特支の情報をコンポーネントから取得する→これをgetSupportInfoで呼ぶ
-  const supportInfo = getSupportInfo(validSlotsData, classRoom);
+  const supportInfo = getSupportInfo(validSlotsData);
 
   // 書類アイコン：面談情報を取得してドロワーを開く
   const DrawerHandleClick = async (id: number) => {
@@ -252,10 +255,9 @@ export default function MeetingSlotPage() {
   };
 
   // １回目の選択と２回目の選択で分岐
-  const handleFromToSelect = async (cell: MeetingSlot) => {
+  const handleFromToSelect = (cell: MeetingSlot) => {
     if (selectedChild) {
       if (cell.assignment_id) return; // 未割り当て児童を選択中は、児童が入っているセルは何もしない
-
       setToSlotId(cell.id);
       // 選んだ児童をこの枠に入れたら、制約に引っかかるか調べる
       const unassignViolations = checkPlacement(
@@ -273,20 +275,17 @@ export default function MeetingSlotPage() {
     if (fromAssignmentId === null) {
       //１回目の選択の場合
       if (!cell.assignment_id) return; // 空き枠を１回目に選択しても反応しない
-      setFromAssignmentId(cell?.assignment_id);
-      const dataA = await fetchValidSlots(cell.assignment_id); //一回目に選択した児童の情報を受け取るdataAに入れる
-      setValidSlotsData(dataA); //児童の詳細情報を保存する
+      setFromAssignmentId(cell?.assignment_id); // validSlotsData はこの子の分に自動で切り替わる
       setHighlightedSlotIds([]);
     } else if (fromAssignmentId === cell?.assignment_id) {
       //選択してもう一度同じところを選択(移動元と同じ枠（取消）)
-      setFromAssignmentId(null);
-      setValidSlotsData(null); //面談詳細をなくす
+      setFromAssignmentId(null); // validSlotsData も自動で null になる
     } else {
       // ２回目移動さきを選択の場合、
       setToSlotId(cell?.id);
       // 移動先に他の児童が入っている場合
       const dataB = cell.assignment_id
-        ? await fetchValidSlots(cell.assignment_id) // 移動先の児童のデータを取得
+        ? (availabilityByChild[String(cell.child_id)] ?? null) // 移動先の児童のデータを箱から取り出す
         : null; //もしいなければ何も返さない（情報がないため）
       endTour();
       if (!fromSlot) return;
@@ -308,7 +307,6 @@ export default function MeetingSlotPage() {
               cell.child_name,
             )
           : [];
-      setValidSlotsData(null); //面談詳細をなくす
       setViolations([...violationsA, ...violationsB]); //2つのリストを1つに合体
 
       setEditDialogInfo({
@@ -328,7 +326,7 @@ export default function MeetingSlotPage() {
 
   // 移動しても良いかを判断する関数（引数を受け取る）
   const checkPlacement = (
-    data: ValidSlotsData | null,
+    data: ChildAvailability | null,
     slot: MeetingSlot,
     fromStartAt?: string,
     childName?: string,
@@ -336,7 +334,7 @@ export default function MeetingSlotPage() {
     const name = childName ? `${childName}さん` : "この児童";
     const violations: Violation[] = []; //中身が空の配列 [] を用意
     //保護者の不可日の時間が含まれている場合
-    if (data?.unavailable_start_at?.includes(slot.start_at)) {
+    if (isParentUnavailable(data, slot.start_at)) {
       violations.push({
         kind: "parent_unavailable",
         name: name,
@@ -382,13 +380,6 @@ export default function MeetingSlotPage() {
     return violations;
   };
 
-  //変更ダイアログに変更した児童名を表示する設定
-  const fromSlot =
-    slots.find(
-      (slot) => slot.assignment_id === fromAssignmentId, //移動元（空枠を選ばないように児童がいるassignment_id/slot.idに合わせるため）
-    ) ?? null;
-  const toSlot = slots.find((slot) => slot.id === toSlotId) ?? null; //移動先（空枠も含まれるのでslot.id）
-
   // 選んでいる児童の名前（入れ替え中 or 未割り当て児童の選択中）
   const selectedName = fromSlot?.child_name ?? selectedChild?.child_name;
 
@@ -418,6 +409,7 @@ export default function MeetingSlotPage() {
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("変更されました");
+      fetchAvailability(); // 兄弟・特支の時刻が変わることがあるので取り直す
 
       // 移動先や移動元のidがない時には飛ばす、もしあるなら新しい値をstateに保存する
       if (fromSlot == null || toSlotId == null) {
@@ -442,38 +434,28 @@ export default function MeetingSlotPage() {
   };
 
   // 面談不可日・兄弟関係を取得（childのid　未割り当て児童）
-  const handleSelectChild = async (child: UnassignedChildren) => {
+  const handleSelectChild = (child: UnassignedChildren) => {
     if (selectedChild?.id === child.id) {
       //1回目に選択した児童と２回目に選択した児童が同じなら
-      setSelectedChild(null); //選択中を解除
-      setValidSlotsData(null); //制約情報をなくす
+      setSelectedChild(null); //選択中を解除（validSlotsData も自動で null になる）
       setHighlightedSlotIds([]);
       return;
     }
-    setSelectedChild(child); //今選択している児童を状態として保存
+    setSelectedChild(child); //今選択している児童を状態として保存（validSlotsData はこの子の分に自動で切り替わる）
     setFromAssignmentId(null); //割り当て と 入れ替えが混ざらないようにリセット
-    const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/children/${child.id}/valid_slots`,
-      {
-        method: "GET",
-      },
-    );
-    const data = await res.json();
-    setValidSlotsData(data);
   };
 
-  // 面談不可日・兄弟関係を取得（assignmentのid）
-  const fetchValidSlots = async (id: number) => {
-    const res = await fetchWithAuth(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/assignments/${id}/valid_slots`, //slotを選んだ１人のidを渡す
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-    return await res.json();
+  // クラスの全児童の制約（来校できる日時・兄弟・特支）をまとめて取得する
+  const fetchAvailability = () => {
+    fetchWithAuth(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/v1/child_availabilities`,
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error("児童の情報の取得に失敗しました");
+        return res.json();
+      })
+      .then((data) => setAvailabilityByChild(data))
+      .catch((e) => setError(e.message));
   };
 
   useEffect(() => {
@@ -482,6 +464,8 @@ export default function MeetingSlotPage() {
       router.push("/login");
       return;
     }
+    //クラスの全児童の情報を取得（希望日時・兄弟・特支）
+    fetchAvailability();
 
     // indexメソッドを呼ぶ
     fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meeting_slots`, {
@@ -528,11 +512,13 @@ export default function MeetingSlotPage() {
       .then((res) => res.json())
       .then((data) => {
         setUnassignedChildren(data);
-        handleSelectChild(data[0]);
+        // 未割り当て児童がいるときだけ、最初の1人を選ぶ
+        if (data.length > 0) setSelectedChild(data[0]);
       });
   }, [router]);
 
   // モバイルの時（widthが600px以下の場合trueを返す）
+
   const isMobile = useMediaQuery("(max-width:600px)");
 
   // PDFをダウンロードする
@@ -621,13 +607,15 @@ export default function MeetingSlotPage() {
     )
       .then((res) => res.json())
       .then((data) => setUnassignedChildren(data));
+    // 3つ目：兄弟・特支の時刻が変わることがあるので、制約も取り直す
+    fetchAvailability();
   };
 
   //バーナーが３つあるため、今どのバナーを出すかを判定
   const bannerMode = selectedChild ? "assign" : isEditing ? "move" : "normal";
 
-  //来校できない日
-  const unavailableSlot = validSlotsData?.unavailable_start_at;
+  //選んだ児童の来校できる日時
+  const availableSlots = validSlotsData?.available_start_at;
   //選択しているか
   const isSelectId = fromAssignmentId !== null;
   //ハイライトを当てる空き枠を見つける
@@ -1258,16 +1246,15 @@ export default function MeetingSlotPage() {
                         cell.id,
                       );
                       //保護者不可日時を取得
-                      const isUnavailable =
-                        validSlotsData?.unavailable_start_at?.includes(
-                          cell?.start_at,
-                        ) ?? false;
+                      const isUnavailable = isParentUnavailable(
+                        validSlotsData,
+                        cell.start_at,
+                      );
                       //割り当て児童の希望日
                       const isPreferred = !isUnavailable && isSelectId;
                       //未割り当て児童の希望日
                       const unassignedIsPreferred =
                         !isUnavailable && selectedChild;
-
                       // 兄弟の面談時間を取得
                       const isSiblingSlot =
                         validSlotsData?.siblings_start_at?.includes(
@@ -1426,9 +1413,9 @@ export default function MeetingSlotPage() {
                                       {cell.child_name}
                                     </Typography>
 
-                                    {unavailableSlot &&
+                                    {availableSlots &&
                                       selectedChild &&
-                                      !unavailableSlot.includes(
+                                      availableSlots.includes(
                                         cell.start_at,
                                       ) && (
                                         <Chip
@@ -1600,7 +1587,6 @@ export default function MeetingSlotPage() {
                         setFromAssignmentId(null); // 移動元
                         setSelectedChild(null); // 未割り当て児童
                         setToSlotId(null); // 移動先・割り当て先
-                        setValidSlotsData(null); // 色分け（不可日・兄弟・特支）
                         setViolations([]); // 警告
                         setEditDialogInfo(null); //入れ替え前の状態をリセット
                       },
@@ -1815,7 +1801,6 @@ export default function MeetingSlotPage() {
                         setFromAssignmentId(null); // 移動元
                         setSelectedChild(null); // 未割り当て児童
                         setToSlotId(null); // 移動先・割り当て先
-                        setValidSlotsData(null); // 色分け（不可日・兄弟・特支）
                         setViolations([]); // 警告
                         setEditDialogInfo(null); //入れ替え前の状態をリセット
                       },

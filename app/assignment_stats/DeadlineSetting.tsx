@@ -95,7 +95,7 @@ export default function DeadlineSetting({ scheduleId }: Props) {
       await fetchEditDeadLine(scheduleId);
     };
     loadSchedule();
-  }, [scheduleId]);
+  }, [scheduleId, router]);
 
   return (
     <Paper
