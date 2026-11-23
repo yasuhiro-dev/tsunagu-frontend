@@ -1,18 +1,26 @@
 "use client";
 
 import { useState, useEffect, Fragment } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
 import Image from "next/image";
-import Paper from "@mui/material/Paper";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import MailIcon from "@mui/icons-material/Mail";
+import {
+  Box,
+  Typography,
+  Button,
+  Paper,
+  CircularProgress,
+  Chip,
+  Container,
+  Link,
+} from "@mui/material";
+import {
+  CheckCircle as CheckCircleIcon,
+  PictureAsPdf as PictureAsPdfIcon,
+  Mail as MailIcon,
+  PlayCircle as PlayCircleIcon,
+} from "@mui/icons-material";
+
 import AlertSnackbar from "@/app/components/AlertSnackbar";
-import CircularProgress from "@mui/material/CircularProgress";
-import Chip from "@mui/material/Chip";
-import Container from "@mui/material/Container";
+import FlowArrowConnector from "@/app/components/lp/FlowArrowConnector";
 import {
   demoLogin,
   resetDemo,
@@ -20,8 +28,6 @@ import {
   DEMO_ACCOUNTS,
   prepareGuestDemo,
 } from "@/utils/demoLogin";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import FlowArrowConnector from "@/app/components/lp/FlowArrowConnector";
 
 // セクションの枠の共通設定（全セクションで余白と角の丸みを揃える）
 // state を使わない固定値なので、コンポーネントの外に置く
@@ -294,6 +300,8 @@ export default function LandingPage() {
         )
       }
       sx={{
+        bgcolor: "primary.dark",
+        "&:hover": { bgcolor: "#1e3f5c" },
         px: { xs: 8, md: 10 },
         py: 2,
         fontSize: { xs: 10, md: 18 },
@@ -313,7 +321,7 @@ export default function LandingPage() {
     >
       {isLoading === "demo-start"
         ? "準備しています…"
-        : "まずはデモを体験する（約5分）"}
+        : "デモを体験する（約5分）"}
     </Button>
   );
 
@@ -543,7 +551,7 @@ export default function LandingPage() {
                     boxShadow: 1,
                   }}
                 >
-                  はじめての方へ
+                  はじめての方はこちら
                 </Box>
               </Box>
             </Box>
@@ -551,7 +559,7 @@ export default function LandingPage() {
         </Box>
 
         {/* ゲストログイン */}
-        <Box sx={{ p: 3, mb: 2 }}>
+        <Box id="guest-login" sx={{ p: 3, mb: 2, scrollMarginTop: "80px" }}>
           <Paper sx={sectionSx}>
             <Box
               sx={{
@@ -1022,6 +1030,50 @@ export default function LandingPage() {
               </Box>
             </Box>
           </Box>
+        </Box>
+        <Box sx={{ p: 3, mb: 2 }}>
+          <Paper
+            elevation={4}
+            sx={{
+              ...sectionSx,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+                p: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="h4"
+                  sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+                >
+                  実際に操作して、確かめてください
+                </Typography>
+                <Typography>
+                  ガイドに沿って、３つの立場の操作を順番に体験できます
+                </Typography>
+              </Box>
+
+              {demoStarttButton}
+              <Typography>
+                立場を選んで、自由に操作したい方は{" "}
+                <Link sx={{ fontWeight: "bold" }} href="#guest-login">
+                  ゲストログインへ
+                </Link>
+              </Typography>
+            </Box>
+          </Paper>
         </Box>
       </Container>
     </>
