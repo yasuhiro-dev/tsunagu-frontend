@@ -315,6 +315,7 @@ export default function AssignmentNotification({
 
           {/* 右：送信ボタン */}
           <Box
+            id="tour_assignment_button"
             sx={{
               display: "flex",
               flexDirection: "column",

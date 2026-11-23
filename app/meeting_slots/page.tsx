@@ -1180,6 +1180,7 @@ export default function MeetingSlotPage() {
             </Box>
 
             <Box
+              id="tour_child_assignment"
               sx={
                 isMobile
                   ? {

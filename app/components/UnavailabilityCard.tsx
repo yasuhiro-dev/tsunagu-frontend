@@ -57,7 +57,10 @@ export default function UnavailabilityCard({
           borderRadius: 2,
         }}
       >
-        <Box sx={{ display: "flex", gap: 2, p: 2, justifyContent: "center" }}>
+        <Box
+          id={isLastDate ? "tour_parent_availability_button" : "undefined"}
+          sx={{ display: "flex", gap: 2, p: 2, justifyContent: "center" }}
+        >
           <Button
             id={isLastDate ? parentTourId : "undefined"}
             variant="outlined"
@@ -155,6 +158,11 @@ export default function UnavailabilityCard({
                         </ToggleButton>
 
                         <ToggleButton
+                          id={
+                            slot.id === highlightSlotId
+                              ? "tour_teacher_unavailability_button"
+                              : undefined
+                          }
                           sx={{
                             opacity: isDisabled(slot) ? 0.2 : 1,
                             width: 80,
