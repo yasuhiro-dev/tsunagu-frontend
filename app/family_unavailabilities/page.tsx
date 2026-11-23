@@ -51,7 +51,6 @@ export default function FamilyUnavailability() {
   const [alertMessage, setAlertMessage] = useState("");
   const [showSubmittedDialog, setShowSubmittedDialog] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [hasChanged, setHasChanged] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -81,7 +80,6 @@ export default function FamilyUnavailability() {
       const next = [...prev, ...newIds];
       return next;
     });
-    setHasChanged(true);
   };
 
   // １日分をすべて「来校できない」にする関数（保護者）
@@ -98,7 +96,6 @@ export default function FamilyUnavailability() {
       );
     }
     setAvailableSlots((prev) => prev.filter((id) => !removeIds.includes(id)));
-    setHasChanged(true);
   };
 
   //１コマ分選択/選択解除の関数
@@ -111,7 +108,6 @@ export default function FamilyUnavailability() {
         },
       );
       setAvailableSlots((prev) => prev.filter((id) => id !== slotId));
-      setHasChanged(true);
     } else {
       await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/family_availabilities`,
@@ -124,7 +120,6 @@ export default function FamilyUnavailability() {
         },
       );
       setAvailableSlots((prev) => [...prev, slotId]);
-      setHasChanged(true);
     }
   };
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   TextField,
   Button,
@@ -82,7 +81,6 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
 
   const handleGuestSubmit = async (
     loginEmail: string, // 1つ目に渡された値を、この名前で使う（文字列）

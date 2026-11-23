@@ -155,7 +155,7 @@ export default function AssignmentNotification({
       return;
     }
     fetchNotificationStatus();
-  }, []);
+  }, [router]);
 
   const isDone = unNotified === 0 && allUserCount > 0; //割り当て後、未通知が０
   const unAvailable = allUserCount === 0; //割り当て前

@@ -9,9 +9,7 @@ import Paper from "@mui/material/Paper";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import MailIcon from "@mui/icons-material/Mail";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import AlertSnackbar from "@/app/components/AlertSnackbar";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CircularProgress from "@mui/material/CircularProgress";
 import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
@@ -264,9 +262,6 @@ export default function LandingPage() {
     },
   ];
 
-  // モバイルの時（widthが600px以下の場合trueを返す）
-  const isMobile = useMediaQuery("(max-width:600px)");
-
   const fontSizes = {
     title: { xs: "24px", sm: "24px", md: "30px" }, //大きいタイトル　h4
     subheading: { xs: "14px", sm: "18px", md: "20px" }, //ミニタイトル　h6
@@ -274,28 +269,6 @@ export default function LandingPage() {
     body: { xs: "11px", sm: "11px", md: "14px" }, // body2
     lead: { xs: "15px", sm: "15px", md: "16px" }, // 指定なし 16px
   };
-
-  //矢印の見た目を事前に設定
-  function FlowArrow() {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}
-      >
-        <ArrowForwardIcon
-          sx={{
-            color: "text.secondary",
-            fontSize: { xs: 8, sm: 8, md: 20 },
-            transform: { xs: "rotate(90deg)", md: "none" },
-          }}
-        />
-      </Box>
-    );
-  }
 
   const numberCircleSx = {
     width: { xs: 30, md: 30 },

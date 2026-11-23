@@ -7,6 +7,7 @@ export type MeetingSlot = {
   schedule_id: number;
   status: string;
   child_name: string;
+  child_id: number | null;
   assignment_id: number | null;
   submitted: boolean | null;
   class_room: string | null;

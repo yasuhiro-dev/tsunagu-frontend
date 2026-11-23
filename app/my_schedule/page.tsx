@@ -66,7 +66,6 @@ export default function MySchedulePage() {
   const [alertMessage, setAlertMessage] = useState("");
   const [deadLine, setDeadLine] = useState<null | string>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success",
   );
@@ -108,7 +107,6 @@ export default function MySchedulePage() {
     };
 
     Promise.all([fetchAssignments(), fetchDeadLine(), fetchSubmitted()])
-      .then(() => setDialogOpen(true)) //全部成功したら
       .catch((e) => setError(e.message)) //失敗したら
       .finally(() => setLoading(false)); //成功しても失敗しても
   }, [router]);

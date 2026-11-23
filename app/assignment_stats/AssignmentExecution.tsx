@@ -65,7 +65,6 @@ export default function AssignmentExecution({
   const [isAssigning, setIsAssigning] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [showAssignmentDialog, setShowAssignmentDialog] = useState(false);
   const [alertDuration, setAlertDuration] = useState(4000);
   const [unassignedChildren, setUnassignedChildren] = useState<
     UnassignedChild[]
@@ -129,7 +128,6 @@ export default function AssignmentExecution({
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("全員の割り当てが成功しました");
-      setShowAssignmentDialog(true);
     } else if (res.ok === true && data.unassigned_children.length > 0) {
       setAlertDuration(5000);
       setUnassignedChildren(data.unassigned_children);
@@ -152,7 +150,7 @@ export default function AssignmentExecution({
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAssignmentStats();
-  }, []);
+  }, [router]);
   const hasResult = assignCount > 0;
 
   return (
