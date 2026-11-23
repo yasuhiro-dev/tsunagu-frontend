@@ -23,7 +23,7 @@ export const theme = createTheme({
     primary: {
       main: "#4a7ba7",
       light: "#7ba3c7ff",
-      dark: "#2d5a80",
+      dark: "#2f638dff",
     },
     error: {
       main: "#b5535b",
