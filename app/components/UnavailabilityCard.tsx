@@ -65,14 +65,14 @@ export default function UnavailabilityCard({
             onClick={() => onSelectAll(dateSlots)}
             sx={[!isConsecutiveEnough && isLastDate && highlightSx]}
           >
-            すべて可能
+            全て可能
           </Button>
           <Button
             variant="outlined"
             size="small"
             onClick={() => onClearAll(dateSlots)}
           >
-            すべて不可
+            全て不可
           </Button>
         </Box>
         <CardContent>
