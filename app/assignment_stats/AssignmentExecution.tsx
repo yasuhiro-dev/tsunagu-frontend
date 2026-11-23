@@ -245,6 +245,7 @@ export default function AssignmentExecution({
               : "結果を見てから、やり直すこともできます。"}
           </Box>
           <Box
+            id="tour_assignment_button"
             sx={{
               display: "flex",
               minWidth: { xs: 100, md: 320 },

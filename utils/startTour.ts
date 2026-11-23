@@ -8,7 +8,10 @@ let activeTour: ReturnType<typeof driver> | null = null;
 
 //操作中はtourが表示
 export const startTour = (page: DemoPage, startIndex = 0) => {
-  const tourContentExist = tourContent[page]; //受け取ったpageを取り出す
+  const tourContentExist = tourContent[page]; //受け取ったpageで該当のページ取り出す
+  const scrollTargetId = tourContentExist?.find(
+    (step) => step.scrollTargetId,
+  )?.scrollTargetId;
   if (!tourContentExist) return; //もしpageが存在しない場合は、返す
   activeTour = driver({
     steps: tourContentExist,
@@ -16,6 +19,12 @@ export const startTour = (page: DemoPage, startIndex = 0) => {
     prevBtnText: "戻る",
     doneBtnText: "終了",
     overlayClickBehavior: "none",
+    onDestroyed: () => {
+      if (!scrollTargetId) return;
+      document
+        .getElementById(scrollTargetId)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
   });
   activeTour.drive(startIndex);
 };

@@ -2,6 +2,7 @@ import { DemoPage } from "./demoGuideContent";
 
 export type TourStep = {
   element: string;
+  scrollTargetId?: string;
   popover: {
     title: string;
     description: string;
@@ -20,6 +21,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     },
     {
       element: "#tour-teacher-button-area",
+      scrollTargetId: "tour_teacher_unavailability_button",
       popover: {
         title: "面談できない日時を選ぶ",
         description:
@@ -44,6 +46,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     },
     {
       element: "#tour-parent-button-area",
+      scrollTargetId: "tour_parent_availability_button",
       popover: {
         title: "来校できる日時を選ぶ",
         description: "「すべて可能」を押すと、<br>1日分まとめて選べます。",
@@ -61,6 +64,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
   admin_assignment: [
     {
       element: "#admin-assignment-execution-button",
+      scrollTargetId: "tour_assignment_button",
       popover: {
         title: "割り当てを実行する",
         description:
@@ -103,6 +107,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     },
     {
       element: "#tour-teacher-meeting-slos-add-popbar",
+      scrollTargetId: "tour_child_assignment",
       popover: {
         title: "空き枠の時間に入れる",
         description: "空き枠を押すと、</br>「選択中」の児童が入ります。",
@@ -135,6 +140,7 @@ export const tourContent: Partial<Record<DemoPage, TourStep[]>> = {
     },
     {
       element: "#tour-admin-assignment-notification-button",
+      scrollTargetId: "tour_admin_mail",
       popover: {
         title: "保護者にまとめて送信",
         description: "押すと、全クラスの保護者へ<br>一度に送信します。",
