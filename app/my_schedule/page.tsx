@@ -29,6 +29,7 @@ import GuideHelp from "@/app/components/GuideHelp";
 import { useDemoMode } from "@/utils/useDemoMode";
 import { endTour } from "@/utils/startTour";
 import { highlightSx } from "@/app/highlight";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 type Assignment = {
   id: number;
@@ -61,6 +62,8 @@ export default function MySchedulePage() {
   const [assignment, setAssignment] = useState<Assignment[]>([]);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  // スマホでは横幅が足りず「決/定」のように改行されるため、ラベルをアイコンの下に置く
+  const isMobile = useMediaQuery("(max-width:600px)");
   const [error, setError] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -251,7 +254,11 @@ export default function MySchedulePage() {
       {loading ? (
         ""
       ) : (
-        <Stepper sx={{ p: 2 }} activeStep={getCurrentStep()}>
+        <Stepper
+          sx={{ p: 2 }}
+          activeStep={getCurrentStep()}
+          alternativeLabel={isMobile}
+        >
           {steps.map((label, index) => {
             return (
               <Step key={index}>

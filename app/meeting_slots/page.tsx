@@ -673,7 +673,12 @@ export default function MeetingSlotPage() {
                 />
               </Box>
 
-              <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              {/* pにすると globals.css の「最後の行に1文字だけ残さない」指定が効く */}
+              <Typography
+                variant="caption"
+                component="p"
+                sx={{ color: "text.secondary" }}
+              >
                 ※来校できる日時が未提出の児童は、日時の制約なしとして割り当てられます
               </Typography>
             </Box>
@@ -754,7 +759,14 @@ export default function MeetingSlotPage() {
                     {" "}
                     ② 空いている枠をクリックすると割り当てられます
                   </Typography>
-                  <Box sx={{ display: "flex", gap: 1 }}>
+                  {/* スマホは3つ横に並べると1行2〜3文字になるため、縦に並べる */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      gap: { xs: 0, sm: 1 },
+                    }}
+                  >
                     <Box
                       sx={{
                         display: "flex",

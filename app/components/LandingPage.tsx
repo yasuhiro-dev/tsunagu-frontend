@@ -302,11 +302,13 @@ export default function LandingPage() {
       sx={{
         bgcolor: "primary.dark",
         "&:hover": { bgcolor: "#1e3f5c" },
-        px: { xs: 8, md: 10 },
+        px: { xs: 2, md: 10 },
         py: 2,
         fontSize: { xs: 10, md: 18 },
         fontWeight: "bold",
-        minWidth: { xs: 280, md: 400 },
+        // スマホは固定幅だと枠からはみ出すため、枠いっぱいの幅にする
+        width: { xs: "100%", md: "auto" },
+        minWidth: { xs: 0, md: 400 },
       }}
       onClick={() => {
         handleSubmit(
@@ -439,6 +441,8 @@ export default function LandingPage() {
                 sx={{
                   gap: 2,
                   display: "flex",
+                  // 6枚が横に収まらないため、スマホは1列・タブレットは2列で折り返す
+                  flexWrap: { xs: "wrap", md: "nowrap" },
                 }}
               >
                 {workflows.map((workflow, index) => {
@@ -449,7 +453,7 @@ export default function LandingPage() {
                       sx={{
                         position: "relative",
                         display: "flex",
-                        flex: 1,
+                        flex: { xs: "1 1 100%", sm: "1 1 40%", md: 1 },
                         minWidth: 0,
                       }}
                     >
@@ -457,7 +461,8 @@ export default function LandingPage() {
                         sx={{
                           display: "flex",
                           flexDirection: "column",
-                          maxWidth: 160,
+                          width: { xs: "100%", md: "auto" },
+                          maxWidth: { xs: "none", md: 160 },
                           maxHeight: 220,
                           p: 2,
                           gap: 1,
@@ -591,7 +596,14 @@ export default function LandingPage() {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            {/* スマホでは3列だと文字が1文字ずつ折り返すため、縦に並べる */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                gap: 2,
+              }}
+            >
               {/* ゲストログインボタン */}
               {guestLoginButtons.map((guest, index) => (
                 <Box
@@ -639,7 +651,14 @@ export default function LandingPage() {
                         <Typography
                           key={item}
                           variant="body1"
-                          sx={{ color: "text.secondary", textAlign: "left" }}
+                          sx={{
+                            color: "text.secondary",
+                            textAlign: "left",
+                            // 「操作で/きる」のような改行を防ぐ（見出しと同じ指定）
+                            textWrap: "balance",
+                            wordBreak: "auto-phrase",
+                            overflowWrap: "anywhere",
+                          }}
                         >
                           <CheckCircleIcon
                             sx={{ color: guest.circleColor, fontSize: 15 }}
@@ -719,6 +738,7 @@ export default function LandingPage() {
                       alignItems: "center",
                       minHeight: 200,
                       flex: 1,
+                      maxWidth: "100%", // 狭いスマホでカードが枠からはみ出さないようにする
                       borderRadius: 5,
                       p: 2,
                       gap: 2,
@@ -745,6 +765,7 @@ export default function LandingPage() {
                       sx={{
                         textAlign: "center",
                         width: 200,
+                        maxWidth: "100%",
                         whiteSpace: "pre-line",
                       }}
                     >
@@ -1044,7 +1065,9 @@ export default function LandingPage() {
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 2,
-                p: 2,
+                // スマホは余白が重なり見出しが「確かめてくださ/い」と改行されるため、横の余白を減らす
+                py: 2,
+                px: { xs: 0, md: 2 },
               }}
             >
               <Box

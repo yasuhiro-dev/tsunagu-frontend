@@ -31,6 +31,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import PeopleIcon from "@mui/icons-material/People";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import HomeIcon from "@mui/icons-material/Home";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
@@ -75,20 +76,23 @@ const parentMenuItems = [
     icon: <EditCalendarIcon />,
   },
 ];
+// 管理者画面（admin/page.tsx）のサイドバーと同じ順番・同じtab番号にそろえる
 const adminMenuItems = [
-  { label: "担任の先生一覧", href: "/admin?tab=0", icon: <PersonIcon /> },
-  { label: "保護者一覧", href: "/admin?tab=1", icon: <PeopleIcon /> },
-  {
-    label: "担任の先生の登録",
-    href: "/admin?tab=2",
-    icon: <PersonAddAlt1Icon />,
-  },
-  { label: "保護者の登録", href: "/admin?tab=3", icon: <GroupAddIcon /> },
+  { label: "締切日の設定", href: "/admin?tab=0", icon: <CalendarMonthIcon /> },
   {
     label: "面談の一括割り当て",
-    href: "/admin?tab=4",
+    href: "/admin?tab=1",
     icon: <AssignmentIcon />,
   },
+  { label: "保護者への通知", href: "/admin?tab=2", icon: <AssignmentIcon /> },
+  { label: "担任の先生一覧", href: "/admin?tab=3", icon: <PersonIcon /> },
+  { label: "保護者一覧", href: "/admin?tab=4", icon: <PeopleIcon /> },
+  {
+    label: "担任の先生の登録",
+    href: "/admin?tab=5",
+    icon: <PersonAddAlt1Icon />,
+  },
+  { label: "保護者の登録", href: "/admin?tab=6", icon: <GroupAddIcon /> },
 ];
 
 //ナビバーの背景色や役割のラベル
@@ -325,7 +329,15 @@ export default function Navbar() {
                 height={50}
                 style={{ width: isMobile ? 44 : 70, height: "auto" }}
               />
-              <Typography variant="h6">Tsunagu</Typography>
+              {/* ログイン後のスマホでは名前がはみ出すため、ロゴの文字を隠す */}
+              <Typography
+                variant="h6"
+                sx={{
+                  display: { xs: role ? "none" : "block", md: "block" },
+                }}
+              >
+                Tsunagu
+              </Typography>
             </Button>
           </Box>
 
@@ -418,6 +430,8 @@ export default function Navbar() {
             <Chip
               label={style.label}
               sx={{
+                // スマホでは名前が画面外にはみ出すため非表示（役割は上部の色で分かる）
+                display: { xs: "none", md: "flex" },
                 fontWeight: "bold",
                 backgroundColor: style.backgroundColor,
                 color: style.color,

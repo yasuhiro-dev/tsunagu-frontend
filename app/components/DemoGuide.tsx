@@ -127,14 +127,23 @@ export default function DemoGuide({
                 sx={{
                   borderRadius: 2,
                   display: "flex",
+                  // スマホは横に収まらないため縦に並べる
+                  flexDirection: { xs: "column", sm: "row" },
                   backgroundColor: "#e3ecf7",
                   p: 1,
-                  gap: 3,
+                  gap: { xs: 1, sm: 3 },
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <Box sx={{ flex: 3, display: "flex" }}>
+                <Box
+                  sx={{
+                    flex: 3,
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: "center",
+                  }}
+                >
                   <Image
                     src={DEMO_IMAGES.teacher}
                     alt="担任アイコン"
@@ -191,14 +200,22 @@ export default function DemoGuide({
                 sx={{
                   borderRadius: 2,
                   display: "flex",
+                  // スマホは横に収まらないため縦に並べる
+                  flexDirection: { xs: "column", sm: "row" },
                   backgroundColor: content.backgroundColor,
                   p: 1,
-                  gap: 3,
+                  gap: { xs: 1, sm: 3 },
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <Box sx={{ display: "flex" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: "center",
+                  }}
+                >
                   <Image
                     src={DEMO_IMAGES.parent}
                     alt="保護者アイコン"
@@ -287,14 +304,22 @@ export default function DemoGuide({
                 sx={{
                   borderRadius: 2,
                   display: "flex",
+                  // スマホは横に収まらないため縦に並べる
+                  flexDirection: { xs: "column", sm: "row" },
                   backgroundColor: content.backgroundColor,
                   p: 1,
-                  gap: 3,
+                  gap: { xs: 1, sm: 3 },
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                <Box sx={{ display: "flex" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: "center",
+                  }}
+                >
                   <Image
                     src={DEMO_IMAGES.admin}
                     alt="教頭アイコン"
@@ -329,7 +354,7 @@ export default function DemoGuide({
                       backgroundColor: "#ffff",
                       p: 1,
                       borderRadius: 2,
-                      ml: 2,
+                      ml: { xs: 0, sm: 2 },
                     }}
                   >
                     <Typography
@@ -341,31 +366,60 @@ export default function DemoGuide({
                     >
                       担当範囲
                     </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                    {/* スマホで1行に入らない時は、言葉の途中ではなく「アイコン｜学校全体」の間で折り返す */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        justifyContent: { xs: "center", sm: "flex-start" },
+                      }}
+                    >
                       <Image
                         src={DEMO_IMAGES.school}
                         alt="学校アイコン"
                         width={60}
                         height={60}
                       />
-                      <Typography variant="h5">学校全体</Typography>
+                      <Typography variant="h5" sx={{ whiteSpace: "nowrap" }}>
+                        学校全体
+                      </Typography>
                     </Box>
+                    {/* 同じく「全13クラス・｜226家庭」の間で折り返す */}
                     <Box
                       sx={{
                         display: "flex",
                         fontSize: 14,
                         alignItems: "center",
+                        flexWrap: "wrap",
+                        justifyContent: { xs: "center", sm: "flex-start" },
                       }}
                     >
-                      全
-                      <Typography variant="h6" sx={{ color: "primary.main" }}>
-                        {classLength}
-                      </Typography>
-                      クラス・
-                      <Typography variant="h6" sx={{ color: "primary.main" }}>
-                        {parentLength}
-                      </Typography>
-                      家庭
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        全
+                        <Typography variant="h6" sx={{ color: "primary.main" }}>
+                          {classLength}
+                        </Typography>
+                        クラス・
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <Typography variant="h6" sx={{ color: "primary.main" }}>
+                          {parentLength}
+                        </Typography>
+                        家庭
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
@@ -411,7 +465,8 @@ export default function DemoGuide({
           {content.note}
         </Typography>
       </DialogContent>
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+      {/* スマホでボタンが2つ並ばない時は折り返す */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
         {content.buttonCancel && (
           <DialogActions>
             <Button

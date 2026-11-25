@@ -52,7 +52,8 @@ export default function SettingPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ p: 3 }}>
+      {/* スマホは左右の余白が広すぎて「アカウント設/定」と改行されるため、横の余白をなくす */}
+      <Typography variant="h4" sx={{ py: 3, px: { xs: 0, sm: 3 } }}>
         アカウント設定
       </Typography>
       {connected ? (

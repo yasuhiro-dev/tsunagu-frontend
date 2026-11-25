@@ -166,7 +166,8 @@ export default function AssignmentNotification({
       sx={{
         display: "flex",
         flexDirection: "column",
-        p: 2,
+        // スマホは余白が何重にも重なり中身が細くなるため、余白を減らす
+        p: { xs: 1, md: 2 },
         backgroundColor: "#ecf1f4ff",
       }}
     >
@@ -244,7 +245,8 @@ export default function AssignmentNotification({
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              p: 2,
+              // スマホは「デモ環境について」の枠が1行5文字ほどに細くなるため、余白をなくす
+              p: { xs: 0, md: 2 },
               flex: 2,
             }}
           >
@@ -529,7 +531,8 @@ export default function AssignmentNotification({
                 flexDirection: "column",
                 p: 2,
                 gap: 2,
-                maxHeight: 300,
+                // スマホは幅が狭く文字が300pxに収まらず枠の外へはみ出すため、高さ制限はPCのみ
+                maxHeight: { md: 300 },
                 flex: 1,
               }}
             >
@@ -604,7 +607,8 @@ export default function AssignmentNotification({
               // maxWidth: isMobile ? "265px" : "100",
             }}
           >
-            <Table sx={{ tableLayout: "fixed" }}>
+            {/* スマホで列が細くなり1文字ずつ改行されるため、最小幅を決めて横スクロールにする */}
+            <Table sx={{ tableLayout: "fixed", minWidth: 480 }}>
               {/* ヘッダーカラム */}
               <TableHead>
                 <TableRow

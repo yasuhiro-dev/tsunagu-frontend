@@ -79,7 +79,8 @@ export default function AssignmentExecution({
   //棒グラフの見た目
   const chartSetting = {
     height: 300,
-    width: isMobile ? 230 : 300,
+    // スマホは固定幅だとカードからはみ出すため、幅を指定せずカードに合わせる
+    width: isMobile ? undefined : 300,
     margin: { left: 0 },
   };
   //円グラフの見た目
@@ -460,7 +461,16 @@ export default function AssignmentExecution({
                 sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}
               >
                 <BarChartIcon sx={{ color: "primary.main" }} />
-                クラス別割り当て率
+                {/* スマホで「クラス別割り/当て率」と言葉の途中で改行されないよう、区切る場所を決める */}
+                <Box component="span">
+                  <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                    クラス別
+                  </Box>
+                  <wbr />
+                  <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                    割り当て率
+                  </Box>
+                </Box>
               </Typography>
 
               {hasResult && classRates ? (
@@ -498,7 +508,16 @@ export default function AssignmentExecution({
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
                 <PersonSearchIcon sx={{ color: "primary.main" }} />
-                未割り当ての児童
+                {/* スマホで「未割り/当ての児童」と言葉の途中で改行されないよう、区切る場所を決める */}
+                <Box component="span">
+                  <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                    未割り当ての
+                  </Box>
+                  <wbr />
+                  <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                    児童
+                  </Box>
+                </Box>
               </Typography>
 
               {hasResult ? (

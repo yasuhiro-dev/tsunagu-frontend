@@ -6,6 +6,27 @@ body {
   color: var(--foreground);
 }
 
+/* スマホで見出しが折り返す時、最後の行が1〜2文字だけ残らないようにする
+   balance: 各行の長さをそろえる / auto-phrase: 日本語を文節の切れ目で改行する（Chromeのみ対応・他のブラウザでは無視される） */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.MuiStepLabel-label,
+.MuiButton-root {
+  text-wrap: balance;
+  word-break: auto-phrase;
+  /* 文節が枠に入りきらない時は文節の途中でも改行してよい（無いと枠からはみ出すことがある） */
+  overflow-wrap: anywhere;
+}
+
+/* 文章の最後の行に1〜2文字だけ残らないようにする（例:「必要があ/る」） */
+p {
+  text-wrap: pretty;
+}
+
 /* Tailwind撤去前の見た目を保つため、初期化CSS（preflight）の画像・アイコンの指定だけ引き継ぐ
    preflightと同じく@layerに入れ、img要素のwidth/height属性やMUIの指定より弱くしておく */
 @layer base {

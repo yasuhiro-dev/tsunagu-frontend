@@ -331,7 +331,12 @@ export default function MeetingSlotPage() {
           </Box>
           <Box
             id="tour-teacher-unavailability-status"
-            sx={{ display: "flex", flex: 3 }}
+            // スマホは横に並べると右の緑の枠が細くなり1行3〜4文字になるため、縦に並べる
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              flex: 3,
+            }}
           >
             <Box
               sx={{

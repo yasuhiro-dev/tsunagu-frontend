@@ -469,8 +469,15 @@ export default function FamilyUnavailability() {
                         variant="caption"
                         sx={{ color: "text.secondary" }}
                       >
-                        例：{formatDate(slots[24].start_at)}の 15:00〜15:15 と
-                        15:15〜15:30
+                        {/* 時間が「15:15〜/15:30」と途中で改行されないよう、時間ごとにまとめる */}
+                        例：{formatDate(slots[24].start_at)}の{" "}
+                        <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                          15:00〜15:15
+                        </Box>{" "}
+                        と{" "}
+                        <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                          15:15〜15:30
+                        </Box>
                       </Typography>
                     </Box>
                   </Box>
