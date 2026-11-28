@@ -408,14 +408,13 @@ export default function MeetingSlotPage() {
         }),
       },
     );
-
     const data = await res.json();
     setslots(data);
     if (res.ok) {
+      fetchChildData(); // 兄弟・特支の時刻が変わることがあるので取り直す
       setAlertOpen(true);
       setAlertSeverity("success");
       setAlertMessage("変更されました");
-      fetchAvailability(); // 兄弟・特支の時刻が変わることがあるので取り直す
 
       // 移動先や移動元のidがない時には飛ばす、もしあるなら新しい値をstateに保存する
       if (fromSlot == null || toSlotId == null) {
