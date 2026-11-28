@@ -27,6 +27,7 @@ export type DemoGuideContent = {
   backgroundColor?: string;
   chip: string;
   showIdentity: boolean;
+  identityLabel?: string; // モーダル中央のカードに大きく出す役割名。未指定ならこれまで通りログイン中の名前を表示する
   buttonLabel: string;
   buttonUrl?: string;
   buttonCancel?: string;
@@ -44,11 +45,13 @@ const ButtonName = ({ children }: { children: React.ReactNode }) => (
 export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   teacher_unavailability: {
     title: "STEP 1 / 6 ",
-    chip: "担任の先生の画面です",
+    chip: "3つの立場を順に体験",
     showIdentity: true,
+    identityLabel: "担任の先生",
     color: "primary.main",
     backgroundColor: "#e3ecf7",
-    heading: "出張で、面談できない日時を登録する画面です。",
+    heading: "まずは「担任の先生」として操作します",
+    purpose: "光っている枠は、出張で面談できない日時の想定です。",
     steps: [
       <>
         ① 光っている<ButtonName>× 面談できない</ButtonName>を押す
@@ -76,11 +79,12 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   },
   family_availability: {
     title: "STEP 2 / 6",
-    chip: "保護者の画面です",
+    chip: "保護者はスマホで入力",
     showIdentity: true,
+    identityLabel: "保護者",
     color: "#d18a94",
     backgroundColor: "#f8e8e9",
-    heading: "来校できる日時を選んでみましょう",
+    heading: "次は「保護者」として操作します",
     steps: [
       <>
         ① <ButtonName>すべて可能</ButtonName>を押して、1日分まとめて選ぶ
@@ -109,16 +113,17 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
 
   admin_assignment: {
     title: "STEP 3 / 6",
-    chip: "教頭先生の画面です",
+    chip: "提出から自動で決定",
     showIdentity: true,
+    identityLabel: "教頭先生",
     color: "success.main",
     backgroundColor: "#e6f2e9",
-    heading: "クラスをまたいで、面談日程をまとめて決めます",
+    heading: "次は「教頭先生」として操作します",
     steps: [
       <>
         ① 画面の右にある<ButtonName>▶ 割り当てを実行する</ButtonName>を押す
       </>,
-      <>② 「兄弟の連続面談」と「全体割り当て率」で結果を確認する</>,
+      <>② 「兄弟の連続面談」で、兄弟が続けて組まれたか確認する</>,
     ],
     buttonLabel: "やってみる",
   },
@@ -137,15 +142,16 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   },
   teacher_meeting_slots: {
     title: "STEP 4 / 6",
-    chip: "担任の先生の画面です",
+    chip: "入らなかった児童を調整",
     showIdentity: true,
+    identityLabel: "担任の先生",
     color: "primary.main",
     backgroundColor: "#e3ecf7",
-    heading: "自動で入らなかった児童を、手で割り当てましょう",
+    heading: "再び「担任の先生」として操作します",
     purpose:
       "選択中の児童は、電話で相談して同じ日の別の時間に決まった想定です。",
     steps: [
-      <>① 光っている枠のどれかを押す</>,
+      <>① 光っている枠のどれかを押して、選択中の児童を割り当てる</>,
       <>
         ② 終わったら、画面右上の
         <ButtonName>次へ：保護者へメール送信</ButtonName>を押す
@@ -172,16 +178,17 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
 
   admin_mail_send: {
     title: "STEP 5 / 6",
-    chip: "教頭先生の画面です",
+    chip: "全クラスまとめて送信",
     showIdentity: true,
+    identityLabel: "教頭先生",
     color: "success.main",
     backgroundColor: "#e6f2e9",
-    heading: "全クラスの面談日時を、保護者へまとめて知らせましょう",
-    purpose:
-      "どのクラスも面談表の確認が終わった想定です。\n教頭先生が、全クラス分をまとめて送信します。",
+    heading: "再び「教頭先生」として操作します",
+    purpose: "どのクラスも面談表の確認が終わった想定です。",
     steps: [
       <>
-        ① 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>を押す
+        ① 画面右の<ButtonName>▶ 保護者に送信する</ButtonName>
+        を押して、面談日時を知らせる
       </>,
     ],
     note: "※デモでは送られません。中身は「届くメールの例を見る」で確認",
@@ -201,11 +208,12 @@ export const demoPageContent: Record<DemoPage, DemoGuideContent> = {
   },
   my_schedule: {
     title: "STEP 6 / 6",
-    chip: "保護者の画面です",
+    chip: "届いた面談日時を確認",
     backgroundColor: "#f8e8e9",
     showIdentity: true,
+    identityLabel: "保護者",
     color: "#d18a94",
-    heading: "決まった面談日時を確認しましょう",
+    heading: "最後に「保護者」として確認します",
 
     steps: [
       <>① 2人のお子さんの面談が、同じ日の続く時間になっているか確認する</>,

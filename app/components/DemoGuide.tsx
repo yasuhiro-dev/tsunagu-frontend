@@ -172,7 +172,7 @@ export default function DemoGuide({
                         color: "common.white",
                       }}
                     />
-                    <Typography variant="h5">{name} 先生</Typography>
+                    <Typography variant="h5">担任の先生</Typography>
                   </Box>
                 </Box>
 
@@ -244,7 +244,7 @@ export default function DemoGuide({
                         color: "common.white",
                       }}
                     />
-                    <Typography variant="h5">{name} 様</Typography>
+                    <Typography variant="h5">保護者</Typography>
                   </Box>
                 </Box>
 
@@ -466,7 +466,9 @@ export default function DemoGuide({
         </Typography>
       </DialogContent>
       {/* スマホでボタンが2つ並ばない時は折り返す */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
+      <Box
+        sx={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}
+      >
         {content.buttonCancel && (
           <DialogActions>
             <Button
