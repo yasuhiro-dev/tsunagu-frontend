@@ -1318,7 +1318,6 @@ export default function MeetingSlotPage() {
                         isUnavailableTime || isEmptyWithNoOneToAssign;
                       // 未割り当て児童を選択中か
                       const isSelectingUnassigned = selectedChild !== null;
-
                       // この枠を押せないか
                       const isBlocked = (() => {
                         // 未割り当て児童を選択中：人が入っている枠は押せない
@@ -1504,22 +1503,6 @@ export default function MeetingSlotPage() {
                                 </Box>
 
                                 {/* 未提出：セルの下端に固定 */}
-                                {cell.submitted === false && (
-                                  <Chip
-                                    variant="outlined"
-                                    label="未提出"
-                                    color="warning"
-                                    size="small"
-                                    sx={{
-                                      position: "absolute",
-                                      bottom: 2,
-                                      left: 4,
-                                      right: 4,
-                                      maxHeight: "15px",
-                                      fontSize: "caption",
-                                    }}
-                                  />
-                                )}
                               </Box>
                             ) : (
                               <Box
@@ -1557,54 +1540,85 @@ export default function MeetingSlotPage() {
                                 </Box>
                               </Box>
                             )}
-                            {isSiblingSlot && (
-                              <Box
-                                sx={{
-                                  backgroundColor: (theme) =>
-                                    alpha(theme.palette.secondary.main, 0.12),
-                                  color: "secondary.dark",
-                                  borderLeft: "3px solid",
-                                  borderColor: "secondary.main",
-                                  px: 0.5,
-                                  borderRadius: 0.5,
-                                }}
-                              >
-                                <Typography
-                                  variant="caption"
-                                  sx={{ display: "block", lineHeight: 1.2 }}
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                bottom: 2,
+                                left: 1,
+                                right: 1,
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.25,
+                              }}
+                            >
+                              {isSiblingSlot && (
+                                <Box
+                                  sx={{
+                                    backgroundColor: (theme) =>
+                                      alpha(theme.palette.secondary.main, 0.12),
+                                    color: "secondary.dark",
+                                    borderLeft: "3px solid",
+                                    borderColor: "secondary.main",
+                                    px: 0.5,
+                                    borderRadius: 0.5,
+
+                                    bottom: 0,
+                                  }}
                                 >
-                                  {selectedName}さんの兄弟
-                                </Typography>
-                                <Typography variant="caption">
-                                  {siblingInfo && siblingInfo.classRoom}{" "}
-                                  {siblingInfo && siblingInfo.name}
-                                </Typography>
-                              </Box>
-                            )}
-                            {isSupportSlot && (
-                              <Box
-                                sx={{
-                                  backgroundColor: (theme) =>
-                                    alpha(theme.palette.secondary.main, 0.12),
-                                  color: "secondary.dark",
-                                  borderLeft: "3px solid",
-                                  borderColor: "secondary.main",
-                                  px: 0.5,
-                                  borderRadius: 0.5,
-                                }}
-                              >
-                                <Typography
-                                  variant="caption"
-                                  sx={{ display: "block", lineHeight: 1.2 }}
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ display: "block", lineHeight: 1.2 }}
+                                  >
+                                    {selectedName}さんの兄弟
+                                  </Typography>
+                                  <Typography variant="caption">
+                                    {siblingInfo && siblingInfo.classRoom}{" "}
+                                    {siblingInfo && siblingInfo.name}
+                                  </Typography>
+                                </Box>
+                              )}
+                              {isSupportSlot && (
+                                <Box
+                                  sx={{
+                                    backgroundColor: (theme) =>
+                                      alpha(theme.palette.secondary.main, 0.12),
+                                    color: "secondary.dark",
+                                    borderLeft: "3px solid",
+                                    borderColor: "secondary.main",
+                                    px: 0.5,
+                                    borderRadius: 0.5,
+                                    bottom: 0,
+                                  }}
                                 >
-                                  {selectedName}さんの特支面談
-                                </Typography>
-                                <Typography variant="caption">
-                                  {supportInfo && supportInfo.classRoom} (
-                                  {supportInfo && supportInfo.teacher}先生)
-                                </Typography>
-                              </Box>
-                            )}
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      display: "block",
+                                      lineHeight: 1.2,
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {selectedName}さんの特支面談
+                                  </Typography>
+                                  <Typography variant="caption">
+                                    {supportInfo && supportInfo.classRoom} (
+                                    {supportInfo && supportInfo.teacher}先生)
+                                  </Typography>
+                                </Box>
+                              )}
+                              {cell.submitted === false && (
+                                <Chip
+                                  variant="outlined"
+                                  label="未提出"
+                                  color="warning"
+                                  size="small"
+                                  sx={{
+                                    maxHeight: "15px",
+                                    fontSize: "caption",
+                                  }}
+                                />
+                              )}
+                            </Box>
                           </Box>
                         </Tooltip>
                       );
