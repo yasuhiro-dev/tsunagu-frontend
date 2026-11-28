@@ -122,7 +122,7 @@ export default function AssignmentNotification({
     } else {
       setAlertOpen(true);
       setAlertSeverity("error");
-      setAlertMessage("未送信ユーザーが存在しないので送信できましせん");
+      setAlertMessage("未送信ユーザーが存在しないので送信できません");
     }
   };
 
