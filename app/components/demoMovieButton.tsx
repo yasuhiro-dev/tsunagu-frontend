@@ -32,7 +32,7 @@ export const DemoMovieButton = () => {
         {" "}
         <video
           src="/videos/demo-movie.mp4"
-          poster="/videos/demo-movie-poster.png"
+          poster="/videos/demo-movie-poster.webp"
           controls
           autoPlay
           playsInline

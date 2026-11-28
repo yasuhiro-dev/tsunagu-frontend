@@ -436,7 +436,9 @@ export default function LandingPage() {
                   6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
                 </Typography>
               </Box>
-              <Box>{DemoMovieButton()}</Box>
+              <Box>
+                <DemoMovieButton />
+              </Box>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
