@@ -17,6 +17,7 @@ import {
   PictureAsPdf as PictureAsPdfIcon,
   Mail as MailIcon,
   PlayCircle as PlayCircleIcon,
+  TouchApp as TouchAppIcon,
 } from "@mui/icons-material";
 
 import AlertSnackbar from "@/app/components/AlertSnackbar";
@@ -28,6 +29,7 @@ import {
   DEMO_ACCOUNTS,
   prepareGuestDemo,
 } from "@/utils/demoLogin";
+import { DemoMovieButton } from "@/app/components/demoMovieButton";
 
 // セクションの枠の共通設定（全セクションで余白と角の丸みを揃える）
 // state を使わない固定値なので、コンポーネントの外に置く
@@ -296,7 +298,7 @@ export default function LandingPage() {
         isLoading === "demo-start" ? (
           <CircularProgress size={20} />
         ) : (
-          <PlayCircleIcon />
+          <TouchAppIcon />
         )
       }
       sx={{
@@ -415,23 +417,28 @@ export default function LandingPage() {
               backgroundColor: "#d6e4f0",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                gap: 1,
-              }}
-            >
-              <Typography
-                variant="h4"
-                sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 1,
+                }}
               >
-                ガイド付きデモで全体の流れを体験
-              </Typography>
-              <Typography>
-                6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
-              </Typography>
+                <Typography
+                  variant="h4"
+                  sx={{ fontSize: fontSizes.title, fontWeight: "bold" }}
+                >
+                  ガイド付きデモで全体の流れを体験
+                </Typography>
+                <Typography>
+                  6ステップに沿って、Tsunaguの使い方を約5分で体験できます。
+                </Typography>
+              </Box>
+              <Box>
+                <DemoMovieButton />
+              </Box>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
