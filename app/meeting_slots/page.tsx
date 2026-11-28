@@ -46,7 +46,11 @@ type ChildAvailability = {
   available_start_at: string[];
   submitted: boolean;
   support_info: { class_room: string; teacher: string } | null;
-  siblings_info: { name: string; class_room: string | null }[];
+  siblings_info: {
+    name: string;
+    class_room: string | null;
+    child_id: number;
+  }[];
 };
 
 type Violation = {
@@ -201,13 +205,14 @@ export default function MeetingSlotPage() {
     selectedChildId != null
       ? (availabilityByChild[String(selectedChildId)] ?? null)
       : null;
+  const siblingsIds =
+    validSlotsData?.siblings_info.map((s) => s.child_id) ?? [];
   //ドロワーから面談表を取得する
   const [drawerData, setDrawerData] = useState<ValidSlotsData | null>(null);
   //兄弟の情報をコンポーネントから取得する→これをgetSiblingsInfoで呼ぶ
   const siblingInfo = getSiblingsInfo(validSlotsData);
   //特支の情報をコンポーネントから取得する→これをgetSupportInfoで呼ぶ
   const supportInfo = getSupportInfo(validSlotsData);
-
   // 書類アイコン：面談情報を取得してドロワーを開く
   const DrawerHandleClick = async (id: number) => {
     const res = await fetchWithAuth(
@@ -215,6 +220,7 @@ export default function MeetingSlotPage() {
       { method: "GET", headers: { "Content-Type": "application/json" } },
     );
     const data: ValidSlotsData = await res.json();
+
     setDrawerData(data);
     setIsOpen(true);
   };
@@ -2024,37 +2030,46 @@ export default function MeetingSlotPage() {
                                       // 面談表の１のセルを定義
                                       const cell = scheduleMatrix[time][date];
 
+                                      const isUnavailable =
+                                        drawerData.unavailable_start_at.includes(
+                                          cell?.start_at,
+                                        );
+                                      const getBgColor = (
+                                        status: string,
+                                        isUnavailable: boolean,
+                                      ) => {
+                                        if (status === "blocked")
+                                          return "grey.300";
+                                        if (isUnavailable) return "#ffff";
+                                        if (!isUnavailable) return "#d6e4f0";
+                                      };
+                                      // 選んでいる児童本人の枠か
+                                      const isSelf =
+                                        selectedChildId != null &&
+                                        cell?.child_id === selectedChildId;
+
                                       return (
                                         <Box
                                           key={date}
-                                          sx={{
+                                          sx={(theme) => ({
                                             minHeight: "38.52px",
                                             flex: 1,
                                             textAlign: "center",
                                             fontSize: "11px",
                                             border: "1px solid",
                                             borderColor: "divider",
-                                            backgroundColor:
-                                              drawerData.unavailable_start_at.includes(
-                                                cell?.start_at,
-                                              )
-                                                ? "warning.light"
-                                                : cell?.status === "reserved"
-                                                  ? "grey.300"
-                                                  : cell?.status === "blocked"
-                                                    ? "warning.light"
-                                                    : "success.light",
-                                          }}
+                                            backgroundColor: getBgColor(
+                                              cell?.status,
+                                              isUnavailable,
+                                            ),
+                                            ...(cell?.status === "blocked" &&
+                                              teacherUnavailableBg(theme)),
+                                            ...(isSelf && {
+                                              outline: `3px solid ${theme.palette.primary.main}`,
+                                              outlineOffset: "-2px",
+                                            }),
+                                          })}
                                         >
-                                          {drawerData.unavailable_start_at.includes(
-                                            cell?.start_at,
-                                          )
-                                            ? "不可日"
-                                            : cell?.status === "reserved"
-                                              ? "予約済"
-                                              : cell?.status === "blocked"
-                                                ? "担任の先生の面談できない日時"
-                                                : "空き"}
                                           <Typography variant="body2">
                                             {cell.child_name}
                                           </Typography>
@@ -2106,6 +2121,7 @@ export default function MeetingSlotPage() {
                                       siblingsScheduleDateMap.get(a) -
                                       siblingsScheduleDateMap.get(b),
                                   );
+
                                   // 内側の配列のreturn
                                   return (
                                     <Box key={index} sx={{ p: 2 }}>
@@ -2161,40 +2177,52 @@ export default function MeetingSlotPage() {
                                               siblingsScheduleMatrix[time][
                                                 date
                                               ];
+                                            console.log("cell", cell);
+
+                                            const isUnavailable =
+                                              drawerData.unavailable_start_at.includes(
+                                                cell?.start_at,
+                                              );
+                                            const getBgColor = (
+                                              status: string,
+                                              isUnavailable: boolean,
+                                            ) => {
+                                              if (isUnavailable) return "#ffff";
+                                              if (!isUnavailable)
+                                                return "#d6e4f0";
+                                            };
+                                            const isSiblings =
+                                              cell?.child_id != null &&
+                                              siblingsIds.includes(
+                                                cell?.child_id,
+                                              );
 
                                             return (
                                               <Box
                                                 key={date}
-                                                sx={{
+                                                sx={(theme) => ({
                                                   minHeight: "38.52px",
                                                   flex: 1,
                                                   textAlign: "center",
                                                   fontSize: "11px",
                                                   border: "1px solid",
                                                   borderColor: "divider",
-                                                  backgroundColor:
-                                                    drawerData.unavailable_start_at.includes(
-                                                      cell?.start_at,
-                                                    )
-                                                      ? "warning.light"
-                                                      : cell?.status ===
-                                                          "reserved"
-                                                        ? "grey.300"
-                                                        : cell?.status ===
-                                                            "blocked"
-                                                          ? "warning.light"
-                                                          : "success.light",
-                                                }}
+
+                                                  backgroundColor: getBgColor(
+                                                    cell?.status,
+                                                    isUnavailable,
+                                                  ),
+                                                  ...(cell?.status ===
+                                                    "blocked" &&
+                                                    teacherUnavailableBg(
+                                                      theme,
+                                                    )),
+                                                  ...(isSiblings && {
+                                                    outline: `3px solid ${theme.palette.primary.main}`,
+                                                    outlineOffset: "-2px",
+                                                  }),
+                                                })}
                                               >
-                                                {drawerData.unavailable_start_at.includes(
-                                                  cell?.start_at,
-                                                )
-                                                  ? "不可日"
-                                                  : cell?.status === "reserved"
-                                                    ? "予約済"
-                                                    : cell?.status === "blocked"
-                                                      ? "担任の先生の面談できない日時"
-                                                      : "空き"}
                                                 <Typography variant="body2">
                                                   {cell.child_name}
                                                 </Typography>
