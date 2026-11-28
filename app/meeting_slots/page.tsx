@@ -618,7 +618,22 @@ export default function MeetingSlotPage() {
   };
 
   //バーナーが３つあるため、今どのバナーを出すかを判定
-  const bannerMode = selectedChild ? "assign" : isEditing ? "move" : "normal";
+  let selectMode;
+  if (selectedChild) {
+    //未割り当て児童
+    selectMode = "assign";
+  } else if (isEditing) {
+    //編集中
+    selectMode = "move";
+  } else {
+    selectMode = "normal"; //何も選択していない
+  }
+  //枠を選択時の分岐
+  const isCellClickable = (assignmentId: number | null) => {
+    if (selectMode === "normal") return assignmentId != null; //何も選択していない時、枠に児童が入っている場合true
+    if (selectMode === "assign") return assignmentId == null; //未割り当て児童を選択している時、何も入っていなければtrue
+    return true; //選択している時、空きも割り当てもtrue
+  };
 
   //選んだ児童の来校できる日時
   const availableSlots = validSlotsData?.available_start_at;
@@ -734,7 +749,7 @@ export default function MeetingSlotPage() {
             <Box
               sx={{
                 gridArea: "1 / 1",
-                visibility: bannerMode === "assign" ? "visible" : "hidden",
+                visibility: selectMode === "assign" ? "visible" : "hidden",
               }}
             >
               {/* 未割り当て児童を選択したときのバーナー */}
@@ -862,7 +877,7 @@ export default function MeetingSlotPage() {
             <Box
               sx={{
                 gridArea: "1 / 1",
-                visibility: bannerMode === "move" ? "visible" : "hidden",
+                visibility: selectMode === "move" ? "visible" : "hidden",
               }}
             >
               {/* 選択後のバーナー */}
@@ -966,7 +981,7 @@ export default function MeetingSlotPage() {
             <Box
               sx={{
                 gridArea: "1 / 1",
-                visibility: bannerMode === "normal" ? "visible" : "hidden",
+                visibility: selectMode === "normal" ? "visible" : "hidden",
               }}
             >
               <Alert
@@ -1088,6 +1103,7 @@ export default function MeetingSlotPage() {
                     maxHeight: "520px",
                   }}
                 >
+                  {/* 未割り当て児童一覧 */}
                   {assignCount !== 0 &&
                     (unassignedChildren ?? []).map((child) => (
                       <Box
@@ -1100,6 +1116,9 @@ export default function MeetingSlotPage() {
                           mb: 1,
                           borderRadius: 1,
                           cursor: "pointer",
+                          "&:hover": isEditing
+                            ? {}
+                            : { boxShadow: 3, borderColor: "grey.500" },
                           backgroundColor:
                             selectedChild?.id === child.id
                               ? "action.selected"
@@ -1360,7 +1379,7 @@ export default function MeetingSlotPage() {
                           );
                         return null;
                       };
-
+                      const clickable = isCellClickable(assignmentId);
                       return (
                         <Tooltip key={date} title={tooltipText()} followCursor>
                           <Box
@@ -1385,15 +1404,14 @@ export default function MeetingSlotPage() {
                               // 教師面談不可日は、斜線を出す
                               ...(isTeacherUnavailable &&
                                 teacherUnavailableBg(theme)),
-                              cursor: "pointer",
+                              cursor: clickable ? "pointer" : "default",
                               //選択前と未割り当て＆割り当て時のホバー
-                              "&:hover":
-                                fromAssignmentId === null && !selectedChild
-                                  ? {}
-                                  : {
-                                      boxShadow: 3,
-                                      borderColor: "grey.500",
-                                    },
+                              "&:hover": clickable
+                                ? {
+                                    boxShadow: 3,
+                                    borderColor: "grey.500",
+                                  }
+                                : {},
 
                               // 選択中の枠線
                               border:
@@ -2177,7 +2195,6 @@ export default function MeetingSlotPage() {
                                               siblingsScheduleMatrix[time][
                                                 date
                                               ];
-                                            console.log("cell", cell);
 
                                             const isUnavailable =
                                               drawerData.unavailable_start_at.includes(
